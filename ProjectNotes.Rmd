@@ -25,6 +25,7 @@ output: html_document
 ##July 11, 2018
 
 -Learned Git pricessing via Nivalis today
+-praticing git 
 
 
 ## Notes
