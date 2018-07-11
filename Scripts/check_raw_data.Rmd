@@ -22,7 +22,7 @@ load(file="../Data/Learn_raw.rda")
 
 
 #learning and memory data processed through HeatCalc
-LM_proc <- read.table(file="/home/kingeg/Projects/LearnMemTherm/HeatProc_Learn.txt", sep="\t", header=TRUE, stringsAsFactors = FALSE)
+LM_proc <- read.table(file="../Data/HeatProc_Learn.txt", sep="\t", header=TRUE, stringsAsFactors = FALSE)
 
 
 #raw thermal tolerance data
@@ -150,11 +150,8 @@ all.dat <- merge(LearnMem,ThermTol,by=c('patRIL','chamber','group'),all=TRUE)
 pL <- which(all.dat$diff.train.A >= topdif|all.dat$diff.train.B >= topdif)
 pT <- which(all.dat$actual.Temp.train.A < lowtem |all.dat$actual.Temp.train.B < lowtem)
 pB <- which((all.dat$actual.Temp.train.A < lowtem |all.dat$actual.Temp.train.B < lowtem) & (all.dat$diff.train.A >= topdif|all.dat$diff.train.B >= topdif))
-pA <- which(all.dat$incapacitation==0)
-
 
 all.dat$flag <- rep('none',nrow(all.dat))
-all.dat$flag[pA] <- 'NoAct'
 all.dat$flag[pL] <- 'LearnFail'
 all.dat$flag[pT] <- 'ThermFail'
 all.dat$flag[pB] <- 'BothFail'
@@ -170,8 +167,10 @@ temp1 <- subset(total.set, flag=='ThermFail')
 temp1 <- temp1[-which(is.na(temp1$diff.train.A)),]
 temp1 <- temp1[-which(is.na(temp1$Learning)),]
 
-#B punishment side?
-
+#add flag for those that stop moving on punishment side
+pA <- which(total.set$ThermAct==0 & total.set$Memory== -1)
+total.set$dflag <- rep('none', nrow(total.set))
+total.set$dflag[pA] <- 'dead'
 
 ```
 
@@ -272,7 +271,7 @@ LF
 
 ```{r}
 #Select cases where there is  no activity for thermal tolerance but are learning records
-act.ss <-which(total.set$flag=='NoAct' & is.na(total.set$Learning)==FALSE)
+act.ss <-which(total.set$ThermAct==0 & is.na(total.set$Learning)==FALSE)
 act.ss <- total.set[act.ss,]
 
 cat('Number in each chamber:')
@@ -305,16 +304,13 @@ tester_lowactive[1:10, 1:3]
 
 Most of the cases where there is no activity in thermal tolerance but there is a learning & memory score occur in chambers 12 and 14, indicating a possible issue specific to those chambers. In the majority of cases, activty stops early and does not resume causing memory scores of 1 or -1, most often -1. 
 
-
-
-
 ## Filtering
 
 Here we filter out bad records. We have filtered out any that fail the thermal tolerance criteria for thermal tolerance and any that fail FOR ANY REASON for the learning data. The numbers of RILs we remain with are shown here.
 
 ```{r  warning = FALSE, message = FALSE}
 
-LL.set <- subset(total.set, flag=='none')
+LL.set <- subset(total.set, flag == 'none' & dflag == 'none')
 cut.s <- which(is.na(LL.set$Learning))
 LL.set <- LL.set[-cut.s,]
 
@@ -402,15 +398,6 @@ for(rr in raw.proc.therm.rils)
 }
 
 
-all.equal(TT.count$patRIL, LL.count$patRIL)
-#cor(TT.count$count, LL.count$count)
-
-#hist(TT.count$count-LL.count$count)
-
-ss <-which(total.set$flag=='NoAct' & is.na(total.set$Learning)==FALSE)
-tester <- total.set[ss,]
-hist(tester$LearnAct)
-hist(tester$chamber)
 
 
 ```
@@ -418,8 +405,8 @@ hist(tester$chamber)
 ## Write out final files
 
 ```{r}
-save(ThermTol.keep,file= "../Data/Therm_good_June2018.rda")
+write.table(ThermTol.keep,file= "../Data/ThermalTol_processed.txt",row.names=FALSE,sep="\t")
 
-#save(LL.set,file= "../Data/Learn_good_May2018.rda")
+write.table(LL.set,file= "../Data/LearnMem_processed.txt",row.names=FALSE,sep="\t")
 ```
 

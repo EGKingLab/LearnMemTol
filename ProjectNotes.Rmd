@@ -15,17 +15,26 @@ output: html_document
 1. Process raw data for learning, memory, and thermal tolerance
   - Learning and Memory
       - Processed data from HeatCalc is parsed using a perl script (heatcalcRead_LearnMem.pl) and outputs: HeatProc_Learn.txt
-      - Raw .asc files are processed using an R script to identify any other issues (see Step 2)
+      - Raw .asc files are processed using an R script (process_raw_learnmem.R) to identify any other issues (see Step 2)
   - Thermal tolerance
-      - Raw .asc files are processed using an R script to identify issues and calculate thermal tolerance for each individual
+      - Raw .asc files are processed using an R script (process_raw_therm.R) to identify issues and calculate thermal tolerance for each individual
       - Validation of thermotolerance method is validate_incapacitation.R      
+
+2. Raw data and processed data are checked using check_raw_data.Rmd. Notes within this script.
+
 
 ## Notes
 
 A record of notes in the style of a lab notebook
 
+### July 9
+
+- Finalize dataset for mapping. We decided as a group to eliminate flies that were incapacitated on the punishment side and never resumed moving after that. See check_raw_data.Rmd for notes.
+
 ### June 18 
 
-Starting git and this record. Old notes will be moved over. Checked raw processing scripts. Checked validation script for incapacitation. 
+- Starting git and this record. Old notes will be moved over. 
+- Checked raw processing scripts. 
+- Checked validation script for incapacitation. 
 
 
