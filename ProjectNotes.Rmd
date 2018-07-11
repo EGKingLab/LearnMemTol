@@ -25,6 +25,15 @@ output: html_document
 ##July 11, 2018
 
 -Learned Git processing via Nivalis
+-To embed Git into Nivalis, fellow dierections below
+
+  git config --global user.name "YourUserName"
+  git config --global user.email "YourName@example.com"
+
+  git clone https://YourUserName@github.com/OwnersUserName/repository.git
+
+  git clone https://egking@github.com/egking/HaplotypeEstimator.git
+  
 -Practicing git 
 
 
