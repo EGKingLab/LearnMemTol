@@ -22,6 +22,10 @@ output: html_document
 
 2. Raw data and processed data are checked using check_raw_data.Rmd. Notes within this script.
 
+##July 11, 2018
+
+-Learned Git pricessing via Nivalis today
+
 
 ## Notes
 
