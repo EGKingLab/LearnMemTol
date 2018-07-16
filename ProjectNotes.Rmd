@@ -22,6 +22,12 @@ output: html_document
 
 2. Raw data and processed data are checked using check_raw_data.Rmd. Notes within this script.
 
+##July 16, 2018
+-wrote scripts for analysing phenodata (MyGitHub/LearnMemTol/Scripts/Processing_Pheno_data.Rmd). Learning does not have a normal distribution, therefore we need to transform the data. I tried several transformation techniques (log, log10, square root and arcsign),but none worked. Libby suggested doing a quantile normalization.
+
+-wrote scripts for analysing correlation between traits (MyGitHub/LearnMemTol/Scripts/correlation_between_traits.Rmd).
+
+
 ##July 11, 2018
 
 -Learned Git processing via Nivalis

@@ -1,0 +1,66 @@
+---
+title: "correlation_between_traits"
+author: "Patricka Williams-Simon"
+date: "7/16/2018"
+output: html_document
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(ggplot2)
+library(DSPRqtl)
+library(DSPRqtlDataA)
+library(tidyverse)
+```
+---
+
+##Input and merge the data sets
+
+```{r}
+#load in the files you want to merge
+
+load(file="../Data/L_MDATA.rda")
+load(file="../Data/T_TDATA.rda")
+
+
+#merge by patRIL
+All_3_Traits_Data <- merge(L_MDATA, T_TDATA, by='patRIL')
+```
+
+##Find correlation between traits (Pearson's Correlation Test).
+
+```{r}
+
+cor.test(All_3_Traits_Data$Learning_Mean,All_3_Traits_Data$Memory_Mean)
+
+cor.test(All_3_Traits_Data$Learning_Mean,All_3_Traits_Data$Incapacitation_Mean)
+
+
+```
+
+##visulalize the data using scatter plots 
+
+```{r}
+#better to use alpha
+
+ggplot(All_3_Traits_Data, aes(x = Learning_Mean, y = Incapacitation_Mean))+
+  geom_point(color = "blue",alpha=1/2) +
+  geom_smooth(method = "lm", color = line_color, se = FALSE) +
+  theme_classic(base_size = 12)
+
+cor_learn_thermTol_plot <- ggplot (All_3_Traits_Data, aes(x = Learning_Mean, y = Incapacitation_Mean)) +
+  geom_point(color = "blue", alpha=1/2) +
+  geom_smooth(method = "lm", color = line_color, se = FALSE) +
+  theme_classic(base_size = 12,base_family = "")
+
+#to view plot
+cor_lear_Incap_plot
+
+#To make figures into files, assign to an object and use ggsave
+
+ggsave(cor_lear_Incap_plot, file="../Plots/Learn_Incap_cor.pdf", width=8, height=8)
+
+
+```
+
