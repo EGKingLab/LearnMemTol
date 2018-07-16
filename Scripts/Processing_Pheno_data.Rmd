@@ -1,0 +1,221 @@
+---
+title: "Processing_Phenotype_Data"
+author: "Patricka Williams-Simon"
+date: "7/13/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(ggplot2)
+library(DSPRqtl)
+library(DSPRqtlDataA)
+library(tidyverse)
+```
+
+## Read in LearnMem processed raw data and check 
+
+```{r}
+#rawd <- read.table("/MyGitHub/LearnMemTol/Data/HeatProc.txt",sep="\t", #header=TRUE, stringsAsFactors = FALSE)
+
+rawdLM <- read.table("../Data/HeatProc_Learn.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+
+str(rawdLM)
+rawTT[1:5]
+
+```
+
+## Read in ThermTol processed raw data and check
+```{r}
+rawdTT <- read.table("../Data/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+
+str(rawdTT)
+rawTT[1:5]
+
+
+```
+
+## Find means and SEMs for all three traits
+
+```{r}
+L_MDATA <- rawdLM %>% 
+  group_by(patRIL) %>% 
+  summarise(Learning_Mean = mean(Learning),
+            Learning_SEM = sd(Learning)/sqrt(length(Learning)),
+            Memory_Mean = mean(Memory),
+            Memory_SEM = sd(Memory)/sqrt(length(Memory)),
+            N = length(Memory))
+
+
+
+
+
+T_TDATA <- rawdTT %>% 
+  group_by(patRIL) %>% 
+  summarise(Incapacitation_Mean = mean(incapacitation),
+            Incapacitation_SEM = sd(incapacitation)/sqrt(length(incapacitation)),
+            N = length(incapacitation))
+```
+
+## Check to see if SEMs are SEMs (optional)
+
+```{r}
+L_MDATA[1:10,c('patRIL','Learning_SEM')]
+
+#sd(rawd[rawd$patRIL==11002,'Learning'])/sqrt(length(rawd[rawd$patRIL==11002,'Learning']))
+
+###Libby should i add TT here too?
+
+```
+
+## Save data (note to self: make sure working directory is set as ~/MyGitHUb/LearnMemTol/Data/)
+
+```{r}
+save(L_MDATA, file="../Data/L_MDATA.rda")
+
+save(T_TDATA, file="../Data/T_TDATA.rda")
+
+```
+
+## Visualize data
+
+```{r}
+
+#Make histogram LearnMem
+Learnhisto <- ggplot(L_MDATA, aes(x = Learning_Mean)) +
+  geom_histogram()
+
+Memhisto <- ggplot(L_MDATA, aes(x = Memory_Mean)) +
+  geom_histogram()
+
+ThermTolhisto <- ggplot(T_TData, aes(x = Incapacitation_Mean)) +
+  geom_histogram()
+
+
+#View graph
+Learnhisto
+
+Memhisto
+
+ThermTolhisto
+
+```
+
+## Check dataset
+
+```{r}
+#Identify minimum mean (find really low learning point identified in histograms)
+L_MDATA[which.min(L_MDATA$Learning_Mean),]
+L_MDATA[which.min(L_MDATA$Memory_Mean),]
+T_TData[which.min(T_TData$Incapacitation_Mean),]
+
+
+#Look at indivial Learning PIs for RILs with lowest means
+rawdLM[rawdLM$patRIL==12114,'Learning']
+rawdLM[rawdLM$patRIL==11189,'Memory']
+
+#Look at indivial Incapacitation times for RIL with lowest mean
+rawdTT[rawdTT$patRIL==11459,'incapacitation']
+
+
+#Identify maximum means.
+L_MDATA[which.max(L_MDATA$Learning_Mean),]
+L_MDATA[which.max(L_MDATA$Memory_Mean),]
+T_TData[which.max(T_TData$Incapacitation_Mean),]
+
+
+#Sort and save from decreasing to increasing means 
+LearnDATA_sort <- L_MDATA[order(L_MDATA$Learning_Mean),]
+MemDATA_sort <- L_MDATA[order(L_MDATA$Memory_Mean),]
+ThermTolDATA_sort <- L_MDATA[order(L_MDATA$Memory_Mean),]
+
+#save sorted dataset
+save(LearnDATA_sort, file="../Data/LearnDATA_sort.rda")
+save(MemDATA_sort, file="../Data/MemDATA_sort.rda")
+save(ThermTolDATA_sort, file="../Data/ThermTolDATA_sort.rda")
+
+#Identify RILs in the low cohort
+LearnDATA_sort[1:10,]
+MemDATA_sort[1:10,]
+ThermTolDATA_sort[1:10,]
+
+
+#Identify RILs in the mid cohort
+LearnDATA_sort[365:374,]
+MemDATA_sort[365:374,]
+ThermTolDATA_sort[365:374,]
+
+#Identify RILs in the high cohort
+LearnDATA_sort[731:741,]
+MemDATA_sort[731:741,]
+ThermTolDATA_sort[731:741,]
+
+```
+
+##Transform data set (only if necessary). There are several methods used to transform data, choose the best fit.
+
+```{r}
+
+#log transformation
+L_MDATA$LearnLogvariable <- log(L_MDATA$Learning_Mean)
+
+#after trasformation always visualize data
+ggplot(L_MDATA, aes(x = L_MDATA$LearnLogvariable)) +
+  geom_histogram()
+
+#log10 transformation
+L_MDATA$LearnLog10variable <- log10(L_MDATA$Learning_Mean)
+
+
+ggplot(L_MDATA, aes(x = L_MDATA$LearnLog10variable)) +
+  geom_histogram()
+
+#sqaure root transformation
+L_MDATA$Learnsqrtvariable<-sqrt(L_MDATA$Learning_Mean)
+
+
+ggplot(L_MDATA, aes(x = L_MDATA$Learnsqrtvariable)) +
+  geom_histogram()
+
+
+#arcsign transformation
+
+L_MDATA$Learnarcsinsqrtvariable<-asin(sqrt(L_MDATA$Learning_Mean))
+
+ggplot(L_MDATA, aes(x = L_MDATA$Learnarcsinsqrtvariable)) +
+  geom_histogram()
+
+#power transformation?
+
+save(L_MDATA, file="../Data/L_MDATA.rda")
+```
+
