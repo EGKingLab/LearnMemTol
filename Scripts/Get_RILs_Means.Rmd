@@ -42,19 +42,46 @@ library(tidyverse)
 
 
 
-## Load processed raw data
+## read in LearnMem processed raw data and check 
 
 ```{r}
-#rawd <- read.table("`/MyGitHub/LearnMemTol/Data/HeatProc=TRUE, #stringsAsFactors = FALSE)
+#rawd <- read.table("/MyGitHub/LearnMemTol/Data/HeatProc.txt",sep="\t", #header=TRUE, stringsAsFactors = FALSE)
 
-load(file="../LearnMemTol/Data/HeatProc_Learn.txt")
+rawdLM <- read.table("../Data/HeatProc_Learn.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
 
-str(LL.set)
 
-rawd <-LL.set
+str(rawdLM)
+
 ```
 
 
+## read in ThermTol processed raw data and check
 ```{r}
+rawdTT <- read.table("../Data/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+
+str(rawdTT)
 
 ```
+
+
+## find means and SEMs for all three traits
+
+```{r}
+L_MDATA <- rawdLM %>% 
+  group_by(patRIL) %>% 
+  summarise(Learning_Mean = mean(Learning),
+            Learning_SEM = sd(Learning)/sqrt(length(Learning)),
+            Memory_Mean = mean(Memory),
+            Memory_SEM = sd(Memory)/sqrt(length(Memory)),
+            N = length(Memory))
+
+T_TDATA <- rawdT_T %>% 
+  group_by(patRIL) %>% 
+  summarise(Learning_Mean = mean(Learning),
+            Learning_SEM = sd(Learning)/sqrt(length(Learning)),
+            Memory_Mean = mean(Memory),
+            Memory_SEM = sd(Memory)/sqrt(length(Memory)),
+            N = length(Memory))
+```
+
