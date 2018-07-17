@@ -22,7 +22,7 @@ rawdLM <- read.table("../Data/HeatProc_Learn.txt",sep="\t", header=TRUE, strings
 
 
 str(rawdLM)
-rawTT[1:5]
+rawdLM[1:5]
 
 ```
 
@@ -32,7 +32,7 @@ rawdTT <- read.table("../Data/ThermalTol_processed.txt",sep="\t", header=TRUE, s
 
 
 str(rawdTT)
-rawTT[1:5]
+rawdTT[1:5]
 
 
 ```
@@ -90,7 +90,7 @@ Learnhisto <- ggplot(L_MDATA, aes(x = Learning_Mean)) +
 Memhisto <- ggplot(L_MDATA, aes(x = Memory_Mean)) +
   geom_histogram()
 
-ThermTolhisto <- ggplot(T_TData, aes(x = Incapacitation_Mean)) +
+ThermTolhisto <- ggplot(T_TDATA, aes(x = Incapacitation_Mean)) +
   geom_histogram()
 
 
@@ -129,7 +129,7 @@ T_TData[which.max(T_TData$Incapacitation_Mean),]
 #Sort and save from decreasing to increasing means 
 LearnDATA_sort <- L_MDATA[order(L_MDATA$Learning_Mean),]
 MemDATA_sort <- L_MDATA[order(L_MDATA$Memory_Mean),]
-ThermTolDATA_sort <- L_MDATA[order(L_MDATA$Memory_Mean),]
+ThermTolDATA_sort <- T_TDATA[order(T_TDATA$Incapacitation_Mean),]
 
 #save sorted dataset
 save(LearnDATA_sort, file="../Data/LearnDATA_sort.rda")
@@ -158,44 +158,29 @@ ThermTolDATA_sort[731:741,]
 
 ```{r}
 
-#log transformation
-L_MDATA$LearnLogvariable <- log(L_MDATA$Learning_Mean)
+#log transformation, log10 transformation, arcsign transformation 
 
-#after trasformation always visualize data
-ggplot(L_MDATA, aes(x = L_MDATA$LearnLogvariable)) +
-  geom_histogram()
-
-#log10 transformation
-L_MDATA$LearnLog10variable <- log10(L_MDATA$Learning_Mean)
-
-
-ggplot(L_MDATA, aes(x = L_MDATA$LearnLog10variable)) +
-  geom_histogram()
 
 #sqaure root transformation
-L_MDATA$Learnsqrtvariable<-sqrt(L_MDATA$Learning_Mean)
+T_TDATA$Tolsqrtvariable<-sqrt(T_TDATA$Incapacitation_Mean)
 
-
-ggplot(L_MDATA, aes(x = L_MDATA$Learnsqrtvariable)) +
+#after transformation always visualize data
+ggplot(T_TDATA, aes(x = T_TDATA$Tolsqrtvariable)) +
   geom_histogram()
 
 
-#arcsign transformation
+#save new dataset
+save(T_TDATA, file="../Data/T_TDATA.rda")
 
-L_MDATA$Learnarcsinsqrtvariable<-asin(sqrt(L_MDATA$Learning_Mean))
 
-ggplot(L_MDATA, aes(x = L_MDATA$Learnarcsinsqrtvariable)) +
+#power transformation
+
+L_MDATA$LearnPowerTrans <- L_MDATA$Learning_Mean^3
+
+ggplot(L_MDATA, aes(x = LearnPowerTrans)) +
   geom_histogram()
-
-#power transformation?
-
-L_MDATA$pt_learn <- L_MDATA$Learning_Mean^3
-
-#after trasformation always visualize data
-ggplot(L_MDATA, aes(x = pt_learn)) +
-  geom_histogram()
-
 
 save(L_MDATA, file="../Data/L_MDATA.rda")
+
 ```
 

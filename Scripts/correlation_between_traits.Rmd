@@ -42,24 +42,35 @@ cor.test(All_3_Traits_Data$Learning_Mean,All_3_Traits_Data$Incapacitation_Mean)
 ##visulalize the data using scatter plots 
 
 ```{r}
-#better to use alpha
+#make correlation plots
 
-ggplot(All_3_Traits_Data, aes(x = Learning_Mean, y = Incapacitation_Mean))+
-  geom_point(color = "blue",alpha=1/2) +
-  geom_smooth(method = "lm", color = line_color, se = FALSE) +
-  theme_classic(base_size = 12)
+cor_learn_mem_plot <-ggplot(All_3_Traits_Data, aes(x = Learning_Mean, 
+                     y = Memory_Mean)) +
+  geom_point(position = position_jitter(width = 0.1), color = "blue") +
+  geom_smooth(method = "lm", color = "black", se = FALSE) +
+  theme_classic(base_size = 12, base_family = "")
 
-cor_learn_thermTol_plot <- ggplot (All_3_Traits_Data, aes(x = Learning_Mean, y = Incapacitation_Mean)) +
-  geom_point(color = "blue", alpha=1/2) +
-  geom_smooth(method = "lm", color = line_color, se = FALSE) +
-  theme_classic(base_size = 12,base_family = "")
+cor_learn_thermtol_plot <-ggplot(All_3_Traits_Data, aes(x = Learning_Mean, 
+                     y = Incapacitation_Mean)) +
+  geom_point(position = position_jitter(width = 0.1), color = "blue") +
+  geom_smooth(method = "lm", color = "black", se = FALSE) +
+  theme_classic(base_size = 12, base_family = "")
+
 
 #to view plot
-cor_lear_Incap_plot
+cor_learn_mem_plot
+
+cor_learn_thermtol_plot
+
+
 
 #To make figures into files, assign to an object and use ggsave
 
-ggsave(cor_lear_Incap_plot, file="../Plots/Learn_Incap_cor.pdf", width=8, height=8)
+ggsave(cor_learn_mem_plot, file="../Plots/Learn_Incap_cor.pdf", width=8, height=8)
+
+ggsave(cor_learn_thermtol_plot, file="../Plots/Learn_Incap_cor.pdf", width=8, height=8)
+
+
 
 
 ```

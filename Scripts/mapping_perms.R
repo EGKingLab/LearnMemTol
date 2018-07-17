@@ -2,15 +2,27 @@ library(DSPRqtl)
 
 source("logLikmulti.R")
 
-#phenotype.dat should be all three phenotypes with patRIL 
-#use merge and all = TRUE, missing vals will be NA
 
-myGenos <- DSPRgenos(design='inbredA', phenotype.dat, id.col='patRIL')
 
-#probably a good idea to save for later so you can just load instead of running DSPRgenos again
+##load datasets
+load(file="../Data/L_MDATA.rda")
+load(file="../Data/T_TDATA.rda")
+
+#view dataset
+str(L_MDATA)
+str(T_TDATA)
+
+#merge by patRIL
+All_3_Traits_Data <- merge(L_MDATA, T_TDATA, by='patRIL')
+
+
+#Genome scan of all three traits concurrently
+myGenos <- DSPRgenos(design='inbredA', All_3_Traits_Data, id.col='patRIL')
+
+#save for later, so you can just load instead of running DSPRgenos again
 save(myGenos, file="../Data/myGenos.rda")
 
-#these are in 5.x coordinates
+#look at the possitions. These are in 5.x coordinates
 positions <- myGenos$positions
 
 #put column names of phenotypes here
