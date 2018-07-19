@@ -10,13 +10,21 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 ```
 
-#load flies
+#read/ load in flies
 
 ```{r}
-load(file="../Data/L_MDATA.rda")
-load(file="../Data/T_TDATA.rda")
+#make individual plots
+rawdLM <- read.table("../Data/HeatProc_Learn.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+str(rawdLM)
 
+rawdTT <- read.table("../Data/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+str(rawdTT)
+
+#make mean graphs
+load(file="../Data/L_MDATA.rda")
 str(L_MDATA)
+
+load(file="../Data/T_TDATA.rda")
 str(T_TDATA)
 ```
 
@@ -24,17 +32,18 @@ str(T_TDATA)
 #re-order form min to max
 
 ```{r}
-L_MDATA$Lname <- with(L_MDATA, reorder(patRIL, Learning_Mean, function(x) mean(x)))
-L_MDATA$Mname <- with(L_MDATA, reorder(patRIL, Memory_Mean, function(x) mean(x)))
-T_TDATA$Tname <- with(T_TDATA, reorder(patRIL, Incapacitation_Mean, function(x) mean(x)))
+rawdLM$Lname <- with(rawdLM, reorder(patRIL, Learning, function(x) mean(x)))
+rawdLM$Mname <- with(rawdLM, reorder(patRIL, Memory, function(x) mean(x)))
+rawdTT$Tname <- with(rawdTT, reorder(patRIL, incapacitation, function(x) mean(x)))
 
 ```
 
-## Visualize learning data (scatter plot)
+## Visualize phenotype data (individual plots)
 
 ```{r}
+##learning scatter plot 
 
-Learn_indi_points <- ggplot(L_MDATA, aes(x = Lname, y = Learning_Mean)) +
+Learn_indi_points <- ggplot(rawdLM, aes(x = Lname, y = Learning)) +
   geom_point(stat = "identity",
              position = position_dodge(width = 0.5),
              size = 1,
@@ -51,17 +60,21 @@ Learn_indi_points <- ggplot(L_MDATA, aes(x = Lname, y = Learning_Mean)) +
   ylim(c(-1,1))+
   theme(axis.text.x = element_blank())
 
-#to view graph
+#to view plot
 Learn_indi_points
 
-#to save graph
-ggsave(Learn_indi_points, file="../Plots/Learn_indi_graph.pdf", width=10, height=4)
+#to save plot
+ggsave(Learn_indi_points, file="../Plots/Learn_indi_plot.pdf", width=10, height=4)
 
 dev.off()
 ```
 
-#to make memory graph
-Mem_indi_points <- ggplot(L_M, aes(x = Mname, y = Memory)) +
+
+
+```{r}
+#memory scatter plot
+
+Mem_indi_points <- ggplot(rawdLM, aes(x = Mname, y = Memory)) +
   geom_point(stat = "identity",
              position = position_dodge(width = 0.5),
              size = 1,
@@ -78,18 +91,21 @@ Mem_indi_points <- ggplot(L_M, aes(x = Mname, y = Memory)) +
   ylim(c(-1,1))+
   theme(axis.text.x = element_blank())
 
-#to view graph
+#to view plot
 Mem_indi_points
 
-#to save graph as pdf
-ggsave(Mem_indi_points, file="../Plots/Memory_indi_graph.pdf", width=10, height=4)
+#to save plot
+ggsave(Mem_indi_points, file="../Plots/Mem_indi_plot.pdf", width=10, height=4)
 
 dev.off()
 
+```
 
 
-#thermal tolerance
-ThermTol_indi_points <- ggplot(ThermTol, aes(x = Tname, y = incapacitation)) +
+```{r}
+#thermal tolerance scatter plot
+
+ThermTol_indi_points <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
   geom_point(stat = "identity",
              position = position_dodge(width = 0.5),
              size = 1,
@@ -106,8 +122,117 @@ ThermTol_indi_points <- ggplot(ThermTol, aes(x = Tname, y = incapacitation)) +
   ylim(c(-1,1))+
   theme(axis.text.x = element_blank())
 
+#view plot
 ThermTol_indi_points
 
+
 #to save graph
-ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points.pdf", width=10, height=4)
+ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_plot.pdf", width=10, height=4)
+
+```
+
+
+
+## Visualize phenotype data (means, range graphs). Mean data is already loaded.
+
+```{r}
+#To make learning range graph:
+
+#sort the data from min to max 
+Learning_sort <- L_MDATA %>% arrange(Learning_Mean)
+Learning_sort$RILorder <- 1:nrow(Learning_sort)
+Learning_sort$y <- 0
+Learning_sort$Learning_Mean_SE <- Learning_sort$Learning_Mean + Learning_sort$Learning_SEM
+
+#make range graph
+Learn_range_graph <- ggplot(Learning_sort, aes(x = RILorder, xend = RILorder,
+                        y = y, yend = Learning_Mean)) +
+  geom_segment(color = "blue") +
+  scale_x_continuous(breaks = Learning_sort$RILorder, labels = Learning_sort$patRIL) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5,
+                                 size = 6)) +
+  geom_point(aes(x = RILorder, y = Learning_Mean_SE)) +
+  labs(x = "Genotype", y = "Learning Performance Index")
+
+#to view graph 
+Learn_range_graph
+
+
+#to save graph
+ggsave(Learn_range_graph, file="../Plots/Learn_range_graph.pdf", width=10, height=4)
+
+dev.off()
+
+
+```
+
+
+```{r}
+
+#To make memory range graph:
+
+#sort dataset
+Memory_sort <- L_MDATA %>% arrange(Memory_Mean)
+Memory_sort$RILorder <- 1:nrow(Memory_sort)
+Memory_sort$y <- 0
+Memory_sort$Memory_Mean_SE <- Memory_sort$Memory_Mean + Memory_sort$Memory_SEM
+
+Memory_range_graph <- ggplot(Memory_sort, aes(x = RILorder, xend = RILorder,
+                   y = y, yend = Memory_Mean)) +
+  geom_segment(color = "blue") +
+  scale_x_continuous(breaks = Memory_sort$RILorder, labels = Memory_sort$patRIL) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5,
+                                 size = 6)) +
+  geom_point(aes(x = RILorder, y = Memory_Mean_SE)) +
+  labs(x = "Genotype", y = "Memory Performance Index")
+
+#to view graph 
+Memory_range_graph
+
+#to save graph
+ggsave(Memory_range_graph, file="../Plots/Memory_range_graph.pdf", width=10, height=4)
+
+dev.off()
+
+```
+
+
+```{r}
+
+#To make learning range graph:
+
+#sort dataset 
+ThermTol_sort <- T_TDATA %>% arrange(Incapacitation_Mean)
+ThermTol_sort$RILorder <- 1:nrow(ThermTol_sort)
+ThermTol_sort$y <- 0
+ThermTol_sort$Incapacitation_Mean_SE <- ThermTol_sort$Incapacitation_Mean + ThermTol_sort$Incapacitation_SEM
+
+#make range graph
+
+Incap_range_graph <- ggplot(ThermTol_sort, aes(x = RILorder, xend = RILorder,
+                        y = y, yend = Incapacitation_Mean)) +
+  geom_segment(color = "blue") +
+  scale_x_continuous(breaks = ThermTol_sort$RILorder, labels = ThermTol_sort$patRIL) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5,
+                                 size = 6)) +
+  geom_point(aes(x = RILorder, y = Incapacitation_Mean_SE)) +
+  labs(x = "Genotype", y = "Incapacitation Time (s)")
+
+#to view range graph
+Incap_range_graph 
+
+
+
+#to save graph
+ggsave(Incap_range_graph, file="../Plots/Incap_range_graph.pdf", width=8, height=8)
+
+dev.off()
+
+#to view specific rows in sorted data
+Incap_sort[410:420,c (patRIL', 'Incapcitation_Mean')]
+
+
+
+```
+
 

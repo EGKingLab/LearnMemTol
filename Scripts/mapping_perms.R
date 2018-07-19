@@ -48,10 +48,43 @@ colnames(all.LL)<-colnames(pp)
 #
 #
 
-##general information of genom scan
+##general information on qtl
+
+DSPRpeaks(Learningpeaks, method, threshold, LODdrop, BCIprob)
+
+#to view confidence intervals of significant peaks
+Learningpeaks[[1]]
+Learningpeaks[[6]]
+Memorypeaks[[3]]
+Memorypeaks[[7]]
+
+scanresults_Learning$LODscores[10800:10810,]
+
+#to zoom in on the qtl map
+plot(scanresults_Learning$LODscores$LOD,type='l')
 
 
 
+glimpse(Memorypeaks)
+
+#general information on qtl
+
+
+
+
+
+#to see the tallest peak
+max(scanresults_Learning$LOD)
+max(scanresults_Memory$LOD)
+
+
+#shows the location of the peaks in genome
+which.max(scanresults_Learning$LOD)
+
+
+#to find the main peaks
+str(Memorypeaks)
+Memorypeaks[[1]]
 
 
 
