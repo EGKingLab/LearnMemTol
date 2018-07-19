@@ -30,11 +30,11 @@ T_TDATA$Tname <- with(T_TDATA, reorder(patRIL, Incapacitation_Mean, function(x) 
 
 ```
 
-## Visualize learning data
+## Visualize learning data (scatter plot)
 
 ```{r}
 
-Learn_indi_points <- ggplot(L_M, aes(x = Lname, y = Learning)) +
+Learn_indi_points <- ggplot(L_MDATA, aes(x = Lname, y = Learning_Mean)) +
   geom_point(stat = "identity",
              position = position_dodge(width = 0.5),
              size = 1,
