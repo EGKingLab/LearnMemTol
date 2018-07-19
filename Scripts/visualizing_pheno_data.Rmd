@@ -1,0 +1,113 @@
+---
+title: "visualizing_pheno_data"
+author: "Patricka Williams-Simon"
+date: "7/19/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+#load flies
+
+```{r}
+load(file="../Data/L_MDATA.rda")
+load(file="../Data/T_TDATA.rda")
+
+str(L_MDATA)
+str(T_TDATA)
+```
+
+
+#re-order form min to max
+
+```{r}
+L_MDATA$Lname <- with(L_MDATA, reorder(patRIL, Learning_Mean, function(x) mean(x)))
+L_MDATA$Mname <- with(L_MDATA, reorder(patRIL, Memory_Mean, function(x) mean(x)))
+T_TDATA$Tname <- with(T_TDATA, reorder(patRIL, Incapacitation_Mean, function(x) mean(x)))
+
+```
+
+## Visualize learning data
+
+```{r}
+
+Learn_indi_points <- ggplot(L_M, aes(x = Lname, y = Learning)) +
+  geom_point(stat = "identity",
+             position = position_dodge(width = 0.5),
+             size = 1,
+             alpha = 1/5) +
+  stat_summary(fun.y = mean,
+               position = position_dodge(width = 0.5),
+               geom = "point",
+               color = "red",
+               size = 1) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", color = 'red') +
+  theme(legend.position = "none") +
+  xlab("Genotype") +
+  ylab("Learning PI") +
+  ylim(c(-1,1))+
+  theme(axis.text.x = element_blank())
+
+#to view graph
+Learn_indi_points
+
+#to save graph
+ggsave(Learn_indi_points, file="../Plots/Learn_indi_graph.pdf", width=10, height=4)
+
+dev.off()
+```
+
+#to make memory graph
+Mem_indi_points <- ggplot(L_M, aes(x = Mname, y = Memory)) +
+  geom_point(stat = "identity",
+             position = position_dodge(width = 0.5),
+             size = 1,
+             alpha = 1/5) +
+  stat_summary(fun.y = mean,
+               position = position_dodge(width = 0.5),
+               geom = "point",
+               color = "red",
+               size = 1) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", color = 'red') +
+  theme(legend.position = "none") +
+  xlab("Genotype") +
+  ylab("Memory PI") +
+  ylim(c(-1,1))+
+  theme(axis.text.x = element_blank())
+
+#to view graph
+Mem_indi_points
+
+#to save graph as pdf
+ggsave(Mem_indi_points, file="../Plots/Memory_indi_graph.pdf", width=10, height=4)
+
+dev.off()
+
+
+
+#thermal tolerance
+ThermTol_indi_points <- ggplot(ThermTol, aes(x = Tname, y = incapacitation)) +
+  geom_point(stat = "identity",
+             position = position_dodge(width = 0.5),
+             size = 1,
+             alpha = 1/5) +
+  stat_summary(fun.y = mean,
+               position = position_dodge(width = 0.5),
+               geom = "point",
+               color = "red",
+               size = 1) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", color = 'red') +
+  theme(legend.position = "none") +
+  xlab("Genotype") +
+  ylab("Incapacitation Time")
+  ylim(c(-1,1))+
+  theme(axis.text.x = element_blank())
+
+ThermTol_indi_points
+
+#to save graph
+ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points.pdf", width=10, height=4)
+
