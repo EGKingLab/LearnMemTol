@@ -3,12 +3,11 @@ library(DSPRqtl)
 source("logLikmulti.R")
 
 
-
-##load datasets
+##Load datasets
 load(file="../Data/L_MDATA.rda")
 load(file="../Data/T_TDATA.rda")
 
-#view dataset
+#View dataset
 str(L_MDATA)
 str(T_TDATA)
 
@@ -19,14 +18,15 @@ All_3_Traits_Data <- merge(L_MDATA, T_TDATA, by='patRIL')
 #Genome scan of all three traits concurrently
 myGenos <- DSPRgenos(design='inbredA', All_3_Traits_Data, id.col='patRIL')
 
-#save for later, so you can just load instead of running DSPRgenos again
+#Save for later, so you can just load instead of running DSPRgenos again
 save(myGenos, file="../Data/myGenos.rda")
 
-#look at the possitions. These are in 5.x coordinates
+#Look at the possitions. These are in 5.x coordinates
 positions <- myGenos$positions
 
-#put column names of phenotypes here
-pp<-myGenos[['phenotype']][,c('Learn','Mem','Therm')]
+#Put column names of phenotypes here
+pp<-myGenos[['phenotype']][,c('LearnPowerTrans','Memory_Mean','Tolsqrtvariable')]
+
 
 Null.Mods<-logLik.multi(lm(as.matrix(pp)~1))
 
@@ -41,7 +41,7 @@ all.LL <- array(dim=c(length(Phen.Ls),dim(Phen.Ls[[1]])[1]))
 
 for(zz in seq(along=Phen.Ls)) all.LL[zz,] <- Phen.Ls[[zz]]
 colnames(all.LL)<-colnames(pp)
-
+ 
 
 
 

@@ -22,6 +22,13 @@ output: html_document
 
 2. Raw data and processed data are checked using check_raw_data.Rmd. Notes within this script.
 
+##July 17, 2018
+-updated processing_pheno_data.rmd. The phenotypic data is ready to move onto the next stage, genome scans.
+-updated, mapping_perrms.R. Libby wrote this script and i ran the codes today. The idea is to run all three traits in one genome scan and one permutaiton test with all three traits to control for errors.
+
+
+
+
 ##July 16, 2018
 -wrote scripts for analysing phenodata (MyGitHub/LearnMemTol/Scripts/Processing_Pheno_data.Rmd). Learning does not have a normal distribution, therefore we need to transform the data. I tried several transformation techniques (log, log10, square root and arcsign),but none worked. Libby suggested doing a quantile normalization.
 
