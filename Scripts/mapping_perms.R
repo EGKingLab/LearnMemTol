@@ -41,7 +41,47 @@ all.LL <- array(dim=c(length(Phen.Ls),dim(Phen.Ls[[1]])[1]))
 
 for(zz in seq(along=Phen.Ls)) all.LL[zz,] <- Phen.Ls[[zz]]
 colnames(all.LL)<-colnames(pp)
- 
+
+#########
+#
+#
+#
+#
+
+##general information of genom scan
 
 
+
+
+
+
+
+
+
+
+
+
+#make qtl maps
+
+#set dataset as a date frame
+
+myGenos <- as.data.frame(myGenos$phenotype)
+
+
+#Create peaks for qtl
+myGenospeaks <- DSPRpeaks(myGenos, threshold = 6.8, LODdrop = 2)
+
+
+save(Learningpeaks,file= "../Data/myGenospeaks.rda")
+
+
+#Create qtl map
+
+myGenos_qtlmap <- DSPRplot(list(myGenos), threshold=6.8)
+
+myGenos_qtlmap
+
+ggsave(myGenos_qtlmap, file="../Plots/myGenos_qtlmap.pdf", width=10, height=4)
+
+dev.off()
 
