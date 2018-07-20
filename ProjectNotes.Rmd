@@ -26,6 +26,13 @@ output: html_document
 
 A record of notes in the style of a lab notebook
 
+###July 20, 2018
+-ran genome scans
+-ran permutation tests
+-updated vizualize_genome_scan
+(PW-S)
+
+
 ### July 20, 2018
 
 - Made a script for plotting the genome scan (vizualize_genome_scan). 

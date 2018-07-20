@@ -32,4 +32,7 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 .Rproj.user
+
+#big files
 myGenos.rda
+Perm_LODS_FDR.rda
