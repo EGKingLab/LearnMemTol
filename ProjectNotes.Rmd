@@ -22,20 +22,29 @@ output: html_document
 
 2. Raw data and processed data are checked using check_raw_data.Rmd. Notes within this script.
 
-##July 17, 2018
+## Notes
+
+A record of notes in the style of a lab notebook
+
+### July 20, 2018
+
+- Made a script for plotting the genome scan (vizualize_genome_scan). 
+- Added code to perform the permutations. 
+- Also renamed loglikmulti to mapping functions as it now holds a couple functions 
+(EGK)
+
+###July 17, 2018
 -updated processing_pheno_data.rmd. The phenotypic data is ready to move onto the next stage, genome scans.
 -updated, mapping_perrms.R. Libby wrote this script and i ran the codes today. The idea is to run all three traits in one genome scan and one permutaiton test with all three traits to control for errors.
 
 
-
-
-##July 16, 2018
+###July 16, 2018
 -wrote scripts for analysing phenodata (MyGitHub/LearnMemTol/Scripts/Processing_Pheno_data.Rmd). Learning does not have a normal distribution, therefore we need to transform the data. I tried several transformation techniques (log, log10, square root and arcsign),but none worked. Libby suggested doing a quantile normalization.
 
 -wrote scripts for analysing correlation between traits (MyGitHub/LearnMemTol/Scripts/correlation_between_traits.Rmd).
 
 
-##July 11, 2018
+###July 11, 2018
 
 -Learned Git processing via Nivalis
 -To embed Git into Nivalis, fellow dierections below
@@ -49,10 +58,6 @@ output: html_document
   
 -Practicing git 
 
-
-## Notes
-
-A record of notes in the style of a lab notebook
 
 ### July 9
 

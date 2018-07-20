@@ -31,3 +31,31 @@ logLik.multi <- function(object, REML = FALSE, ...)
   }#for close
   all.val
 }
+
+pfind<-function(pp, cM, th, tol.dist)
+{
+  
+  d1<-c(diff(pp),0)
+  d2<- c(0,-d1[-length(d1)])
+  
+  init.p<- poslist[which(pp > th & d1 <= 0 & d2 <= 0),]
+  init.p$LL<-pp[which(pp > th & d1 <= 0 & d2 <= 0)]
+  init.p<-init.p[order(-init.p$LL),]
+  #if none - return 0
+  cc<-1
+  for(kk in 1:nrow(init.p))
+  {
+    if(cc<=nrow(init.p))
+    {
+      ind.e<-which(init.p[,'chr']==init.p[cc,'chr'] & abs(init.p[,'Gpos'] - init.p[cc, 'Gpos']) < tol.dist)
+      ind.e<-ind.e[-which(ind.e==cc)]
+      if(length(ind.e)>0)
+      {
+        init.p<-init.p[-ind.e,,drop=FALSE]
+      }
+      cc<-cc+1
+    }
+  }
+  return(nrow(init.p))
+  
+}
