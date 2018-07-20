@@ -150,7 +150,7 @@ ThermTolDATA_sort[365:374,]
 #Identify RILs in the high cohort
 LearnDATA_sort[731:741,]
 MemDATA_sort[731:741,]
-ThermTolDATA_sort[731:741,]
+ThermTolDATA_sort[720:731,]
 
 ```
 
