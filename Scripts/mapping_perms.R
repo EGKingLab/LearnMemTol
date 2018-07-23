@@ -38,13 +38,11 @@ Phen.Mods<-lapply(gg, function(mat) logLik.multi(lm(as.matrix(pp) ~ mat[,1] + ma
 
 Phen.Ls<-lapply(Phen.Mods, function(xx) (xx/log(10)) - Null.Ls)
 
-<<<<<<< HEAD
 all.LL <- array(dim=c(length(Phen.Ls),dim(Phen.Ls[[1]])[1]))
 
 for(zz in seq(along=Phen.Ls)) all.LL[zz,] <- Phen.Ls[[zz]]
 colnames(all.LL)<-colnames(pp)
 
-=======
 obs.LL <- array(dim=c(length(Phen.Ls),dim(Phen.Ls[[1]])[1]))
 
 for(zz in seq(along=Phen.Ls)) obs.LL[zz,] <- Phen.Ls[[zz]]
@@ -79,10 +77,9 @@ all.LL <- array(dim=c(length(Phen.Ls),dim(Phen.Ls[[1]])[1]))
 for(zz in seq(along=Phen.Ls)) all.LL[zz,] <- Phen.Ls[[zz]]
 
 apply(all.LL, 2,max)
-colnames(all.LL)<-colnames(pp)
+colnames(all.LL)<-rep(colnames(pp),1000)
 
-save(all.LL, file="Data/Perm_LODS_FDR.rda")
-
+save(all.LL, file="../Data/Perm_LODS_FDR.rda")
 
 
 #### Get FDR for different thresholds
@@ -121,6 +118,5 @@ rbind(th.set, fp, N.positives)
 
 tt<-seq(1, 3000,by=3)
 tt.m<-apply(all.LL[,tt], 2,max)
-ppp<-getP(tt.m,80,7,72)
+ppp<-getP(tt.m,741,7,733)
 quantile(ppp, 0.95)
->>>>>>> 794c4da3fe877df6c503c1167632c2151143bc86

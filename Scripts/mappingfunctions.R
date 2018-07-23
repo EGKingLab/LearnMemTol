@@ -59,3 +59,11 @@ pfind<-function(pp, cM, th, tol.dist)
   return(nrow(init.p))
   
 }
+
+getP<-function(LOD,n,df,ddf)
+{
+  ff<-(10^((2/n)*LOD)-1)*((ddf)/df)
+  pp<- -(pf(ff,df,ddf,lower.tail=FALSE,log=TRUE)/log(10))
+  #pp<- pf(ff,df,ddf,lower.tail=FALSE)
+  return(pp)
+}
