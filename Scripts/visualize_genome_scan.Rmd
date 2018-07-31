@@ -6,35 +6,39 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggrepel)
+library(tidyr)
+library(dplyr)
+library(reshape)
 ```
 
-
-## QTL Plots
-
+#load scan results
 
 ```{r}
-#get position data (called positions)
-#####data(positions_wgenetic)#########
-#####i am not sure about this#######
+load(file="Data/Lodscores_3traits.rda")
 
-#load scan results
-load(file="../Data/myGenos.rda")
+str(obs.LL)
 
-str(myGenos)
+####Making qtl plot using Basee R 
 
 
-#set threshold and size for plot
-th<-6.7
+#set dimentions of map
+
+th<-7.5
 hh<-4
 ww<-10
 
-#QTL mapping 
 
-pdf("../Plots/QTL_maps.pdf",width=ww,height=hh)
+#QTL mapping LearnMemTol
+
+pdf("../Plots/L_M_T_QTL.pdf",width=ww,height=hh)
 par(mar=c(7,7,0.5,0.5),mgp=c(4.5,1,0))
 
-plot(poslist$Gaxis,myGenos$LODscores$LOD,type='n',ylim=c(0,15),xlab='Position (cM)',ylab="LOD",axes=FALSE,cex.lab=2)
+plot(obs.LL$Gaxis, obs.LL$Tolsqrtvariable,type='n',ylim=c(0,26),xlab='Position (cM)',ylab="LOD",axes=FALSE,cex.lab=2)
+
+top<-max(obs.LL$Gaxis)
+
 
 #put in bands to denote chromosome arms
 rect(66.3,-10,120.3,top+10,col="grey90",lty=0)
@@ -44,7 +48,9 @@ rect(174,-10,221,top+10,col="grey90",lty=0)
 abline(h=th,lty=3,col='black')
 
 #add lines for each phenotype
-lines(poslist$Gaxis,scanresults_Learning$LODscores$LOD,lwd=1.2,col='black')
+lines(obs.LL$Gaxis,obs.LL$LearnPowerTrans,lwd=1.2,col='blue2')
+lines(obs.LL$Gaxis,obs.LL$Memory_Mean,lwd=1.2,col='red2')
+lines(obs.LL$Gaxis,obs.LL$Tolsqrtvariable,lwd=1.2,col='black')
 
 #add box back in
 box() 
@@ -64,11 +70,92 @@ mtext("3L",line = 2.5,side=1, at =197.5, cex=1.5)
 mtext("3R",line = 2.5,side=1, at =249, cex=1.5)
 
 
+dev.off()
+```
+
+#Making qtl plots using ggplot
+
+```{r}
+
+#make dataframe long
+obs.LL_long <-gather(obs.LL)
+
+obs.LL_long <-gather(obs.LL, key = LearnPowerTrans, Memory_Mean, Tolsqrtvariable, value = Gaxis)
+
+#plot using ggplot
+
+ggplot(obs.LL, aes(x=Gaxis, y=LearnPowerTrans,)) +
+  geom_line()
+  
+  
+  geom_line(aes(y=Tolsqrtvariable)) +
+  geom_line(aes(y=Memory_Mean))
+
+
 ```
 
 
+```{r}
+#QTl mapping LearnMem
+
+pdf("Plots/L_M_QTL.pdf",width=ww,height=hh)
+par(mar=c(7,7,0.5,0.5),mgp=c(4.5,1,0))
+
+plot(obs.LL$Gaxis, obs.LL$LearnPowerTrans,type='n',ylim=c(0,26),xlab='Position (cM)',ylab="LOD",axes=FALSE,cex.lab=2)
+
+top<-max(obs.LL$Gaxis)
 
 
+#put in bands to denote chromosome arms
+rect(66.3,-10,120.3,top+10,col="grey90",lty=0)
+rect(174,-10,221,top+10,col="grey90",lty=0)
+
+#put in threshold line
+abline(h=th,lty=3,col='black')
+
+#add lines for each phenotype
+lines(obs.LL$Gaxis,obs.LL$LearnPowerTrans,lwd=1.2,col='blue2')
+lines(obs.LL$Gaxis,obs.LL$Memory_Mean,lwd=1.2,col='red2')
+
+
+#add box back in
+box() 
+
+#add x axis in cM
+axis(1, at = c(0,66.3,120,174,221,277), labels= c(0,"66  0",54,"108  0",47,103), tick=FALSE,cex.axis=1)
+
+# add y axis back in, cex.axis=size of numbers 
+axis(2,cex.axis=1.5)
+
+
+#add chromosome labels at midpts
+mtext("X",line = 2.5,side=1, at =33.15, cex=1.5)
+mtext("2L",line = 2.5,side=1, at =93.3, cex=1.5)
+mtext("2R",line = 2.5,side=1, at =147, cex=1.5)
+mtext("3L",line = 2.5,side=1, at =197.5, cex=1.5)
+mtext("3R",line = 2.5,side=1, at =249, cex=1.5)
+
+
+dev.off()
+```
+
+#Making qtl plots using ggplot
 
 ```{r}
-#
+
+#make dataframe long
+obs.LL_long <-gather(obs.LL)
+
+obs.LL_long <-gather(obs.LL, key = LearnPowerTrans, Memory_Mean, Tolsqrtvariable, value = Gaxis)
+
+#plot using ggplot
+
+ggplot(obs.LL, aes(x=Gaxis, y=LearnPowerTrans,)) +
+  geom_line()
+  
+  
+  geom_line(aes(y=Tolsqrtvariable)) +
+  geom_line(aes(y=Memory_Mean))
+
+```
+
