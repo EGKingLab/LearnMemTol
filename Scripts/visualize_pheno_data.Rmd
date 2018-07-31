@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
+library(dplyr)
 ```
 
 #read/ load in flies
@@ -140,7 +141,7 @@ ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_plot.pdf", width=10, h
 
 #sort the data from min to max 
 Learning_sort <- L_MDATA %>% arrange(Learning_Mean)
-Learning_sort$RILorder <- 1:nrow(Learning_sort)
+strLearning_sort$RILorder <- 1:nrow(Learning_sort)
 Learning_sort$y <- 0
 Learning_sort$Learning_Mean_SE <- Learning_sort$Learning_Mean + Learning_sort$Learning_SEM
 
@@ -179,12 +180,12 @@ Memory_sort$Memory_Mean_SE <- Memory_sort$Memory_Mean + Memory_sort$Memory_SEM
 
 Memory_range_graph <- ggplot(Memory_sort, aes(x = RILorder, xend = RILorder,
                    y = y, yend = Memory_Mean)) +
-  geom_segment(color = "blue") +
-  scale_x_continuous(breaks = Memory_sort$RILorder, labels = Memory_sort$patRIL) +
+  geom_segment(color = "blue", ) +
+   scale_x_continuous(breaks = Memory_sort$RILorder, labels = Memory_sort$patRIL) +
   theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5,
                                  size = 6)) +
   geom_point(aes(x = RILorder, y = Memory_Mean_SE)) +
-  labs(x = "Genotype", y = "Memory Performance Index")
+   labs(x = "Genotype", y = "Memory Performance Index")
 
 #to view graph 
 Memory_range_graph
@@ -199,7 +200,7 @@ dev.off()
 
 ```{r}
 
-#To make learning range graph:
+#To make thermal Tolerance range graph:
 
 #sort dataset 
 ThermTol_sort <- T_TDATA %>% arrange(Incapacitation_Mean)
@@ -229,10 +230,32 @@ ggsave(Incap_range_graph, file="../Plots/Incap_range_graph.pdf", width=8, height
 dev.off()
 
 #to view specific rows in sorted data
-Incap_sort[410:420,c (patRIL', 'Incapcitation_Mean')]
+Incap_sort[410:420,c('patRIL', 'Incapcitation_Mean')]
 
 
 
 ```
 
+#Identify RIls used for Rnaseq
 
+```{r}
+load(file="Data/ThermTolDATA_sort.rda")
+
+ThermTol_sort <- T_TDATA %>% arrange(Incapacitation_Mean)
+ThermTol_sort$RILorder <- 1:nrow(ThermTol_sort)
+ThermTol_sort$y <- 0
+ThermTol_sort$Incapacitation_Mean_SE <- ThermTol_sort$Incapacitation_Mean + ThermTol_sort$Incapacitation_SEM 
+
+
+ggplot(ThermTol_sort, aes(x = RILorder, xend = RILorder,
+                        y = y, yend = Incapacitation_Mean)) +
+  geom_segment(color = "blue", ) +
+  geom_line(data = ThermTol_sort[ThermTol_sort$patRIL!= "12047", ]) +
+  scale_x_continuous(breaks = ThermTol_sort$RILorder, labels = ThermTol_sort$patRIL) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5,
+                                 size = 6)) +
+  geom_point(aes(x = RILorder, y = Incapacitation_Mean_SE)) +
+  labs(x = "Genotype", y = "Incapacitation Time (sec)") +
+  scale_color_manual("Dataset", 
+       values = c("12047" = "pink", ))
+```
