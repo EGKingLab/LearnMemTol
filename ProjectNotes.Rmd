@@ -26,6 +26,21 @@ output: html_document
 
 A record of notes in the style of a lab notebook
 
+
+
+
+#July 26, 2018
+-created script for Rna-seq processing using DEseq (RNAproc_DEseq.Rmd)
+
+(PW-S)
+
+#July 23, 2018
+
+-updated script to visualize genome scans - qtl maps - in base R.
+-made qtl map with all 3 traits
+(PW-S)
+
+
 ### July 22, 2018
 
 - fixed some errors in the permutation script

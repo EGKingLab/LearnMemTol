@@ -18,7 +18,7 @@ library(tidyverse)
 ```{r}
 #rawd <- read.table("/MyGitHub/LearnMemTol/Data/HeatProc.txt",sep="\t", #header=TRUE, stringsAsFactors = FALSE)
 
-rawdLM <- read.table("../Data/HeatProc_Learn.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+rawdLM <- read.table("Data/HeatProc_Learn.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
 
 
 str(rawdLM)
@@ -28,7 +28,7 @@ rawdLM[1:5]
 
 ## Read in ThermTol processed raw data and check
 ```{r}
-rawdTT <- read.table("../Data/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+rawdTT <- read.table("Data/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
 
 
 str(rawdTT)
@@ -47,7 +47,6 @@ L_MDATA <- rawdLM %>%
             Memory_Mean = mean(Memory),
             Memory_SEM = sd(Memory)/sqrt(length(Memory)),
             N = length(Memory))
-
 
 
 
@@ -83,6 +82,10 @@ save(T_TDATA, file="../Data/T_TDATA.rda")
 
 ```{r}
 
+load(file="Data/L_MDATA.rda")
+load(file="Data/T_TDATA.rda")
+
+
 #Make histogram LearnMem
 Learnhisto <- ggplot(L_MDATA, aes(x = Learning_Mean)) +
   geom_histogram()
@@ -109,7 +112,7 @@ ThermTolhisto
 #Identify minimum mean (find really low learning point identified in histograms)
 L_MDATA[which.min(L_MDATA$Learning_Mean),]
 L_MDATA[which.min(L_MDATA$Memory_Mean),]
-T_TData[which.min(T_TData$Incapacitation_Mean),]
+T_TDATA[which.min(T_TDATA$Incapacitation_Mean),]
 
 
 #Look at indivial Learning PIs for RILs with lowest means
@@ -123,7 +126,7 @@ rawdTT[rawdTT$patRIL==11459,'incapacitation']
 #Identify maximum means.
 L_MDATA[which.max(L_MDATA$Learning_Mean),]
 L_MDATA[which.max(L_MDATA$Memory_Mean),]
-T_TData[which.max(T_TData$Incapacitation_Mean),]
+T_TDATA[which.max(T_TDATA$Incapacitation_Mean),]
 
 
 #Sort and save from decreasing to increasing means 
@@ -136,21 +139,63 @@ save(LearnDATA_sort, file="../Data/LearnDATA_sort.rda")
 save(MemDATA_sort, file="../Data/MemDATA_sort.rda")
 save(ThermTolDATA_sort, file="../Data/ThermTolDATA_sort.rda")
 
+#load files, if necessary
+load(file ="Data/LearnDATA_sort.rda")
+load(file ="Data/MemDATA_sort.rda")
+load(file ="Data/ThermTolDATA_sort.rda")
+
 #Identify RILs in the low cohort
-LearnDATA_sort[1:10,]
-MemDATA_sort[1:10,]
-ThermTolDATA_sort[1:10,]
+LearnDATA_sort[1:20,]
+MemDATA_sort[1:20,]
+ThermTolDATA_sort[1:20,]
 
 
 #Identify RILs in the mid cohort
-LearnDATA_sort[365:374,]
-MemDATA_sort[365:374,]
-ThermTolDATA_sort[365:374,]
+LearnDATA_sort[349:374,]
+MemDATA_sort[349:374,]
+ThermTolDATA_sort[349:374,]
 
 #Identify RILs in the high cohort
-LearnDATA_sort[731:741,]
-MemDATA_sort[731:741,]
-ThermTolDATA_sort[720:731,]
+LearnDATA_sort[7:741,]
+MemDATA_sort[721:730,]
+ThermTolDATA_sort[721:730,]
+
+```
+
+
+#Identify where RILs used for RNAseq are in the final Dataset
+
+```{r}
+#Learning Low
+LearnRNAseqLow <- L_MDATA %>% filter(patRIL %in% c("12044", "12285", "12138", "11189", "12022", "12084", "12324"))
+
+save(LearnRNAseqLow, file="Data/LearnRNAseqLow.rda")
+
+#Learning High
+LearnRNAseqHigh <- L_MDATA %>% filter(patRIL %in% c("11065", "12359", "11146", "11144", "11006", "11122", "11023"))
+
+save(LearnRNAseqHigh, file="Data/LearnRNAseqHigh.rda")
+
+#Memory Low
+MemRNAseqLow <- L_MDATA %>% filter(patRIL %in% c("12030", "12383", "12285", "11189", "11038", "11133", "11186"))
+
+save(MemRNAseqLow, file="Data/MemRNAseqLow.rda")
+
+#Memory High
+MemRNAseqHigh <- L_MDATA %>% filter(patRIL %in% c("12018", "12039", "12074", "11184", "11122", "12071", "11023"))
+
+save(MemRNAseqHigh, file="Data/MemRNAseqHigh.rda")
+
+
+#Thermal Tolerance Low
+ThermRNAseqLow <- T_TDATA %>% filter(patRIL %in% c("12047", "12290", "12042", "11106", "12060", "11042", "11132"))
+
+save(ThermRNAseqLow, file="Data/ThermRNAseqLow.rda")
+
+#Thermal Tolerance High
+ThermRNAseqHigh <- T_TDATA %>% filter(patRIL %in% c("12069", "12062", "11024", "11163", "11023", "11043", "11067"))
+
+save(ThermRNAseqHigh, file="Data/ThermRNAseqHigh.rda")
 
 ```
 

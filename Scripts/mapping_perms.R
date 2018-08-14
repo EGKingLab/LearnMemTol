@@ -16,11 +16,14 @@ str(T_TDATA)
 All_3_Traits_Data <- merge(L_MDATA, T_TDATA, by='patRIL')
 
 
-#Genome scan of all three traits concurrently
+#Fetch founder hyplotype probabilty 
 myGenos <- DSPRgenos(design='inbredA', All_3_Traits_Data, id.col='patRIL')
 
 #Save for later, so you can just load instead of running DSPRgenos again
 save(myGenos, file="../Data/myGenos.rda")
+
+#load (if necessary)
+load(file="../Data/myGenos.rda")
 
 #Look at the possitions. These are in 5.x coordinates
 positions <- myGenos$positions
@@ -47,6 +50,11 @@ obs.LL <- array(dim=c(length(Phen.Ls),dim(Phen.Ls[[1]])[1]))
 
 for(zz in seq(along=Phen.Ls)) obs.LL[zz,] <- Phen.Ls[[zz]]
 colnames(obs.LL)<-colnames(pp)
+
+obs.LL <- cbind(obs.LL, positions)
+
+save(obs.LL, file="../Data/Lodscores_3traits.rda")
+
 
 #############################################################
 ######### PERMUTATIONS ########################
