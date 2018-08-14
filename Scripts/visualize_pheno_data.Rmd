@@ -234,6 +234,17 @@ Incap_sort[410:420,c('patRIL', 'Incapcitation_Mean')]
 #Identify RIls used for Rnaseq
 
 ```{r}
+
+RIL_rna <- data.frame("Pool"= rep(c('LH','LL','MH','ML','TH','TL'),each=7), 
+                      "patRIL"= c(11065,12359,11146,11144,11006,11122,11023,
+                                  12044,12285,12138,12022,11189,12084,12324,
+                                  12018,12039,12074,11184,12071,11122,11023,
+                                  12383,12030,12285,11189,11038,11133,11186,
+                                  12069,12062,11024,11023,11067,11163,11043,
+                                  12047,12290,12042,11106,12060,11042,11132),
+                      stringsAsFactors = FALSE)
+
+
 load(file="../Data/ThermTolDATA_sort.rda")
 
 ThermTol_sort <- T_TDATA %>% arrange(Incapacitation_Mean)
@@ -241,16 +252,18 @@ ThermTol_sort$RILorder <- 1:nrow(ThermTol_sort)
 ThermTol_sort$y <- 0
 ThermTol_sort$Incapacitation_Mean_SE <- ThermTol_sort$Incapacitation_Mean + ThermTol_sort$Incapacitation_SEM 
 
+#merge with Pool id
+ThermTol_sort <- merge(ThermTol_sort, RIL_rna[RIL_rna$Pool %in% c('TH','TL'),], by='patRIL',all=TRUE)
+
+ThermTol_sort$Pool[is.na(ThermTol_sort$Pool)]<-'none'
+
 
 ggplot(ThermTol_sort, aes(x = RILorder, xend = RILorder,
                         y = y, yend = Incapacitation_Mean)) +
-  geom_segment(color = "blue", ) +
-  geom_line(data = ThermTol_sort[ThermTol_sort$patRIL!= "12047", ]) +
-  scale_x_continuous(breaks = ThermTol_sort$RILorder, labels = ThermTol_sort$patRIL) +
-  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5,
-                                 size = 6)) +
-  geom_point(aes(x = RILorder, y = Incapacitation_Mean_SE)) +
-  labs(x = "Genotype", y = "Incapacitation Time (sec)") +
-  scale_color_manual("Dataset", 
-       values = c("12047" = "pink", ))
+  geom_segment(aes(color=Pool)) +
+  #scale_x_continuous(breaks = ThermTol_sort$RILorder, labels = ThermTol_sort$patRIL) +
+  #theme(axis.text.x=element_blank()) +
+  geom_point(aes(x = RILorder, y = Incapacitation_Mean_SE),size=0.8,alpha=1/5) +
+  labs(x = "Genotype Rank", y = "Incapacitation Time (sec)") 
+  
 ```
