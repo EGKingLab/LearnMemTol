@@ -36,3 +36,6 @@ vignettes/*.pdf
 #big files
 myGenos.rda
 Perm_LODS_FDR.rda
+*.gtf
+*.ctab
+*.fastq.gz

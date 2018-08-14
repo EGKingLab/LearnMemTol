@@ -1,0 +1,146 @@
+---
+title: "Prep DESeq-worthy counts from StringTie output"
+author: "Patricka Williams-Simon"
+date: "7/19/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(DESeq2)
+library(dplyr)
+library(stringr)
+library(sva)
+library(ggplot2)
+```
+
+# Generate a list of gtf commands - ref p.92-93 Dunn book
+
+##grep -li assemb *.gtf > ~/MyGithub/BasePop_RNAseq/processed/gtf_list.txt
+# searches and list all .gtf which includes assemb*
+
+#Open gtf_list.txt in TextWrangler [command+F]
+#In the search window type ^
+#In the replace window, type full path i.e: ~/MyGithub/BasePop_RNAseq/scripts/DESeq_scripts/
+#Do Replace All
+#This gives full path to each of the .gtf
+
+#Alternatively:
+#While in processed/ (i.e. where directory "ballgown" is located), run:
+#python ../scripts/DESeq_scripts/prepDE.py
+#Two output matrices are written: `transcript_count_matrix.csv` and `gene_count_matrix.csv`
+
+# Load gene(/transcript) count matrix and labels
+
+```{r}
+
+ThermTolgenecount <- read.csv("Data/ThermTol_gene_count_matrix.csv", row.names="gene_id")
+
+
+phenData <- read.csv("Data/sample_description.csv", stringsAsFactors = FALSE)
+
+
+#Separate traits into different obejects and ad id column 
+
+Tolpheno_data <- phenData %>% filter(treatment %in% c("TH", "TH_Incu", "TH_Incu_control", "TL","TL_Incu", "TL_Incu_control"  ))
+
+names(Tolpheno_data)[1]<-"ids"
+Tolpheno_data <- Tolpheno_data %>%
+  select(ids,treatment,replicate)
+
+rownames(Tolpheno_data) <- Tolpheno_data[,1]
+Tolpheno_data[,1] <- NULL
+
+#order thermtol dataset 
+
+Tolpheno_data <- Tolpheno_data[order (row.names(Tolpheno_data)),]
+
+# Check all sample IDs in colData are also in genecount and match their orders
+
+all(rownames(Tolpheno_data) %in% colnames(ThermTolgenecount))
+genecount2 <- ThermTolgenecount[, rownames(Tolpheno_data)]
+all(rownames(Tolpheno_data) == colnames(ThermTolgenecount))
+
+
+#colData <- pData(phenDat)[,c("treatment","tissue")]
+Tolpheno_data <- as.matrix(Tolpheno_data)
+
+#Change colnames (replicate and treatment) to factors
+#LearnMempheno_data$treatment <- as.factor(LearnMempheno_data$treatment)
+#LearnMempheno_data$replicate <- as.factor(LearnMempheno_data$replicate)
+#Tolpheno_data$treatment <- as.factor(Tolpheno_data$treatment)
+#Tolpheno_data$replicate <- as.factor(Tolpheno_data$replicate)
+
+
+```
+
+# Model with treatment and tissue
+
+```{r}
+# Create a DESeqDataSet from count matrix and labels
+ddsThermTol <- DESeqDataSetFromMatrix(countData = ThermTolgenecount,
+colData = Tolpheno_data, design = ~ replicate + treatment)
+
+
+# Run the default analysis for DESeq2 and generate results table
+
+ThermTolddsDE <- DESeq(ddsThermTol)
+ThermTolres <- results(ThermTolddsDE)
+
+#Sort by adjusted p-value and display
+
+(ThermTolresOrdered <- ThermTolres[order(ThermTolres$padj), ])
+
+
+save(ThermTolddsDE, file = "Data/ThermTolddsDE.Rda")
+save(ThermTolresOrdered, file = "Data/ThermTolres.Rda")
+
+```
+
+# Control for batch effects
+
+```{r}
+ThermToldds.sva <- estimateSizeFactors(ddsThermTol)
+ThermToldat.sva <- counts(ThermToldds.sva, normalized=TRUE)
+ThermTolcc.c <- rowSums(ThermToldat.sva)
+
+#remove all genes with 0s for all samples
+ThermToldat.sva <- ThermToldat.sva[which(ThermTolcc.c>0),]
+
+
+#load data with batch numbers
+phenData.sva <- read.csv("Data/sample_description_batch.csv", stringsAsFactors = FALSE)
+
+
+ThermTolpheno_data.sva <- phenData.sva %>% filter(treatment %in% c("TH", "TH_Incu", "TH_Incu_control", "TL","TL_Incu", "TL_Incu_control"  ))
+
+#names(ThermTolpheno_data.sva)[5]<-"batch"
+#cbind(ThermTolpheno_data.sva, colnames(dat.sva))
+
+
+#fit model
+ThermTolmod <- model.matrix(~as.factor(replicate)* 
+                              as.factor(treatment), 
+                              data=ThermTolpheno_data.sva)
+#intercept
+ThermTolmod0 <- model.matrix(~1, data=ThermTolpheno_data.sva) 
+
+# calculate number of surrogate variables
+
+ThermToln.sv <- num.sv(ThermToldat.sva, Tolmod, method = "be", B = 20)
+print(c("Calculated number of significant SVs = ", Toln.sv))
+
+Tolsvobj <- svaseq(Toldat.sva, Tolmod, Tolmod0, Toln.sv=Toln.sv) 
+
+ThermTolpheno_data.sva.sva$SV1 <- svobj$sv[,1]
+ThermTolpheno_data.sva$SV2 <- svobj$sv[,2]
+
+ggplot(ThermTolpheno_data.sva, aes(x=SV1, y=SV2)) +
+  geom_point(alpha=1/5, size=3)
+```
+
+
+
+
+

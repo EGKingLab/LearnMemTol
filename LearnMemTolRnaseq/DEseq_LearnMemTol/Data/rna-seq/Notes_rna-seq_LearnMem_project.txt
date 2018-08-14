@@ -1,0 +1,330 @@
+﻿Feb 23, 2018
+Today I i set-up code in R (Nivalis) to collate rna-seq raw data. It's saved under: Home/DSPR/Scripts/rna-seq_processing_data/set_up_commands_trimmed_data.R/
+Output .txt file is saved on Nivalis: /Home/DSPR/RawData/Trim_cmds_LearnMemRNA.txt
+
+
+Feb 27th, 2018
+Today I trimmed my Rna-seq data for LearnMem using the cutadaptor trimmng software. 
+cutadapt_base_cmd: cutadapt -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -b A{100} -b T{100} -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT -B A{100} -B T{100} --minimum-length 50 --trim-n --output RAPiD-Genomics_HJYM3BBXX_MIZ_117501_P01_WB12_i5-_i7-75_S622_L003_trimmed_R1_001.fastq.gz --paired-output RAPiD-Genomics_HJYM3BBXX_MIZ_117501_P01_WB12_i5-_i7-75_S622_L003_trimmed_R2_001.fastq.gz RAPiD-Genomics_HJYM3BBXX_MIZ_117501_P01_WB12_i5-_i7-75_S622_L003_R1_001.fastq.gz RAPiD-Genomics_HJYM3BBXX_MIZ_117501_P01_WB12_i5-_i7-75_S622_L003_R2_001.fastq.gz 
+All paired-end data sets ran with no errors.
+To run sbatch file: Sbatch --array=1-114 sbatch_trimRNA.sh 
+Trimmed data is saved: "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_trimmed/" 
+
+
+March 01, 2018
+
+###Today I am trying to write a in script in R that will collate, then run all 114 paired end data in Lewis. 
+
+
+March 28, 2018
+
+Libby and I wrote codes in R to collate the data for the stpes in the tuxedo pipiline. Scripts are saved on Navalis. Output txt files are saved on Navalis, Lewis and Document folder on my personal computer.
+txt files are names:
+
+S01_Trim_LearnMemRNA.txt
+S02_QC_LearnMemRNA.txt
+S03_Align_LearnMemRNA.txt
+S04_SamtoBam_LearnMemRNA.txt
+SO5_MergeBam_LearnMemRNA.txt
+SO6_Assemble_LearnmemRNA.txt
+
+Below are the scripts:
+
+ 
+April 03, 2018
+
+Today I tarballed (zipped) error and test files using scripts:
+
+tar -cf bam_error_test_files.tar *.out *.err
+tar -cf raw_error_test_files.tar *.err *.out
+
+April 04, 2018
+Merged bam files and added customer code to the name of the file. Used script below:
+samtools merge -r /group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/LL_1_merged.bam /group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/RAPiD-Genomics_HKLKGBBXX_MIZ_117501_P01_WA05_i5-509_i7-38_S4_L001_aligned_rna-seq.bam /group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/RAPiD-Genomics_HKLKGBBXX_MIZ_117501_P01_WA05_i5-509_i7-38_S4_L002_aligned_rna-seq.bam 
+
+File is saved under: SO5_MergeBam_LearnMemRNA.txt. Files are located on Lewis, Navalis and Documnet folder on my personal computer.
+
+
+April 05, 2018
+
+To ssh to Navalis: 
+ssh pwilliams@nivalis.biology.missouri.edu
+
+To move folders onto nivalis
+rsync -ahrvP ./ pwilliams@nivalis.biology.missouri.edu:/home/pwilliams/DSPR/RawData
+
+To change rights on a folder or file
+chmod u+rwx RawData/
+
+To transfer files to Nivalis to my Raw folder on Nivalis:
+rsync -ahrvP --no-perms ./ pwilliams@nivalis.biology.missouri.edu:/home/pwilliams/DSPR/RawData.
+
+I had to use the --no-perms flag, since I donot have write permission for the RawData folder on Nivalis.
+
+April 06, 2018
+
+To move bam files, use code:
+mv *.bam "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/"
+
+To rsync data onto Lewis, use :
+rsync -ahvrP ./S05_MergeBam_LearnMemRNA.txt pawtk4@lewis.rnet.missouri.edu:"/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/"
+
+To move files from Nivalis to Lewis. First ssh to nivaiis from MobaXterm (ssh pwilliams@nivalis.biology.missouri.edu), then use code below:
+rsync -ahvrP ./S06_Assemble_LearnMemRNA.txt pawtk4@lewis.rnet.missouri.edu:"/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/"
+
+To remove a directory in Lewis use code:
+rm -r rna-seq_data_assemle
+
+To run collate learn and Memory data I use a pearl script:
+perl heatcalcRead.pl > temp.txt 2> error.txt &
+
+I first ssh to the Nivalis server vis MobaXterm Shell Emulator: ssh pwilliams@nivalis.biology.missouri.edu
+
+April 09, 2018
+
+Today I rerun the mergebam files, since i got an error (lewis code: 304) on the 1-4 of the files. 
+
+error below:
+slurmstepd: error: xcgroup_instantiate: unable to create cgroup '/sys/fs/cgroup/memory/slurm/uid_926233' : No space left on device
+slurmstepd: error: jobacct_gather/cgroup: unable to instanciate user 926233 memory cgroup
+[pawtk4@lewis4-r710-login-node223 rna-seq_data_bam]$
+
+after rerunning today i got same additional errors on additiional files.
+
+April 12, 2018
+
+Today, I reran the files that had an error from the run above (april 09). I changed the amount of memory requested to do the job from 12GB to 20GB on the sbatch file, named sbatch_mergebamRNA.sh. 
+It took longer for the job to start, but we almost no errors. 
+
+Files are: 1-7, 21-27, 32-35. Most of the files ran without errors, except for files 24, 32,  got the same error.
+
+I reran files 24 and 32 and they had no errors  
+
+To cancel an sbacth job, use code:
+scancel job id (5334269)
+
+To run a job array on specific files, use code:
+sbatch --array=24,32 sbatch_mergebamRNA.sh
+
+Today, I will assemble my rna-seq data to the fruit fly genome, using Stringtie, in the tuxedo pipeline.
+
+Example of code is Below:
+stringtie -p 8 -G /group/kinglab/Patricka/base_pop/genes/dmel-all-r6.18.gtf -o /group/kinglab/Patricka/Learn_Mem/rna-seq_data_assemble/LL_1_assembled.gtf /group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/LL_1_merged.bam 
+
+To run job array, use code:
+sbatch --array=1-57 sbatch_assembledRNA.sh
+
+I got errors for several of the files:
+[pawtk4@lewis4-r710-login-node223 rna-seq_data_bam]$ head error_5337807_55.err
+slurmstepd: error: task/cgroup: unable to add task[pid=129471] to memory cg '(null)'
+slurmstepd: error: xcgroup_instantiate: unable to create cgroup '/sys/fs/cgroup/memory/slurm/uid_926233' : No space left on device
+slurmstepd: error: jobacct_gather/cgroup: unable to instanciate user 926233 memory cgroup
+
+[pawtk4@lewis4-r710-login-node223 rna-seq_data_bam]$ head error_5337807_52.err  slurmstepd: error: task/cgroup: unable to add task[pid=129339] to memory cg '(null)'
+slurmstepd: error: xcgroup_instantiate: unable to create cgroup '/sys/fs/cgroup/memory/slurm/uid_926233' : No space left on device
+slurmstepd: error: jobacct_gather/cgroup: unable to instanciate user 926233 memory cgroup
+
+To rerun the files with errors, use code:
+sbatch --array=26-29,38-42,47,52-55 sbatch_assembleRNA.sh
+
+April 16, 2018
+
+Today I am assemling the rna-seq data to the fly genome (step 3 in tuxedo pipeline), using stringtie, code:
+stringtie -p 8 -G /group/kinglab/Patricka/base_pop/genes/dmel-all-r6.18.gtf -o /group/kinglab/Patricka/Learn_Mem/rna-seq_data_assemble/LL_1_assembled.gtf /group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/LL_1_merged.bam
+
+To run sbatch file, use code:
+sbatch --array=1-57 sbatch_assembleRNA.sh
+
+Today I assembled file list (step 4 in tuxedpipe line), using stringtie, code: I ran this code using srun. 
+srun stringtie --merge -p 8 -G /group/kinglab/Patricka/base_pop/genes/dmel-all-r6.18.gtf -o rna-seq_LearnMem_merged.gft "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_assemble/assembled_file_list.txt"
+
+#
+#
+#
+#step 5 in tuxedo pipeline is optinal, so I skipped over for now.
+
+
+
+April 19, 2018
+Today, I estimated transcript abundances and created table counts for Ballgown (step 6 in tuxedo pipeline), use stringtie, code:
+stringtie -e -B -p 8 -G /storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/rna-seq_LearnMem_merged.gtf -o /group/kinglab/Patricka/Learn_Mem/rna-seq_data_ballgown/LL_1/LL_1_ballgown.gtf /group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/LL_1_merged.bam 
+
+
+To run job array usee: 
+sbatch --array=1-57 sbatch_abundancesRNA.sh 
+
+Today, I installed the R packages on Lewis. I followed the instructions on the RCSS Documentation wedsite, under Install Packages in R.
+
+First i loaded R version: module load R/R-3.3.3
+
+Then I loaeed the libraries:
+library(ballgown)
+library(genefilter)
+library(dplyr)
+library(devtools) 
+
+devtools:
+The downloaded source packages are in
+        ‘/tmp/RtmpKiZGMk/downloaded_packages’
+
+dplyr:
+The downloaded source packages are in
+        ‘/tmp/RtmplD6CX6/downloaded_packages’
+Warning messages:
+1: In install.packages("dplyr") :
+  installation of package ‘BH’ had non-zero exit status
+2: In install.packages("dplyr") :
+  installation of package ‘dplyr’ had non-zero exit status
+
+For boht ballgown and genefilter:
+
+Warning message:
+package ‘genefilter’ is not available (for R version 3.3.3)
+> install.packages("ballgown")
+Installing package into ‘/home/pawtk4/R/x86_64-pc-linux-gnu-library/3.3’
+(as ‘lib’ is unspecified)
+Warning message:
+package ‘ballgown’ is not available (for R version 3.3.3)
+
+To install ballgown and genefilter I had to use Bioconductor, since is not supported by CRAN:
+source("https://bioconductor.org/biocLite.R")
+Then:
+biocLite("ballgown")
+biocLite("genefilter")
+
+Ballgown:
+The downloaded source packages are in
+        ‘/tmp/RtmpU6SV6U/downloaded_packages’
+installation path not writeable, unable to update packages: boot, cluster,
+  foreign, lattice, MASS, Matrix, mgcv, rpart, survival
+
+Genefilter:
+The downloaded source packages are in
+        ‘/tmp/RtmpU6SV6U/downloaded_packages’
+installation path not writeable, unable to update packages: boot, cluster,
+  foreign, lattice, MASS, Matrix, mgcv, rpart, survival
+Warning messages:
+1: In install.packages(pkgs = doing, lib = lib, ...) :
+  installation of package ‘BiocGenerics’ had non-zero exit status
+2: In install.packages(pkgs = doing, lib = lib, ...) :
+  installation of package ‘RSQLite’ had non-zero exit status
+3: In install.packages(pkgs = doing, lib = lib, ...) :
+  installation of package ‘XML’ had non-zero exit status
+4: In install.packages(pkgs = doing, lib = lib, ...) :
+  installation of package ‘RCurl’ had non-zero exit status
+5: In install.packages(pkgs = doing, lib = lib, ...) :
+  installation of package ‘S4Vectors’ had non-zero exit status
+6: In install.packages(pkgs = doing, lib = lib, ...) :
+  installation of package ‘Biobase’ had non-zero exit status
+7: In install.packages(pkgs = doing, lib = lib, ...) :
+  installation of package ‘IRanges’ had non-zero exit status
+8: In install.packages(pkgs = doing, lib = lib, ...) :
+  installation of package ‘AnnotationDbi’ had non-zero exit status
+9: In install.packages(pkgs = doing, lib = lib, ...) :
+  installation of package ‘annotate’ had non-zero exit status
+10: In install.packages(pkgs = doing, lib = lib, ...) :
+  installation of package ‘genefilter’ had non-zero exit status
+
+
+#####Because I wont be need many cores for the remining steps of the tuxedo pipeline, I will be using Nivalis to 
+analyze the rest of the steps (7-21).
+
+April 24, 2018
+
+Today, i created a csv file in R for ballgown (step 8 in tuxdo pipeline). File is saved on Nivalis under:sample_description.csv
+
+To creat file in R use code:
+
+
+#see above for where we make sample.ids
+.
+
+To creat data frame usee code: Columns are named id,treatment and replicate
+
+samp.desc <- data.frame('id'=character(length=length(sample.ids)),
+
+                        'treatment'=character(length=length(sample.ids)),
+
+                        'replicate'=character(length=length(sample.ids)),stringsAsFactors = FALSE)
+
+
+
+To write in the information under each column, use code:
+samp.desc$id <- sample.ids 
+samp.desc$treatment <- substr(samp.desc$id, 1,(nchar(samp.desc$id)-2))
+
+samp.desc$replicate <- substr(samp.desc$id, (nchar(samp.desc$id)),(nchar(samp.desc$id)))
+
+
+
+
+To create csv file use code:
+write.csv(samp.desc, file="sample_description.csv", row.names=FALSE, quote=FALSE)
+
+
+
+
+To move csv file onto Lewis use code:
+rsync -ahvrP sample_description.csv pawtk4@lewis.rnet.missouri.edu:"/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_ballgown/"
+
+
+April 25, 2018
+
+To transfer expression data from Lewis to Nivalis:
+
+rsync -ahrvP expression_data pwilliams@nivalis.biology.missouri.edu:/home/pwilliams/DSPR/Script/rna-seq_processing_data/
+
+Today, I read in the expression data that was calculated by StringTie.
+
+#bg_chrX = ballgown(dataDir = "ballgown", samplePattern = "ERR", pData=pheno_data)
+
+expression_data <- ballgown(samples = "expression_data", pData=sample_description.csv)
+
+
+
+April 26, 2018
+
+To pull from Nivalis, use code:
+rsync -ahvrP pawtk4@nivalis.biology.missouri.edu:/DSPR/Scripts/rna-seq_processing_data/S08_Abundances_LearnMemRNA.txt .
+
+To pull from Lewis, use code:
+rsync -ahrvP pawtk4@lewis.rnet.missouri.edu:/storage/hpc/group/kinglab/Patricka/Learn_Mem/expression_data .
+
+!!!!!!!If I am having trouble pulling or pushing data onto Lewis, restart MobaXTerm
+
+To copy a directory and change its name, use code:
+ cp -r "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_ballgown/" "/storage/hpc/group/kinglab/Patricka/Learn_Mem/expression_data/"
+
+
+Today, I rread in the expression data that was calculated by StringTie. Use code
+ 
+
+expression_data <- ballgown(dataDir = "expression_data", samplePattern = "", pData= pheno_data)
+
+
+
+
+
+look at  files for rna-seq
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
