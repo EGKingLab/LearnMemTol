@@ -67,7 +67,6 @@ Learn_indi_points
 #to save plot
 ggsave(Learn_indi_points, file="../Plots/Learn_indi_plot.pdf", width=10, height=4)
 
-dev.off()
 ```
 
 
@@ -98,7 +97,6 @@ Mem_indi_points
 #to save plot
 ggsave(Mem_indi_points, file="../Plots/Mem_indi_plot.pdf", width=10, height=4)
 
-dev.off()
 
 ```
 
@@ -162,7 +160,6 @@ Learn_range_graph
 #to save graph
 ggsave(Learn_range_graph, file="../Plots/Learn_range_graph.pdf", width=10, height=4)
 
-dev.off()
 
 
 ```
@@ -193,7 +190,6 @@ Memory_range_graph
 #to save graph
 ggsave(Memory_range_graph, file="../Plots/Memory_range_graph.pdf", width=10, height=4)
 
-dev.off()
 
 ```
 
@@ -227,7 +223,6 @@ Incap_range_graph
 #to save graph
 ggsave(Incap_range_graph, file="../Plots/Incap_range_graph.pdf", width=8, height=8)
 
-dev.off()
 
 #to view specific rows in sorted data
 Incap_sort[410:420,c('patRIL', 'Incapcitation_Mean')]
@@ -239,7 +234,7 @@ Incap_sort[410:420,c('patRIL', 'Incapcitation_Mean')]
 #Identify RIls used for Rnaseq
 
 ```{r}
-load(file="Data/ThermTolDATA_sort.rda")
+load(file="../Data/ThermTolDATA_sort.rda")
 
 ThermTol_sort <- T_TDATA %>% arrange(Incapacitation_Mean)
 ThermTol_sort$RILorder <- 1:nrow(ThermTol_sort)
