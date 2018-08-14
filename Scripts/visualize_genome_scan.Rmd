@@ -11,12 +11,13 @@ library(ggrepel)
 library(tidyr)
 library(dplyr)
 library(reshape)
+library(cowplot)
 ```
 
 #load scan results
 
 ```{r}
-load(file="Data/Lodscores_3traits.rda")
+load(file="../Data/Lodscores_3traits.rda")
 
 str(obs.LL)
 
@@ -78,19 +79,14 @@ dev.off()
 ```{r}
 
 #make dataframe long
-obs.LL_long <-gather(obs.LL)
-
-obs.LL_long <-gather(obs.LL, key = LearnPowerTrans, Memory_Mean, Tolsqrtvariable, value = Gaxis)
+obs.LL_long <-gather(obs.LL, key='Trait', value='LOD', LearnPowerTrans, Memory_Mean, Tolsqrtvariable)
 
 #plot using ggplot
 
-ggplot(obs.LL, aes(x=Gaxis, y=LearnPowerTrans,)) +
-  geom_line()
-  
-  
-  geom_line(aes(y=Tolsqrtvariable)) +
-  geom_line(aes(y=Memory_Mean))
+ggplot(obs.LL_long, aes(x=Gaxis, y=LOD, color=Trait)) +
+  geom_line(alpha=1/2)
 
+#if you want only a couple traits, just subset the trait column
 
 ```
 
@@ -137,25 +133,5 @@ mtext("3R",line = 2.5,side=1, at =249, cex=1.5)
 
 
 dev.off()
-```
-
-#Making qtl plots using ggplot
-
-```{r}
-
-#make dataframe long
-obs.LL_long <-gather(obs.LL)
-
-obs.LL_long <-gather(obs.LL, key = LearnPowerTrans, Memory_Mean, Tolsqrtvariable, value = Gaxis)
-
-#plot using ggplot
-
-ggplot(obs.LL, aes(x=Gaxis, y=LearnPowerTrans,)) +
-  geom_line()
-  
-  
-  geom_line(aes(y=Tolsqrtvariable)) +
-  geom_line(aes(y=Memory_Mean))
-
 ```
 
