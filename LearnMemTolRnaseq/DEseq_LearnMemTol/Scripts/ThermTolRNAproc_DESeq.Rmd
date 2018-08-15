@@ -35,10 +35,10 @@ library(ggplot2)
 
 ```{r}
 
-ThermTolgenecount <- read.csv("Data/ThermTol_gene_count_matrix.csv", row.names="gene_id")
+ThermTolgenecount <- read.csv("../Data/ThermTol_gene_count_matrix.csv", row.names="gene_id")
 
 
-phenData <- read.csv("Data/sample_description.csv", stringsAsFactors = FALSE)
+phenData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE)
 
 
 #Separate traits into different obejects and ad id column 
@@ -75,7 +75,7 @@ Tolpheno_data <- as.matrix(Tolpheno_data)
 
 ```
 
-# Model with treatment and tissue
+# Model with treatment 
 
 ```{r}
 # Create a DESeqDataSet from count matrix and labels
