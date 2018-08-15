@@ -41,7 +41,7 @@ ThermTolgenecount <- read.csv("../Data/ThermTol_gene_count_matrix.csv", row.name
 phenData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE)
 
 
-#Separate traits into different obejects and ad id column 
+#Separate traits into different obejects and add id column 
 
 Tolpheno_data <- phenData %>% filter(treatment %in% c("TH", "TH_Incu", "TH_Incu_control", "TL","TL_Incu", "TL_Incu_control"  ))
 
@@ -51,6 +51,36 @@ Tolpheno_data <- Tolpheno_data %>%
 
 rownames(Tolpheno_data) <- Tolpheno_data[,1]
 Tolpheno_data[,1] <- NULL
+
+#Add pool, condition an batch column
+Tolpheno_data$pool <- Tolpheno_data$treatment
+Tolpheno_data$condition <- Tolpheno_data$treatment
+Tolpheno_data$batch <- Tolpheno_data$treatment
+
+
+#assign variables o new columns
+Tolpheno_data$pool[Tolpheno_data$treatment=='TL'] <- "L"
+Tolpheno_data$pool[Tolpheno_data$treatment=='TL_Incu'] <- "L"
+Tolpheno_data$pool[Tolpheno_data$treatment=='TL_Incu_control'] <- "L"
+Tolpheno_data$pool[Tolpheno_data$treatment=='TH'] <- "H"
+Tolpheno_data$pool[Tolpheno_data$treatment=='TH_Incu'] <- "H"
+Tolpheno_data$pool[Tolpheno_data$treatment=='TH_Incu_control'] <- "H"
+
+Tolpheno_data$condition[Tolpheno_data$treatment=='TL'] <- "HB"
+Tolpheno_data$condition[Tolpheno_data$treatment=='TL_Incu'] <- "Incu"
+Tolpheno_data$condition[Tolpheno_data$treatment=='TL_Incu_control'] <- "RT"
+Tolpheno_data$condition[Tolpheno_data$treatment=='TH'] <- "HB"
+Tolpheno_data$condition[Tolpheno_data$treatment=='TH_Incu'] <- "Incu"
+Tolpheno_data$condition[Tolpheno_data$treatment=='TH_Incu_control'] <- "RT"
+
+Tolpheno_data$batch[Tolpheno_data$treatment=='TL'] <- "1"
+Tolpheno_data$batch[Tolpheno_data$treatment=='TL_Incu'] <- "2"
+Tolpheno_data$batch[Tolpheno_data$treatment=='TL_Incu_control'] <- "2"
+Tolpheno_data$batch[Tolpheno_data$treatment=='TH'] <- "1"
+Tolpheno_data$batch[Tolpheno_data$treatment=='TH_Incu'] <- "2"
+Tolpheno_data$batch[Tolpheno_data$treatment=='TH_Incu_control'] <- "2"
+
+
 
 #order thermtol dataset 
 
@@ -93,8 +123,8 @@ ThermTolres <- results(ThermTolddsDE)
 (ThermTolresOrdered <- ThermTolres[order(ThermTolres$padj), ])
 
 
-save(ThermTolddsDE, file = "Data/ThermTolddsDE.Rda")
-save(ThermTolresOrdered, file = "Data/ThermTolres.Rda")
+save(ThermTolddsDE, file = "../Data/ThermTolddsDE.Rda")
+save(ThermTolresOrdered, file = "../Data/ThermTolres.Rda")
 
 ```
 
@@ -108,27 +138,22 @@ ThermTolcc.c <- rowSums(ThermToldat.sva)
 #remove all genes with 0s for all samples
 ThermToldat.sva <- ThermToldat.sva[which(ThermTolcc.c>0),]
 
-
-#load data with batch numbers
-phenData.sva <- read.csv("Data/sample_description_batch.csv", stringsAsFactors = FALSE)
-
-
-ThermTolpheno_data.sva <- phenData.sva %>% filter(treatment %in% c("TH", "TH_Incu", "TH_Incu_control", "TL","TL_Incu", "TL_Incu_control"  ))
-
-#names(ThermTolpheno_data.sva)[5]<-"batch"
-#cbind(ThermTolpheno_data.sva, colnames(dat.sva))
+#set data as dataframe
+Tolpheno_data <- as.data.frame(Tolpheno_data)
+ThermToldat.sva <- as.data.frame(ThermToldat.sva)
 
 
 #fit model
-ThermTolmod <- model.matrix(~as.factor(replicate)* 
-                              as.factor(treatment), 
-                              data=ThermTolpheno_data.sva)
+ThermTolmod <- model.matrix(~as.factor(batch)* 
+                              as.factor(treatment)+ 
+                              as.factor(condition), 
+                              data=Tolpheno_data)
 #intercept
-ThermTolmod0 <- model.matrix(~1, data=ThermTolpheno_data.sva) 
+ThermTolmod0 <- model.matrix(~1, data=ThermToldat.sva) 
+
 
 # calculate number of surrogate variables
-
-ThermToln.sv <- num.sv(ThermToldat.sva, Tolmod, method = "be", B = 20)
+ThermToln.sv <- num.sv(ThermToldat.sva, ThermTolmod)
 print(c("Calculated number of significant SVs = ", Toln.sv))
 
 Tolsvobj <- svaseq(Toldat.sva, Tolmod, Tolmod0, Toln.sv=Toln.sv) 
