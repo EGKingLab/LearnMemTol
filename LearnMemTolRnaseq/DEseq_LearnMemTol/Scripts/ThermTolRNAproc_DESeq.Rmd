@@ -66,10 +66,10 @@ Tolpheno_data$pool[Tolpheno_data$treatment=='TH'] <- "H"
 Tolpheno_data$pool[Tolpheno_data$treatment=='TH_Incu'] <- "H"
 Tolpheno_data$pool[Tolpheno_data$treatment=='TH_Incu_control'] <- "H"
 
-Tolpheno_data$condition[Tolpheno_data$treatment=='TL'] <- "HB"
+Tolpheno_data$condition[Tolpheno_data$treatment=='TL'] <- "RT"
 Tolpheno_data$condition[Tolpheno_data$treatment=='TL_Incu'] <- "Incu"
 Tolpheno_data$condition[Tolpheno_data$treatment=='TL_Incu_control'] <- "RT"
-Tolpheno_data$condition[Tolpheno_data$treatment=='TH'] <- "HB"
+Tolpheno_data$condition[Tolpheno_data$treatment=='TH'] <- "RT"
 Tolpheno_data$condition[Tolpheno_data$treatment=='TH_Incu'] <- "Incu"
 Tolpheno_data$condition[Tolpheno_data$treatment=='TH_Incu_control'] <- "RT"
 
@@ -110,7 +110,7 @@ Tolpheno_data <- as.matrix(Tolpheno_data)
 ```{r}
 # Create a DESeqDataSet from count matrix and labels
 ddsThermTol <- DESeqDataSetFromMatrix(countData = ThermTolgenecount,
-colData = Tolpheno_data, design = ~ replicate + treatment)
+colData = Tolpheno_data, design = ~ batch + pool + condition)
 
 
 # Run the default analysis for DESeq2 and generate results table
@@ -144,8 +144,8 @@ ThermToldat.sva <- as.data.frame(ThermToldat.sva)
 
 
 #fit model
-ThermTolmod <- model.matrix(~as.factor(batch)* 
-                              as.factor(treatment)+ 
+ThermTolmod <- model.matrix(~ as.factor(batch) + 
+                              as.factor(pool) + 
                               as.factor(condition), 
                               data=Tolpheno_data)
 #intercept
@@ -154,7 +154,7 @@ ThermTolmod0 <- model.matrix(~1, data=ThermToldat.sva)
 
 # calculate number of surrogate variables
 ThermToln.sv <- num.sv(ThermToldat.sva, ThermTolmod)
-print(c("Calculated number of significant SVs = ", Toln.sv))
+print(c("Calculated number of significant SVs = ", ThermToln.sv))
 
 Tolsvobj <- svaseq(Toldat.sva, Tolmod, Tolmod0, Toln.sv=Toln.sv) 
 
