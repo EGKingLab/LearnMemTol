@@ -39,9 +39,9 @@ set.seed(38142903)
 # Load gene(/transcript) count matrix and labels
 
 ```{r}
-LearnMemgenecount <- read.csv("Data/LearnMem_gene_count_matrix.csv", row.names="gene_id")
+LearnMemgenecount <- read.csv("../Data/LearnMem_gene_count_matrix.csv", row.names="gene_id")
 
-phenData <- read.csv("Data/sample_description.csv", stringsAsFactors = FALSE)
+phenData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE)
 
 
 
@@ -84,8 +84,8 @@ LearnMemres <- results(LearnMemddsDE)
 (LearnMemresOrdered <- LearnMemres[order(LearnMemres$padj), ])
 
 
-save(LearnMemddsDE, file = "Data/LearnMemddsDE.Rda")
-save(LearnMemresOrdered, file = "Data/LearnMemres.Rda")
+save(LearnMemddsDE, file = "../Data/LearnMemddsDE.Rda")
+save(LearnMemresOrdered, file = "../Data/LearnMemres.Rda")
 ```
 
 # Control for batch effects
@@ -101,7 +101,7 @@ LearnMemdat.sva <- LearnMemdat.sva[which(LearnMemcc.c>0),]
 
 
 #load data with batch numbers
-phenData.sva <- read.csv("Data/sample_description_batch.csv", stringsAsFactors = FALSE)
+phenData.sva <- read.csv("../Data/sample_description_batch.csv", stringsAsFactors = FALSE)
 
 
 
@@ -112,14 +112,14 @@ LearnMempheno_data.sva <- phenData.sva %>% filter(treatment %in% c("LL", "LH", "
 
 
 #fit model
-LearnMemmod <- model.matrix(~as.factor(treatment)* 
-                              as.factor(replicate)+
-                               as.factor(batch),
+LearnMemmod <- model.matrix(~as.factor(treatment) +
+                               as.factor(replicate),
                               data=LearnMempheno_data.sva)
 
 
 #intercept
-LearnMemmod0 <- model.matrix(~as.factor(batch), data=LearnMempheno_data.sva) 
+LearnMemmod0 <- model.matrix(~1+ as.factor(replicate), 
+                             data=LearnMempheno_data.sva) 
 
 # calculate number of surrogate variables
 LearnMemn.sv <- num.sv(LearnMemdat.sva, LearnMemmod, method = "be")
