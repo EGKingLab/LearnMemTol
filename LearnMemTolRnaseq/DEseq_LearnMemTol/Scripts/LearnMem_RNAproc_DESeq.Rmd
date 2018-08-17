@@ -56,6 +56,13 @@ LearnMempheno_data <- LearnMempheno_data %>%
 rownames(LearnMempheno_data) <- LearnMempheno_data[,1]
 LearnMempheno_data[,1] <- NULL
 
+##Add pool, condition an batch column
+LearnMempheno_data$batch <- LearnMempheno_data$treatment
+
+LearnMempheno_data$batch[LearnMempheno_data$treatment=='LL'] <- "1"
+LearnMempheno_data$batch[LearnMempheno_data$treatment=='LH'] <- "1"
+LearnMempheno_data$batch[LearnMempheno_data$treatment=='ML'] <- "2"
+LearnMempheno_data$batch[LearnMempheno_data$treatment=='MH'] <- "2"
 
 # Check all sample IDs in colData are also in genecount and match their orders
 all(rownames(LearnMempheno_data) %in% colnames(LearnMemgenecount))
@@ -64,6 +71,8 @@ all(rownames(LearnMempheno_data) == colnames(LearnMemgenecount))
 
 #colData <- pData(phenDat)[,c("treatment","tissue")]
 LearnMempheno_data <- as.matrix(LearnMempheno_data)
+
+save(LearnMempheno_data, file="../Data/LearnMemRNAproc_data.rda")
 
 ```
 
@@ -98,17 +107,6 @@ LearnMemcc.c <- rowSums(LearnMemdat.sva)
 
 #remove all genes with 0s for all samples
 LearnMemdat.sva <- LearnMemdat.sva[which(LearnMemcc.c>0),]
-
-
-#load data with batch numbers
-phenData.sva <- read.csv("../Data/sample_description_batch.csv", stringsAsFactors = FALSE)
-
-
-
-LearnMempheno_data.sva <- phenData.sva %>% filter(treatment %in% c("LL", "LH", "ML", "MH" ))
-
-#names(LearnMempheno_data.sva)[5]<-"batch"
-#cbind(LearnMempheno_data.sva, colnames(dat.sva))
 
 
 #fit model

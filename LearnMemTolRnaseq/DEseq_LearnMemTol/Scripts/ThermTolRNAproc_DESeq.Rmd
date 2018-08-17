@@ -96,11 +96,8 @@ all(rownames(Tolpheno_data) == colnames(ThermTolgenecount))
 #colData <- pData(phenDat)[,c("treatment","tissue")]
 Tolpheno_data <- as.matrix(Tolpheno_data)
 
-#Change colnames (replicate and treatment) to factors
-#LearnMempheno_data$treatment <- as.factor(LearnMempheno_data$treatment)
-#LearnMempheno_data$replicate <- as.factor(LearnMempheno_data$replicate)
-#Tolpheno_data$treatment <- as.factor(Tolpheno_data$treatment)
-#Tolpheno_data$replicate <- as.factor(Tolpheno_data$replicate)
+
+save(Tolpheno_data, file="../Data/ThermRNAproc_data.rda")
 
 
 ```
@@ -108,6 +105,9 @@ Tolpheno_data <- as.matrix(Tolpheno_data)
 # Model with treatment 
 
 ```{r}
+
+load(file="../Data/ThermRNAproc_data.rda")
+
 # Create a DESeqDataSet from count matrix and labels
 ddsThermTol <- DESeqDataSetFromMatrix(countData = ThermTolgenecount,
 colData = Tolpheno_data, design = ~ batch + pool + condition)
@@ -127,6 +127,20 @@ save(ThermTolddsDE, file = "../Data/ThermTolddsDE.Rda")
 save(ThermTolresOrdered, file = "../Data/ThermTolres.Rda")
 
 ```
+
+
+```{r}
+# DESeqDataSet for all variables, no interaction
+ThermToldds.ttSS <- DESeqDataSetFromMatrix(countData = ThermTolgenecount, 
+                                   colData = Tolpheno_data, 
+                                   design = ~ pool + condition)
+
+
+dds_deseq <- DESeq(ThermToldds.ttSS)
+res.dds <- results(dds_deseq)
+(res.dds <- res.dds[order(res.dds$padj), ])
+```
+
 
 # Control for batch effects
 
@@ -171,6 +185,61 @@ geom_point(alpha=1/5, size=3)
 ```
 
 
+#
+
+```{r}
+# DESeqDataSet for all variables, no interaction
+ThermToldds.ttSS <- DESeqDataSetFromMatrix(countData = ThermTolgenecount, 
+                                   colData = Tolpheno_data, 
+                                   design = ~ pool + condition)
+
+dds_deseq2 <- DESeq(ThermToldds.ttSS)
+
+res.dds2 <- results(dds_deseq2)
+(res.dds2 <- res.dds2[order(res.dds$padj), ])
+
+
+ThermTolres.dds_table <- merge(as.data.frame(res.dds2), 
+                       as.data.frame(counts(dds_deseq2, normalized=TRUE)), 
+                       by="row.names", sort=FALSE)
+names(ThermTolres.dds_table)[1] <- "Gene"
+
+save(res.dds2, file = "../Data/res.dds2.Rda")
+save(dds_deseq2, file = "../Data/dds_deseq2.Rda")
+save(ThermTolres.dds_table, file = "../Data/ThermTol_Noint_resOrdered_padj.Rda")
+
+
+write.csv(ThermTolres.dds_table, 
+          "../Data/ThermTol_Noint_resOrdered_padj.csv", row.names=TRUE)
+
+load("../Data/ThermTol_Noint_resOrdered_padj.Rda")
+
+
+
+# Examine plot of p-values
+hist(res.dds2$pvalue, breaks=50, col="grey")
+
+# Examine independent filtering
+metadata(res.dds2)$filterThreshold
+
+plot(metadata(res.dds2)$filterNumRej, type="b", xlab="quantiles of baseMean", ylab="number of rejections")
+```
+
+
+
+```{r}
+load("../Data/ThermTol_Noint_resOrdered_padj.Rda")
+
+# Could do with built-in DESeq2 function:
+DESeq2::plotMA(dds_deseq2, ylim=c(-10,6))
+
+```
+
+
+
+
+
+```
 
 
 
