@@ -139,7 +139,7 @@ ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_plot.pdf", width=10, h
 
 #sort the data from min to max 
 Learning_sort <- L_MDATA %>% arrange(Learning_Mean)
-strLearning_sort$RILorder <- 1:nrow(Learning_sort)
+Learning_sort$RILorder <- 1:nrow(Learning_sort)
 Learning_sort$y <- 0
 Learning_sort$Learning_Mean_SE <- Learning_sort$Learning_Mean + Learning_sort$Learning_SEM
 
@@ -235,6 +235,8 @@ Incap_sort[410:420,c('patRIL', 'Incapcitation_Mean')]
 
 ```{r}
 
+
+
 RIL_rna <- data.frame("Pool"= rep(c('LH','LL','MH','ML','TH','TL'),each=7), 
                       "patRIL"= c(11065,12359,11146,11144,11006,11122,11023,
                                   12044,12285,12138,12022,11189,12084,12324,
@@ -245,7 +247,10 @@ RIL_rna <- data.frame("Pool"= rep(c('LH','LL','MH','ML','TH','TL'),each=7),
                       stringsAsFactors = FALSE)
 
 
-load(file="../Data/ThermTolDATA_sort.rda")
+#Thermal Tolerance 
+
+load(file="../Data/T_TDATA.rda")
+
 
 ThermTol_sort <- T_TDATA %>% arrange(Incapacitation_Mean)
 ThermTol_sort$RILorder <- 1:nrow(ThermTol_sort)
@@ -258,12 +263,83 @@ ThermTol_sort <- merge(ThermTol_sort, RIL_rna[RIL_rna$Pool %in% c('TH','TL'),], 
 ThermTol_sort$Pool[is.na(ThermTol_sort$Pool)]<-'none'
 
 
-ggplot(ThermTol_sort, aes(x = RILorder, xend = RILorder,
+
+#visulize data
+ThermRNAseqrange <- ggplot(ThermTol_sort, aes(x = RILorder, xend = RILorder,
                         y = y, yend = Incapacitation_Mean)) +
   geom_segment(aes(color=Pool)) +
-  #scale_x_continuous(breaks = ThermTol_sort$RILorder, labels = ThermTol_sort$patRIL) +
-  #theme(axis.text.x=element_blank()) +
   geom_point(aes(x = RILorder, y = Incapacitation_Mean_SE),size=0.8,alpha=1/5) +
   labs(x = "Genotype Rank", y = "Incapacitation Time (sec)") 
+
+
+#to save graph
+ggsave(ThermRNAseqrange, file="../Plots/ThermRNAseqrange.pdf", width=10, height=4)
   
 ```
+
+#Learning
+
+```{r}
+
+load(file="../Data/L_MDATA.rda")
+
+#sort the data from min to max 
+Learn_sort <- L_MDATA %>% arrange(Learning_Mean)
+Learn_sort$RILorder <- 1:nrow(Learn_sort)
+Learn_sort$y <- 0
+Learn_sort$Learning_Mean_SE <- Learn_sort$Learning_Mean + Learn_sort$Learning_SEM
+
+
+#merge with Pool id
+Learn_sort <- merge(Learn_sort, RIL_rna[RIL_rna$Pool %in% c('LH','LL'),], by='patRIL',all=TRUE)
+
+Learn_sort$Pool[is.na(Learn_sort$Pool)]<-'none'
+
+
+
+#visulize data
+LearnRNAseqrange <- ggplot(Learn_sort, aes(x = RILorder, xend = RILorder,
+                        y = y, yend = Learning_Mean)) +
+  geom_segment(aes(color=Pool)) +
+  geom_point(aes(x = RILorder, y = Learning_Mean_SE),size=0.8,alpha=1/5) +
+  labs(x = "Genotype Rank", y = "Learning Performace Index") 
+  
+
+ggsave(LearnRNAseqrange, file="../Plots/LearnRNAseqrange.pdf", width=10, height=4)
+
+```
+
+#Memory
+
+```{r}
+
+load(file="../Data/L_MDATA.rda")
+
+
+Mem_sort <- L_MDATA %>% arrange(Memory_Mean)
+Mem_sort$RILorder <- 1:nrow(Mem_sort)
+Mem_sort$y <- 0
+Mem_sort$Memory_Mean_SE <- Mem_sort$Memory_Mean + Mem_sort$Memory_SEM
+
+#merge with Pool id
+Mem_sort <- merge(Mem_sort, RIL_rna[RIL_rna$Pool %in% c('MH','ML'),], by='patRIL',all=TRUE)
+
+Mem_sort$Pool[is.na(Mem_sort$Pool)]<-'none'
+
+
+
+#visulize data
+MemRNAseqrange <- ggplot(Mem_sort, aes(x = RILorder, xend = RILorder,
+                        y = y, yend = Memory_Mean)) +
+  geom_segment(aes(color=Pool)) +
+  geom_point(aes(x = RILorder, y = Memory_Mean_SE),size=0.8,alpha=1/5) +
+  labs(x = "Genotype Rank", y = "Memory Performace Index") 
+  
+
+ggsave(MemRNAseqrange, file="../Plots/MemRNAseqrange.pdf", width=10, height=4)
+
+
+```
+
+
+
