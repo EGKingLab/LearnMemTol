@@ -27,6 +27,12 @@ output: html_document
 A record of notes in the style of a lab notebook
 
 
+#Aug 24, 2018
+- Worked on the ThermTolRNAproc_DESeq script today. There are different MSTRG with the same FBgn (FBgn0002781). I tried giving every FBgn0002781 a different identify, but with no avail, since there are several rows with the same FBgn0002781. (pw-s)   
+
+#Aug 23, 2018
+-Ran the stringtie code again in Lewis, in attampt to get more genes idifified (converted from MSTRG #'s to FBgn's). Several were converted. 
+
 
 
 #July 26, 2018

@@ -35,69 +35,104 @@ library(ggplot2)
 
 ```{r}
 
-ThermTolgenecount <- read.csv("../Data/ThermTol_gene_count_matrix.csv", row.names="gene_id")
+# Read in data frame and fill in empty spaces in column 2 with value in 1
+TTgenes <- read.csv("../Data/ThermTolBallgown/TTgene_count_matrix1.csv", stringsAsFactors = FALSE)
+
+TTgenes$gene_id <- ifelse(TTgenes$gene_id == "", TTgenes$gene_id0, TTgenes$gene_id) 
+TTgenes <- TTgenes[c(2, 1, 3:33)]
+
+#find duplicated rows
+
+#w <- which(duplicated(TTgenes[,1]))
+#rownames(TTgenes, c(13988, 14695))
+
+###
+###
+####
+######change row name, b/c it was deplicated with row 14695
+
+#TTgenes[13988,]<-"FBgn0002781.1"
+
+#it's gone!
+#rownames(TTgenes) <- c("13988")
+
+#duplicated rows
+#TTdup = rownames(TTgenes)
+#TTdup[duplicated(TTdup$gene_id)]
 
 
-phenData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE)
+#delete first 3 row name
+rownames(TTgenes) <- TTgenes[,1]
+TTgenes[,2:3] <- NULL
+
+# Reformat column names
+names(TTgenes) = sub("\\.","",names(TTgenes)) #regex escape the escape
+TTgenes <- as.matrix(TTgenes)
+
+
+#load phenotype data
+
+
+PhenoData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE)
 
 
 #Separate traits into different obejects and add id column 
 
-Tolpheno_data <- phenData %>% filter(treatment %in% c("TH", "TH_Incu", "TH_Incu_control", "TL","TL_Incu", "TL_Incu_control"  ))
+TTpheno <- PhenoData %>% filter(treatment %in% c("TH", "TH_Incu", "TH_Incu_control", "TL","TL_Incu", "TL_Incu_control"  ))
 
-names(Tolpheno_data)[1]<-"ids"
-Tolpheno_data <- Tolpheno_data %>%
+names(TTpheno)[1]<-"ids"
+TTpheno <- TTpheno %>%
   select(ids,treatment,replicate)
 
-rownames(Tolpheno_data) <- Tolpheno_data[,1]
-Tolpheno_data[,1] <- NULL
+rownames(TTpheno) <- TTpheno[,1]
+TTpheno[,1] <- NULL
 
 #Add pool, condition an batch column
-Tolpheno_data$pool <- Tolpheno_data$treatment
-Tolpheno_data$condition <- Tolpheno_data$treatment
-Tolpheno_data$batch <- Tolpheno_data$treatment
+TTpheno$pool <- TTpheno$treatment
+TTpheno$condition <- TTpheno$treatment
+TTpheno$batch <- TTpheno$treatment
 
 
 #assign variables o new columns
-Tolpheno_data$pool[Tolpheno_data$treatment=='TL'] <- "L"
-Tolpheno_data$pool[Tolpheno_data$treatment=='TL_Incu'] <- "L"
-Tolpheno_data$pool[Tolpheno_data$treatment=='TL_Incu_control'] <- "L"
-Tolpheno_data$pool[Tolpheno_data$treatment=='TH'] <- "H"
-Tolpheno_data$pool[Tolpheno_data$treatment=='TH_Incu'] <- "H"
-Tolpheno_data$pool[Tolpheno_data$treatment=='TH_Incu_control'] <- "H"
+TTpheno$pool[TTpheno$treatment=='TL'] <- "L"
+TTpheno$pool[TTpheno$treatment=='TL_Incu'] <- "L"
+TTpheno$pool[TTpheno$treatment=='TL_Incu_control'] <- "L"
+TTpheno$pool[TTpheno$treatment=='TH'] <- "H"
+TTpheno$pool[TTpheno$treatment=='TH_Incu'] <- "H"
+TTpheno$pool[TTpheno$treatment=='TH_Incu_control'] <- "H"
 
-Tolpheno_data$condition[Tolpheno_data$treatment=='TL'] <- "RT"
-Tolpheno_data$condition[Tolpheno_data$treatment=='TL_Incu'] <- "Incu"
-Tolpheno_data$condition[Tolpheno_data$treatment=='TL_Incu_control'] <- "RT"
-Tolpheno_data$condition[Tolpheno_data$treatment=='TH'] <- "RT"
-Tolpheno_data$condition[Tolpheno_data$treatment=='TH_Incu'] <- "Incu"
-Tolpheno_data$condition[Tolpheno_data$treatment=='TH_Incu_control'] <- "RT"
+TTpheno$condition[TTpheno$treatment=='TL'] <- "RT"
+TTpheno$condition[TTpheno$treatment=='TL_Incu'] <- "Incu"
+TTpheno$condition[TTpheno$treatment=='TL_Incu_control'] <- "RT"
+TTpheno$condition[TTpheno$treatment=='TH'] <- "RT"
+TTpheno$condition[TTpheno$treatment=='TH_Incu'] <- "Incu"
+TTpheno$condition[TTpheno$treatment=='TH_Incu_control'] <- "RT"
 
-Tolpheno_data$batch[Tolpheno_data$treatment=='TL'] <- "1"
-Tolpheno_data$batch[Tolpheno_data$treatment=='TL_Incu'] <- "2"
-Tolpheno_data$batch[Tolpheno_data$treatment=='TL_Incu_control'] <- "2"
-Tolpheno_data$batch[Tolpheno_data$treatment=='TH'] <- "1"
-Tolpheno_data$batch[Tolpheno_data$treatment=='TH_Incu'] <- "2"
-Tolpheno_data$batch[Tolpheno_data$treatment=='TH_Incu_control'] <- "2"
+TTpheno$batch[TTpheno$treatment=='TL'] <- "1"
+TTpheno$batch[TTpheno$treatment=='TL_Incu'] <- "2"
+TTpheno$batch[TTpheno$treatment=='TL_Incu_control'] <- "2"
+TTpheno$batch[TTpheno$treatment=='TH'] <- "1"
+TTpheno$batch[TTpheno$treatment=='TH_Incu'] <- "2"
+TTpheno$batch[TTpheno$treatment=='TH_Incu_control'] <- "2"
 
 
 
 #order thermtol dataset 
 
-Tolpheno_data <- Tolpheno_data[order (row.names(Tolpheno_data)),]
+TTpheno <- TTpheno[order (row.names(TTpheno)),]
 
 # Check all sample IDs in colData are also in genecount and match their orders
 
-all(rownames(Tolpheno_data) %in% colnames(ThermTolgenecount))
-genecount2 <- ThermTolgenecount[, rownames(Tolpheno_data)]
-all(rownames(Tolpheno_data) == colnames(ThermTolgenecount))
+all(rownames(TTpheno) %in% colnames(TTgenes))
+genecount2 <- TTgenes[, rownames(TTpheno)]
+all(rownames(TTpheno) == colnames(TTgenes))
 
 
 #colData <- pData(phenDat)[,c("treatment","tissue")]
-Tolpheno_data <- as.matrix(Tolpheno_data)
+TTpheno <- as.matrix(TTpheno)
 
 
-save(Tolpheno_data, file="../Data/ThermRNAproc_data.rda")
+save(TTpheno, file="../Data/ThermRNAproc_data.rda")
 
 
 ```
@@ -110,7 +145,7 @@ load(file="../Data/ThermRNAproc_data.rda")
 
 # Create a DESeqDataSet from count matrix and labels
 ddsThermTol <- DESeqDataSetFromMatrix(countData = ThermTolgenecount,
-colData = Tolpheno_data, design = ~ batch + pool + condition)
+colData = TTpheno, design = ~ batch + pool + condition)
 
 
 # Run the default analysis for DESeq2 and generate results table
@@ -132,7 +167,7 @@ save(ThermTolresOrdered, file = "../Data/ThermTolres.Rda")
 ```{r}
 # DESeqDataSet for all variables, no interaction
 ThermToldds.ttSS <- DESeqDataSetFromMatrix(countData = ThermTolgenecount, 
-                                   colData = Tolpheno_data, 
+                                   colData = TTpheno, 
                                    design = ~ pool + condition)
 
 
@@ -153,7 +188,7 @@ ThermTolcc.c <- rowSums(ThermToldat.sva)
 ThermToldat.sva <- ThermToldat.sva[which(ThermTolcc.c>0),]
 
 #set data as dataframe
-Tolpheno_data <- as.data.frame(Tolpheno_data)
+TTpheno <- as.data.frame(TTpheno)
 ThermToldat.sva <- as.data.frame(ThermToldat.sva)
 
 
@@ -161,7 +196,7 @@ ThermToldat.sva <- as.data.frame(ThermToldat.sva)
 ThermTolmod <- model.matrix(~ as.factor(batch) + 
                               as.factor(pool) + 
                               as.factor(condition), 
-                              data=Tolpheno_data)
+                              data=TTpheno)
 #intercept
 ThermTolmod0 <- model.matrix(~1, data=ThermToldat.sva) 
 
