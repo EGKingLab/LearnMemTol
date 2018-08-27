@@ -27,6 +27,14 @@ output: html_document
 A record of notes in the style of a lab notebook
 
 
+#Aug 27, 2018
+
+-Decided to try the the 'shorter version' of the tuxedo pipeline for rna seq processing. ref:http://ccb.jhu.edu/software/stringtie/index.shtml?t=manual#de.
+-This simplified workflow attempts to directly estimate and analyze the expression of a known set of transcripts as given in the reference annotation file.
+-One caveat to this work flow is that novel transcripts will not be identified.
+(PW-S)
+
+
 #Aug 24, 2018
 - Worked on the ThermTolRNAproc_DESeq script today. There are different MSTRG with the same FBgn (FBgn0002781). I tried giving every FBgn0002781 a different identify, but with no avail, since there are several rows with the same FBgn0002781. (pw-s)   
 
