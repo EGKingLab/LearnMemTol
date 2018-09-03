@@ -65,17 +65,19 @@ abline(h=-log10(max(TTtop$pvalue[TTtop$padj<0.05], na.rm=TRUE)), col="black", lt
 TTgene_list <- read.table("../Data/ThermTol_Noint_resOrdered_padj.csv", header=T, sep=",")
 
 
-TTgene_list <- as.data.frame(TTres.dds_table)
+TTgene_list <- as.data.frame(TTgene_list)
 
-TTdrhs<-TTdrhs%>%mutate(TTdrhs = ifelse(log2FoldChange) >= 2, "A", ifelse(log2FoldChange<=-2, "B", "C" ))
+TTgene_list <-TTgene_list%>%mutate(threshold = ifelse(log2FoldChange) >= 2, "A", ifelse(log2FoldChange<=-2, "B", "C" ))
 
+
+#mydata<-mydata%>%mutate(threshold = ifelse(logFC >= 2,"A", ifelse(logFC<=-2 , "B", "C")))
 
 str(TTdrhs)
 
 
 ThermTol_Volcanoplot <- ggplot(TTdrhs, aes(y=-log10(padj), x=log2FoldChange)) +
   geom_point(aes(colour = Gene), size=2, alpha=1/2 ) +
-  geom_hline(yintercept = 1.30) 
+  geom_hline(yintercept = 1.30) +
   scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels'))
 
 

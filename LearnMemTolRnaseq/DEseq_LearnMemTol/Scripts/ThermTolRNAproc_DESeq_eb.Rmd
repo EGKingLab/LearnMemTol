@@ -133,10 +133,6 @@ TTres <- results(TTDE)
 
 (TTresOrdered <- TTres[order(TTres$padj), ])
 
-
-save(TTDE, file = "../Data/ThermTolddsDE.Rda")
-save(TTresOrdered, file = "../Data/ThermTolres.Rda")
-
 ```
 
 #Model with batch, pool and condition
@@ -148,11 +144,10 @@ TTdds2 <- DESeqDataSetFromMatrix(countData = TTgenes,
 
 
 TTdds_deseq2 <- DESeq(TTdds2)
-TTres.dds2 <- results(TTdds_deseq2)
-(TTresOrder2 <- TTres.dds2[order(TTres.dds2$padj), ])
+TTres_dds2 <- results(TTdds_deseq2)
+(TTresOrder2 <- TTres_dds2[order(TTres_dds2$padj), ])
 
-save(TTdds_deseq2, file = "../Data/ThermTolddsDE2.Rda")
-save(TTresOrder2, file = "../Data/ThermTolresOrdered2.Rda")
+
 ```
 
 
@@ -161,12 +156,12 @@ save(TTresOrder2, file = "../Data/ThermTolresOrdered2.Rda")
 ```{r}
 
 
-TTdds.sva <- estimateSizeFactors(TTdds)
-TTdat.sva <- counts(TTdds.sva, normalized=TRUE)
-TTcc.c <- rowSums(TTdat.sva)
+TTdds_sva <- estimateSizeFactors(TTdds)
+TTdat_sva <- counts(TTdds_sva, normalized=TRUE)
+TTcc_c <- rowSums(TTdat_sva)
 
 #remove all genes with 0s for all samples
-TTdat.sva <- TTdat.sva[which(TTcc.c>0),]
+TTdat_sva <- TTdat_sva[which(TTcc_c>0),]
 
 
 TTpheno <- as.data.frame(TTpheno)
@@ -182,24 +177,23 @@ TTmod0 <- model.matrix(~ as.factor(batch), data=TTpheno)
 
 # calculate number of surrogate variables
 
-TTn.sv <- num.sv(TTdat.sva, TTmod)
+TTn_sv <- num.sv(TTdat_sva, TTmod)
 
-print(c("Calculated number of significant SVs = ", TTn.sv))
+print(c("Calculated number of significant SVs = ", TTn_sv))
 
-TTsvobj <- svaseq(TTdat.sva, TTmod, TTmod0, n.sv=TTn.sv) 
+TTsv_obj <- svaseq(TTdat_sva, TTmod, TTmod0, n.sv=TTn_sv) 
+
+#add SVs to phenotype dataset
+TTpheno$SV1 <- TTsv_obj$sv[,1]
+TTpheno$SV2 <- TTsv_obj$sv[,2]
 
 
-TTdat.sva$SV1 <- TTsvobj$sv[,1]
-TTdat.sva$SV2 <- TTsvobj$sv[,2]
+head(TTdat_sva, 3)
 
-head(TTdat.sva, 3)
+TTdat_sva <- as.data.frame(TTdat_sva)
 
-TTdat.sva <- as.data.frame(TTdat.sva)
-
-ggplot(TTdat.sva, aes(x=SV1, y=SV2)) +
+ggplot(TTpheno, aes(x=SV1, y=SV2)) +
 geom_point(alpha=1/5, size=3)
-
-save(TTdat.sva, file = "../Data/TTdat.sva.Rda")
 
 ```
 
@@ -214,31 +208,24 @@ countdata <- TTgenes[, rownames(TTpheno)]
 all(rownames(TTpheno) == colnames(TTgenes))
 
 
-#add SVs to dataset
-TTpheno$SV1 <- TTsvobj$sv[,1]
-TTpheno$SV2 <- TTsvobj$sv[,2]
-
 # DESeqDataSet for all variables,
 
-TTsv_dds.ttSS <- DESeqDataSetFromMatrix(countData = TTgenes, 
+TTsv_dds_ttSS <- DESeqDataSetFromMatrix(countData = TTgenes, 
                                    colData = TTpheno, 
                                    design = ~ SV1 + SV2 + batch + pool + condition)
 
-TTsv_dds_deseq <- DESeq(TTsv_dds.ttSS, fitType = "local")
-TTsv_res.dds <- results(TTsv_dds_deseq)
-(TTsv_res.dds <- TTsv_res.dds[order(TTsv_res.dds$padj), ])
+TTsv_dds_deseq <- DESeq(TTsv_dds_ttSS, fitType = "local")
+TTsv_res_dds <- results(TTsv_dds_deseq)
+(TTsv_res_dds <- TTsv_res_dds[order(TTsv_res_dds$padj), ])
 
 
 
 ## Merge with normalized count data
-TTsv_res.dds_table <- merge(as.data.frame(TTsv_res.dds), 
+TTsv_res_dds_table <- merge(as.data.frame(TTsv_res_dds), 
                        as.data.frame(counts(TTsv_dds_deseq, normalized=TRUE)), 
                        by="row.names", sort=FALSE)
-names(TTsv_res.dds_table)[1] <- "Gene"
+names(TTsv_res_dds_table)[1] <- "Gene"
 
-save(TTsv_res.dds, file = "../Data/TTsv_res.dds.Rda")
-save(TTsv_dds_deseq, file = "../Data/TTsv_dds_deseq.Rda")
-save(TTsv_res.dds_table, file = "../Data/TTDEseqSVA_resOrdered_padj.Rda")
 
 write.csv(TTsv_res.dds_table, 
           "../Data/TTDEseqSVA_resOrdered_padj.csv", row.names=TRUE)
@@ -246,11 +233,11 @@ write.csv(TTsv_res.dds_table,
 load("../Data/TTDEseqSVA_resOrdered_padj.Rda")
 
 # Examine plot of p-values
-hist(TTsv_res.dds$pvalue, breaks=50, col="grey")
+hist(TTsv_res_dds$pvalue, breaks=50, col="grey")
 
 # Examine independent filtering
-metadata(TTsv_res.dds)$filterThreshold
+metadata(TTsv_res_dds)$filterThreshold
 
-plot(metadata(TTsv_res.dds)$filterNumRej, type="b", xlab="quantiles of baseMean", ylab="number of rejections")
+plot(metadata(TTsv_res_dds)$filterNumRej, type="b", xlab="quantiles of baseMean", ylab="number of rejections")
 ```
 

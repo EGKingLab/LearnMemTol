@@ -33,7 +33,9 @@ code: LMdat.sva$SV1 <- LMsvobj$sv[,1]
 error:Error in `$<-.data.frame`(`*tmp*`, SV1, value = c(-0.358398470470704,  : 
   replacement has 20 rows, data has 16994
 
+solution: I was using the sva dataset , whereas i was suppose to be using the TTpheno dataset (silly Patricka :))
 
+_When running DESeq with SV in the model there was 3 rows that did not converge in beta.
 
 
 

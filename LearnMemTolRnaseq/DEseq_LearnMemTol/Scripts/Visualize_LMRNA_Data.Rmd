@@ -1,0 +1,165 @@
+---
+title: "Visualizing_TTRNA_Data"
+author: "Patricka Williams-Simon"
+date: "8/20/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DESeq2)
+library(dplyr)
+library(stringr)
+library(sva)
+library(ggplot2)
+```
+
+# MA plot
+
+
+```{r}
+load("../Data/LMDEseqSVA_resOrdered_padj.Rda")
+
+# Could do with built-in DESeq2 function:
+DESeq2::plotMA(LMsv_dds_deseq, ylim=c(-25,25))
+
+# see all results available
+resultsNames(LMsv_dds_deseq)
+
+
+```
+
+#Volcano Plot
+
+```{r}
+
+load(file="../Data/LMDEseqSVA_resOrdered_padj.Rda")
+
+par(mar=c(5,5,5,5), cex=1.0, cex.main=1.4, cex.axis=1.4, cex.lab=1.4)
+
+LMtop <- as.data.frame(LMres_dds_table)
+
+#Adjusted P values (FDR Q values)
+with(TTres_dds_table, plot(log2FoldChange, -log10(padj), pch=20, main="Volcano plot", cex=1.0, xlab=bquote(~Log[2]~fold~change), ylab=bquote(~-log[10]~Q~value)))
+
+
+with(subset(TTres.dds_table, padj<0.05 & abs(log2FoldChange)>2), points(log2FoldChange, -log10(padj), pch=20, col="red", cex=0.5))
+
+with(subset(TTres.dds_table, padj<0.05 & abs(log2FoldChange)>2), text(log2FoldChange, -log10(padj), labels=subset(rownames(TTtop), TTtop$padj<0.05 & abs(TTtop$log2FoldChange)>2), cex=0.8, pos=3))
+
+#Add lines for absolute FC>2 and P-value cut-off at FDR Q<0.05
+abline(v=0, col="black", lty=3, lwd=1.0)
+abline(v=-2, col="black", lty=4, lwd=2.0)
+abline(v=2, col="black", lty=4, lwd=2.0)
+abline(h=-log10(max(TTtop$pvalue[TTtop$padj<0.05], na.rm=TRUE)), col="black", lty=4, lwd=2.0)
+```
+
+#Volcano Plot (ggplot2)
+
+```{r}
+
+load(file="../Data/LMDEseqSVA_resOrdered_padj.Rda")
+
+LMgene_list <- as.data.frame(LMsv_res_dds_table)
+
+LMgene_list <-LMgene_list%>%mutate(LMgene_list = ifelse(log2FoldChange) >= 2, "A", ifelse(log2FoldChange<=-2, "B", "C" ))
+
+
+str(TTdrhs)
+
+
+Learn_Volcanoplot <- ggplot(LMgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
+  geom_point(aes(colour = Gene), size=2, alpha=1/2 ) +
+  geom_hline(yintercept = 1.30) +
+  scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels'))
+
+
+LearnMem_Volcanoplot
+
+ggsave(Memgene_Volcanoplot, filename="../Plots/LearnMem_Volcanoplot.pdf", width=6, height=4)
+
+
+
+```
+
+#Heat map
+
+```{r}
+# Heatmap of count table
+library(gplots)
+
+load("../Data/dds_deseq2.Rda")
+
+#use a DESeq()-ready data object
+Select <- order(rowMeans(counts(dds_deseq2, normalized=TRUE)), 
+                decreasing=TRUE)[1:30]
+hmcol <- colorRampPalette(brewer.pal(9, "GnBu"))(100)
+
+heatmap.2(counts(dds_deseq, normalized=TRUE)[Select,], col = hmcol,
+          Rowv = FALSE, Colv = FALSE, scale = "none",
+          dendrogram = "none", trace = "none", margin = c(10,6))
+
+dev.off()
+heatmap.2(assay(rld)[Select,], col = hmcol,
+          Rowv = FALSE, Colv = FALSE, scale = "none",
+          dendrogram = "none", trace = "none", margin = c(10,6))
+
+dev.off()
+heatmap.2(assay(vsd)[Select,], col = hmcol,
+          Rowv = FALSE, Colv = FALSE, scale = "none",
+          dendrogram = "none", trace = "none", margin = c(10,6))
+
+# Heatmap of the sample-sample distance
+#dev.off()
+#distRL <- dist(t(assay(rld)))
+#Matt <- as.matrix(distRL)
+#rownames(Matt) <- colnames(Matt) <- with(colData(dds_deseq),
+                                         #paste(treatment, tissue, sep=":"))
+#heatmap.2(Matt, trace = "none", col = rev(hmcol), margin=c(8,8))
+
+
+```
+
+# PCA of samples
+# different ways to visualize
+
+```{r}
+
+
+load("../Data/TTdds_deseq.Rda")
+
+rlogtransTTdds_deseq <- rlogTransformation(TTdds_deseq, blind=TRUE) #time intensive
+vstransTTdds_deseq <- varianceStabilizingTransformation(TTdds_deseq, blind = TRUE)
+
+dev.off()
+print(plotPCA(rlogtransTTdds_deseq, intgroup=c("pool", "condition")))
+plotPCA(rlogtransTTdds_deseq, intgroup=c("pool"), returnData=FALSE)
+
+###save plots as pdf
+
+# Visualize p-value optimization
+attr(res.dds, "filterThreshold")
+attr(res_int, "filterThreshold")
+
+#NULL could mean too many DEs & independent (default in results()), filtering did not happen. Solution:
+
+metadata(res.dds)$filterThreshold
+metadata(res_int)$filterThreshold
+
+plot(attr(res.dds, "filterNumRej"), type="b",
+     xlab="quantiles of 'baseMean'",
+     ylab="number of rejections")
+
+# turn off independent filtering and see what happens
+resNoFilt <- results(dds_deseq, independentFiltering = FALSE)
+table(filtering=(res.dds$padj < 0.1), noFiltering=(resNoFilt$padj < 0.1))
+
+# turn on independent filtering and see what happens
+rv <- rowVars(counts(dds_deseq, normalized=TRUE))
+resFiltByVar <- results(dds_deseq, filter = rv)
+table(rowMean=(res.dds$padj < 0.1), rowVar=(resFiltByVar$padj < 0.1))
+```
+
+
+```
+

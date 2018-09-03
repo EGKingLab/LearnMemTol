@@ -59,10 +59,10 @@ LMpheno[,1] <- NULL
 ##Add batch column
 LMpheno$batch <- LMpheno$treatment
 
-LMpheno$batch[LMpheno$treatment=='LL'] <- "1"
-LMpheno$batch[LMpheno$treatment=='LH'] <- "1"
-LMpheno$batch[LMpheno$treatment=='ML'] <- "2"
-LMpheno$batch[LMpheno$treatment=='MH'] <- "2"
+LMpheno$batch[LMpheno$treatment=='LL'] <- "A"
+LMpheno$batch[LMpheno$treatment=='LH'] <- "A"
+LMpheno$batch[LMpheno$treatment=='ML'] <- "B"
+LMpheno$batch[LMpheno$treatment=='MH'] <- "B"
 
 # Check all sample IDs in colData are also in genecount and match their orders
 all(rownames(LMpheno) %in% colnames(LMgenes))
@@ -76,12 +76,12 @@ save(LMpheno, file="../Data/LMRNAproc_data_eb.rda")
 
 ```
 
-# Model with treatment and tissue
+# Model with batch, treatment and tissue
 
 ```{r}
 # Create a DESeqDataSet from count matrix and labels
 LMdds <- DESeqDataSetFromMatrix(countData = LMgenes,
-colData = LMpheno, design = ~ replicate + treatment)
+colData = LMpheno, design = ~  replicate + treatment)
 
 
 # Run the default analysis for DESeq2 and generate results table
@@ -93,20 +93,18 @@ LMres <- results(LMddsDE)
 (LMresOrdered <- LMres[order(LMres$padj), ])
 
 
-save(LMddsDE, file = "../Data/LMddsDE.Rda")
-save(LMresOrdered, file = "../Data/LMres.Rda")
 ```
 
 # Control for batch effects
 
 ```{r}
-LMdds.sva <- estimateSizeFactors(LMdds)
-LMdat.sva <- counts(LMdds.sva, normalized=TRUE)
-LMcc.c <- rowSums(LMdat.sva)
+LMdds_sva <- estimateSizeFactors(LMdds)
+LMdat_sva <- counts(LMdds_sva, normalized=TRUE)
+LMcc_c <- rowSums(LMdat_sva)
 
 
 #remove all genes with 0s for all samples
-LMdat.sva <- LMdat.sva[which(LMcc.c>0),]
+LMdat_sva <- LMdat_sva[which(LMcc_c>0),]
 
 
 LMpheno <- as.data.frame(LMpheno)
@@ -120,28 +118,71 @@ LMmod <- model.matrix(~as.factor(treatment) +
 
 #intercept
 LMmod0 <- model.matrix(~as.factor(treatment), data=LMpheno) 
-
+#LMmod0 <- model.matrix(~1, data=LMpheno) 
 
 # calculate number of surrogate variables
-LMn.sv <- num.sv(LMdat.sva, LMmod, method = "be")
+LMn_sv <- num.sv(LMdat_sva, LMmod, method = "be")
 
-print(c("Calculated number of significant SVs = ", LMn.sv))
-
-
-LMsvobj <- svaseq(LMdat.sva, LMmod, LMmod0, n.sv=LMn.sv)
+print(c("Calculated number of significant SVs = ", LMn_sv))
 
 
-LMdat.sva$SV1 <- LMsvobj$sv[,1]
-#LMdat.sva$SV2 <- LMsvobj$sv[,2]
+LMsvobj <- svaseq(LMdat_sva, LMmod, LMmod0, n.sv=LMn_sv)
 
-LMdat.sva <- as.data.frame(LMdat.sva)
+
+#add the SV values to the pheno dataset
+LMpheno$SV1 <- LMsvobj$sv[,1]
+
+
+LMpheno <- as.data.frame(LMpheno)
 
 
 #ggplot(LMdat.sva, aes(x=SV1, y=SV2)) +
  # geom_point(alpha=1/5, size=3)
 
-
-
 ```
 
+#DESeq with surrogate variables, treatment and replicate
+
+
+```{r}
+# countData colnames() must be identical to colData rownames()
+all(rownames(LMpheno) %in% colnames(LMgenes))
+countdata <- LMgenes[, rownames(LMpheno)]
+all(rownames(LMpheno) == colnames(LMgenes))
+
+
+# DESeqDataSet for all variables,
+
+LMsv_dds_ttSS <- DESeqDataSetFromMatrix(countData = LMgenes, 
+                                   colData = LMpheno, 
+                                   design = ~ SV1 + treatment + replicate)
+
+LMsv_dds_deseq <- DESeq(LMsv_dds_ttSS, fitType = "local") #3 rows did not converge in beta
+LMsv_res_dds <- results(LMsv_dds_deseq)
+(LMsv_res_dds <- LMsv_res_dds[order(LMsv_res_dds$padj), ])
+
+
+
+## Merge with normalized count data
+LMsv_res_dds_table <- merge(as.data.frame(LMsv_res_dds), 
+                       as.data.frame(counts(LMsv_dds_deseq, normalized=TRUE)), 
+                       by="row.names", sort=FALSE)
+names(LMsv_res_dds_table)[1] <- "Gene"
+
+
+save(LMsv_res_dds_table, file = "../Data/LMDEseqSVA_resOrdered_padj.Rda")
+
+write.csv(LMsv_res_dds_table, 
+          "../Data/LMDEseqSVA_resOrdered_padj.csv", row.names=TRUE)
+
+load("../Data/LMDEseqSVA_resOrdered_padj.Rda")
+
+# Examine plot of p-values
+hist(LMsv_res_dds$pvalue, breaks=50, col="grey")
+
+# Examine independent filtering
+metadata(LMsv_res_dds)$filterThreshold
+
+plot(metadata(LMsv_res_dds)$filterNumRej, type="b", xlab="quantiles of baseMean", ylab="number of rejections")
+```
 
