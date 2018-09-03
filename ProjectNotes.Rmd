@@ -26,6 +26,16 @@ output: html_document
 
 A record of notes in the style of a lab notebook
 
+#Sep 03, 2018
+-Updated script LearnMem_RNAproc_DESEq_eb. Ran the data through the DESeq pipeline, however when i got to the step where I make the SVs a part of the dataset i got a error.
+
+code: LMdat.sva$SV1 <- LMsvobj$sv[,1]
+error:Error in `$<-.data.frame`(`*tmp*`, SV1, value = c(-0.358398470470704,  : 
+  replacement has 20 rows, data has 16994
+
+
+
+
 
 #Aug 27, 2018
 

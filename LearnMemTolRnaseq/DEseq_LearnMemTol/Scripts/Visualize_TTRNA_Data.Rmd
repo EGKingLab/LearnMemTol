@@ -14,61 +14,20 @@ library(sva)
 library(ggplot2)
 ```
 
-# DESeqDataSet for all variables, no interaction
+# MA plot
+
 
 ```{r}
-
-ThermTolgenecount <- read.csv("../Data/ThermTol_gene_count_matrix.csv", row.names="gene_id")
-
-ThermToldds.ttSS <- DESeqDataSetFromMatrix(countData = ThermTolgenecount, 
-                                   colData = Tolpheno_data, 
-                                   design = ~ pool + condition)
-
-TTdds_deseq <- DESeq(ThermToldds.ttSS)
-
-TTres.dds <- results(TTdds_deseq)
-(TTres.dds <- TTres.dds[order(TTres.dds$padj), ])
-
-
-TTres.dds_table <- merge(as.data.frame(TTres.dds), 
-                       as.data.frame(counts(TTdds_deseq, normalized=TRUE)), 
-                       by="row.names", sort=FALSE)
-names(TTres.dds_table)[1] <- "Gene"
-
-save(TTres.dds, file = "../Data/TTres.dds.Rda")
-save(TTdds_deseq, file = "../Data/TTdds_deseq.Rda")
-save(TTres.dds_table, file = "../Data/ThermTol_Noint_resOrdered_padj.Rda")
-
-
-write.csv(TTres.dds_table, 
-          "../Data/ThermTol_Noint_resOrdered_padj.csv", row.names=TRUE)
-
-load("../Data/ThermTol_Noint_resOrdered_padj.Rda")
-
-
-
-# Examine plot of p-values
-hist(TTres.dds$pvalue, breaks=50, col="grey")
-
-# Examine independent filtering
-metadata(TTres.dds)$filterThreshold
-
-plot(metadata(TTres.dds)$filterNumRej, type="b", xlab="quantiles of baseMean", ylab="number of rejections")
-```
-
-
-#MA plot
-```{r}
-load("../Data/ThermTol_Noint_resOrdered_padj.Rda")
+load("../Data/TTDEseqSVA_resOrdered_padj.Rda")
 
 # Could do with built-in DESeq2 function:
-DESeq2::plotMA(TTdds_deseq, ylim=c(-10,6))
+DESeq2::plotMA(TTsv_dds_deseq, ylim=c(-10,6))
 
 # see all results available
-resultsNames(TTdds_deseq)
+resultsNames(TTsv_dds_deseq)
 
 
-results(TTdds_deseq, contrast=c("pool","condition"))
+results(TTsv_dds_deseq, contrast=c("pool","condition"))
 
 ```
 
@@ -99,12 +58,14 @@ abline(h=-log10(max(TTtop$pvalue[TTtop$padj<0.05], na.rm=TRUE)), col="black", lt
 
 #Volcano Plot (ggplot2)
 
-```
-load("../Data/ThermTol_Noint_resOrdered_padj.Rda")
-#TTgene_list <- read.table("../Data/ThermTol_Noint_resOrdered_padj.csv", header=T, sep=",")
+```{r}
+
+#load("../Data/ThermTol_Noint_resOrdered_padj.Rda")
+
+TTgene_list <- read.table("../Data/ThermTol_Noint_resOrdered_padj.csv", header=T, sep=",")
 
 
-TTgene_list <- as.data.frame(ThermTolres.dds_table)
+TTgene_list <- as.data.frame(TTres.dds_table)
 
 TTdrhs<-TTdrhs%>%mutate(TTdrhs = ifelse(log2FoldChange) >= 2, "A", ifelse(log2FoldChange<=-2, "B", "C" ))
 
@@ -123,8 +84,8 @@ ThermTol_Volcanoplot
 ggsave(Memgene_Volcanoplot, filename="../Plots/ThermTol_Volcanoplot.pdf", width=6, height=4)
 
 
-```
 
+```
 
 #Heat map
 
@@ -170,16 +131,16 @@ heatmap.2(assay(vsd)[Select,], col = hmcol,
 ```{r}
 
 
-load("../Data/dds_deseq2.Rda")
+load("../Data/TTdds_deseq.Rda")
 
-rlogtransdds_deseq2 <- rlogTransformation(dds_deseq2, blind=TRUE) #time intensive
-vstransdds_deseq2 <- varianceStabilizingTransformation(dds_deseq2, blind = TRUE)
+rlogtransTTdds_deseq <- rlogTransformation(TTdds_deseq, blind=TRUE) #time intensive
+vstransTTdds_deseq <- varianceStabilizingTransformation(TTdds_deseq, blind = TRUE)
 
 dev.off()
-print(plotPCA(rlogtransdds_deseq2, intgroup=c("pool", "condition")))
-plotPCA(rlogtransdds_deseq2, intgroup=c("pool"), returnData=FALSE)
+print(plotPCA(rlogtransTTdds_deseq, intgroup=c("pool", "condition")))
+plotPCA(rlogtransTTdds_deseq, intgroup=c("pool"), returnData=FALSE)
 
-
+###save plots as pdf
 
 # Visualize p-value optimization
 attr(res.dds, "filterThreshold")

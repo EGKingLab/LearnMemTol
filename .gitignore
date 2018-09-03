@@ -39,3 +39,6 @@ Perm_LODS_FDR.rda
 *.gtf
 *.ctab
 *.fastq.gz
+TTdat.sva.Rda
+*.Rda
+*.rda

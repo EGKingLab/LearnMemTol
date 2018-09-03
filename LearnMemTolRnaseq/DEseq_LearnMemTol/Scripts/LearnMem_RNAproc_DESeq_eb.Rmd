@@ -1,0 +1,147 @@
+---
+title: "LearnMem_RNAproc_DESeq"
+author: "Patricka Williams-Simon"
+date: "8/13/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(DESeq2)
+library(dplyr)
+library(stringr)
+library(sva)
+library(ggplot2)
+library(RColorBrewer)
+
+```
+
+# Generate a list of gtf commands - ref p.92-93 Dunn book
+
+##grep -li assemb *.gtf > ~/MyGithub/BasePop_RNAseq/processed/gtf_list.txt
+# searches and list all .gtf which includes assemb*
+
+#Open gtf_list.txt in TextWrangler [command+F]
+#In the search window type ^
+#In the replace window, type full path i.e: ~/MyGithub/BasePop_RNAseq/scripts/DESeq_scripts/
+#Do Replace All
+#This gives full path to each of the .gtf
+
+#Alternatively:
+#While in processed/ (i.e. where directory "ballgown" is located), run:
+#python ../scripts/DESeq_scripts/prepDE.py
+#Two output matrices are written: `transcript_count_matrix.csv` and `gene_count_matrix.csv`
+
+
+
+# Load gene(/transcript) count matrix and labels
+
+```{r}
+LMgenes <- read.csv("../Data/LearnMemBallgown/ballgown_eb/LMgene_count_matrix_eb.csv", row.names="gene_id")
+
+phenData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE)
+
+
+
+#Separate traits into different obejects and ad id column 
+
+LMpheno <- phenData %>% filter(treatment %in% c("LL", "LH", "ML", "MH" ))
+
+names(LMpheno)[1]<-"ids"
+LMpheno <- LMpheno %>%
+  select(ids,treatment,replicate)
+
+
+rownames(LMpheno) <- LMpheno[,1]
+LMpheno[,1] <- NULL
+
+##Add batch column
+LMpheno$batch <- LMpheno$treatment
+
+LMpheno$batch[LMpheno$treatment=='LL'] <- "1"
+LMpheno$batch[LMpheno$treatment=='LH'] <- "1"
+LMpheno$batch[LMpheno$treatment=='ML'] <- "2"
+LMpheno$batch[LMpheno$treatment=='MH'] <- "2"
+
+# Check all sample IDs in colData are also in genecount and match their orders
+all(rownames(LMpheno) %in% colnames(LMgenes))
+LMgenes <- LMgenes[, rownames(LMpheno)]
+all(rownames(LMpheno) == colnames(LMgenes))
+
+#colData <- pData(phenDat)[,c("treatment","tissue")]
+LMpheno <- as.matrix(LMpheno)
+
+save(LMpheno, file="../Data/LMRNAproc_data_eb.rda")
+
+```
+
+# Model with treatment and tissue
+
+```{r}
+# Create a DESeqDataSet from count matrix and labels
+LMdds <- DESeqDataSetFromMatrix(countData = LMgenes,
+colData = LMpheno, design = ~ replicate + treatment)
+
+
+# Run the default analysis for DESeq2 and generate results table
+
+LMddsDE <- DESeq(LMdds)
+LMres <- results(LMddsDE)
+
+#Sort by adjusted p-value and display
+(LMresOrdered <- LMres[order(LMres$padj), ])
+
+
+save(LMddsDE, file = "../Data/LMddsDE.Rda")
+save(LMresOrdered, file = "../Data/LMres.Rda")
+```
+
+# Control for batch effects
+
+```{r}
+LMdds.sva <- estimateSizeFactors(LMdds)
+LMdat.sva <- counts(LMdds.sva, normalized=TRUE)
+LMcc.c <- rowSums(LMdat.sva)
+
+
+#remove all genes with 0s for all samples
+LMdat.sva <- LMdat.sva[which(LMcc.c>0),]
+
+
+LMpheno <- as.data.frame(LMpheno)
+
+
+#fit model
+LMmod <- model.matrix(~as.factor(treatment) +
+                               as.factor(replicate),
+                              data=LMpheno)
+
+
+#intercept
+LMmod0 <- model.matrix(~as.factor(treatment), data=LMpheno) 
+
+
+# calculate number of surrogate variables
+LMn.sv <- num.sv(LMdat.sva, LMmod, method = "be")
+
+print(c("Calculated number of significant SVs = ", LMn.sv))
+
+
+LMsvobj <- svaseq(LMdat.sva, LMmod, LMmod0, n.sv=LMn.sv)
+
+
+LMdat.sva$SV1 <- LMsvobj$sv[,1]
+#LMdat.sva$SV2 <- LMsvobj$sv[,2]
+
+LMdat.sva <- as.data.frame(LMdat.sva)
+
+
+#ggplot(LMdat.sva, aes(x=SV1, y=SV2)) +
+ # geom_point(alpha=1/5, size=3)
+
+
+
+```
+
+
