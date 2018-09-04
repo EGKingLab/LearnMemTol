@@ -16,12 +16,13 @@ library(ggplot2)
 
 # MA plot
 
-
 ```{r}
-load("../Data/LMDEseqSVA_resOrdered_padj.Rda")
+load("../Data/LearnresSVOrder.Rda")
+load("../Data/MemresSVOrder.Rda")
 
 # Could do with built-in DESeq2 function:
-DESeq2::plotMA(LMsv_dds_deseq, ylim=c(-25,25))
+DESeq2::plotMA(LearnresSVorder, ylim=c(-25,25))
+DESeq2::plotMA(MemresSVorder, ylim=c(-25,25))
 
 # see all results available
 resultsNames(LMsv_dds_deseq)
@@ -29,55 +30,40 @@ resultsNames(LMsv_dds_deseq)
 
 ```
 
-#Volcano Plot
-
-```{r}
-
-load(file="../Data/LMDEseqSVA_resOrdered_padj.Rda")
-
-par(mar=c(5,5,5,5), cex=1.0, cex.main=1.4, cex.axis=1.4, cex.lab=1.4)
-
-LMtop <- as.data.frame(LMres_dds_table)
-
-#Adjusted P values (FDR Q values)
-with(TTres_dds_table, plot(log2FoldChange, -log10(padj), pch=20, main="Volcano plot", cex=1.0, xlab=bquote(~Log[2]~fold~change), ylab=bquote(~-log[10]~Q~value)))
-
-
-with(subset(TTres.dds_table, padj<0.05 & abs(log2FoldChange)>2), points(log2FoldChange, -log10(padj), pch=20, col="red", cex=0.5))
-
-with(subset(TTres.dds_table, padj<0.05 & abs(log2FoldChange)>2), text(log2FoldChange, -log10(padj), labels=subset(rownames(TTtop), TTtop$padj<0.05 & abs(TTtop$log2FoldChange)>2), cex=0.8, pos=3))
-
-#Add lines for absolute FC>2 and P-value cut-off at FDR Q<0.05
-abline(v=0, col="black", lty=3, lwd=1.0)
-abline(v=-2, col="black", lty=4, lwd=2.0)
-abline(v=2, col="black", lty=4, lwd=2.0)
-abline(h=-log10(max(TTtop$pvalue[TTtop$padj<0.05], na.rm=TRUE)), col="black", lty=4, lwd=2.0)
-```
-
 #Volcano Plot (ggplot2)
 
+
 ```{r}
 
-load(file="../Data/LMDEseqSVA_resOrdered_padj.Rda")
+load("../Data/LearnresSVOrder.Rda")
+load("../Data/MemresSVOrder.Rda")
 
-LMgene_list <- as.data.frame(LMsv_res_dds_table)
-
-LMgene_list <-LMgene_list%>%mutate(LMgene_list = ifelse(log2FoldChange) >= 2, "A", ifelse(log2FoldChange<=-2, "B", "C" ))
-
-
-str(TTdrhs)
+str(LearnresSVorder)
 
 
-Learn_Volcanoplot <- ggplot(LMgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
-  geom_point(aes(colour = Gene), size=2, alpha=1/2 ) +
+Learngene_list <- as.data.frame(LearnresSVorder)
+Memgene_list <- as.data.frame(MemresSVorder)
+
+
+
+Learngene_list <-Learngene_list %>% mutate(Learn_Genes = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))
+
+Memgene_list <-Memgene_list %>% mutate(Mem_Genes = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))
+
+
+str(Learngene_list)
+str(Memgene_list)
+
+
+LearnMem_Volcanoplot <- ggplot(LMgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
+  geom_point(aes(colour = LearnMem_Genes), size=2, alpha=1/2 ) +
   geom_hline(yintercept = 1.30) +
   scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels'))
 
 
 LearnMem_Volcanoplot
 
-ggsave(Memgene_Volcanoplot, filename="../Plots/LearnMem_Volcanoplot.pdf", width=6, height=4)
-
+ggsave(ThermTol_Volcanoplot, filename="../Plots/ThermTol_Volcanoplot.pdf", width=6, height=4)
 
 
 ```

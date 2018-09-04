@@ -87,10 +87,18 @@ colData = LMpheno, design = ~  replicate + treatment)
 # Run the default analysis for DESeq2 and generate results table
 
 LMddsDE <- DESeq(LMdds)
-LMres <- results(LMddsDE)
+
+Learnres <- results(LMddsDE, contrast =c("treatment", "LH", "LL"))
+Memres <- results(LMddsDE, contrast =c("treatment", "MH", "ML"))
 
 #Sort by adjusted p-value and display
-(LMresOrdered <- LMres[order(LMres$padj), ])
+(LearnresOrdered <- Learnres[order(Learnres$padj), ])
+(MemresOrdered <- Memres[order(Memres$padj), ])
+
+ 
+#save(LearnresOrdered, file = "../Data/LearnresOrdered.Rda")
+#save(MemresOrdered, file = "../Data/MemresOrdered.Rda")
+
 
 
 ```
@@ -158,31 +166,47 @@ LMsv_dds_ttSS <- DESeqDataSetFromMatrix(countData = LMgenes,
                                    design = ~ SV1 + treatment + replicate)
 
 LMsv_dds_deseq <- DESeq(LMsv_dds_ttSS, fitType = "local") #3 rows did not converge in beta
-LMsv_res_dds <- results(LMsv_dds_deseq)
-(LMsv_res_dds <- LMsv_res_dds[order(LMsv_res_dds$padj), ])
 
+LearnresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "LH", "LL"))
+MemresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "MH", "ML"))
+
+
+(LearnresSVorder <- LearnresSV [order(LearnresSV$padj), ])
+(MemresSVorder <- MemresSV[order(MemresSV$padj), ])
+
+save(LearnresSVorder, file = "../Data/LearnresSVOrder.Rda")
+save(MemresSVorder, file = "../Data/MemresSVOrder.Rda")
 
 
 ## Merge with normalized count data
-LMsv_res_dds_table <- merge(as.data.frame(LMsv_res_dds), 
+Learnsv_res_dds_table <- merge(as.data.frame(LearnresSV), 
                        as.data.frame(counts(LMsv_dds_deseq, normalized=TRUE)), 
                        by="row.names", sort=FALSE)
-names(LMsv_res_dds_table)[1] <- "Gene"
+names(Learnsv_res_dds_table)[1] <- "Gene"
+
+#Mem
+Memsv_res_dds_table <- merge(as.data.frame(MemresSV), 
+                       as.data.frame(counts(LMsv_dds_deseq, normalized=TRUE)), 
+                       by="row.names", sort=FALSE)
+names(Memsv_res_dds_table)[1] <- "Gene"
 
 
-save(LMsv_res_dds_table, file = "../Data/LMDEseqSVA_resOrdered_padj.Rda")
+save(Memsv_res_dds_table, file = "../Data/MemDEseqSVA_resOrdered_padj.Rda")
 
-write.csv(LMsv_res_dds_table, 
-          "../Data/LMDEseqSVA_resOrdered_padj.csv", row.names=TRUE)
+write.csv(Learnsv_res_dds_table, 
+          "../Data/LearnDEseqSVA_resOrdered_padj.csv", row.names=TRUE)
 
-load("../Data/LMDEseqSVA_resOrdered_padj.Rda")
+write.csv(Memsv_res_dds_table, 
+          "../Data/MemDEseqSVA_resOrdered_padj.csv", row.names=TRUE)
+
+
 
 # Examine plot of p-values
-hist(LMsv_res_dds$pvalue, breaks=50, col="grey")
+hist(Learnsv_res_dds_table$pvalue, breaks=50, col="grey")
 
 # Examine independent filtering
-metadata(LMsv_res_dds)$filterThreshold
+metadata(Learnsv_res_dds_table)$filterThreshold
 
-plot(metadata(LMsv_res_dds)$filterNumRej, type="b", xlab="quantiles of baseMean", ylab="number of rejections")
+plot(metadata(Learnsv_res_dds_table)$filterNumRej, type="b", xlab="quantiles of baseMean", ylab="number of rejections")
 ```
 
