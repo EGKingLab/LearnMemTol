@@ -60,30 +60,27 @@ abline(h=-log10(max(TTtop$pvalue[TTtop$padj<0.05], na.rm=TRUE)), col="black", lt
 
 ```{r}
 
-#load("../Data/ThermTol_Noint_resOrdered_padj.Rda")
-
-TTgene_list <- read.table("../Data/ThermTol_Noint_resOrdered_padj.csv", header=T, sep=",")
+TTgene_list <- read.table("../Data/TTDEseqSVA_resOrdered_padj.csv", header=T, sep=",")
 
 
 TTgene_list <- as.data.frame(TTgene_list)
 
-TTgene_list <-TTgene_list%>%mutate(threshold = ifelse(log2FoldChange) >= 2, "A", ifelse(log2FoldChange<=-2, "B", "C" ))
+
+TTgene_list <-TTgene_list %>% mutate(ThermTol_Genes = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))
 
 
-#mydata<-mydata%>%mutate(threshold = ifelse(logFC >= 2,"A", ifelse(logFC<=-2 , "B", "C")))
-
-str(TTdrhs)
+str(TTgene_list)
 
 
-ThermTol_Volcanoplot <- ggplot(TTdrhs, aes(y=-log10(padj), x=log2FoldChange)) +
-  geom_point(aes(colour = Gene), size=2, alpha=1/2 ) +
+ThermTol_Volcanoplot <- ggplot(TTgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
+  geom_point(aes(colour = ThermTol_Genes), size=2, alpha=1/2 ) +
   geom_hline(yintercept = 1.30) +
   scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels'))
 
 
 ThermTol_Volcanoplot
 
-ggsave(Memgene_Volcanoplot, filename="../Plots/ThermTol_Volcanoplot.pdf", width=6, height=4)
+ggsave(ThermTol_Volcanoplot, filename="../Plots/ThermTol_Volcanoplot.pdf", width=6, height=4)
 
 
 
@@ -95,10 +92,10 @@ ggsave(Memgene_Volcanoplot, filename="../Plots/ThermTol_Volcanoplot.pdf", width=
 # Heatmap of count table
 library(gplots)
 
-load("../Data/dds_deseq2.Rda")
+load(file="../Data/TTDEseqSVA_resOrdered_padj.Rda")
 
 #use a DESeq()-ready data object
-Select <- order(rowMeans(counts(dds_deseq2, normalized=TRUE)), 
+Select <- order(rowMeans(counts(TTsv_res.dds_table, normalized=TRUE)), 
                 decreasing=TRUE)[1:30]
 hmcol <- colorRampPalette(brewer.pal(9, "GnBu"))(100)
 

@@ -55,53 +55,25 @@ str(Learngene_list)
 str(Memgene_list)
 
 
-LearnMem_Volcanoplot <- ggplot(LMgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
-  geom_point(aes(colour = LearnMem_Genes), size=2, alpha=1/2 ) +
+Learn_Volcanoplot <- ggplot(Learngene_list, aes(y=-log10(padj), x=log2FoldChange)) +
+  geom_point(aes(colour = Learn_Genes), size=2, alpha=1/2 ) +
   geom_hline(yintercept = 1.30) +
   scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels'))
 
 
-LearnMem_Volcanoplot
-
-ggsave(ThermTol_Volcanoplot, filename="../Plots/ThermTol_Volcanoplot.pdf", width=6, height=4)
+Learn_Volcanoplot
 
 
-```
+Mem_Volcanoplot <- ggplot(Memgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
+  geom_point(aes(colour = Mem_Genes), size=2, alpha=1/2 ) +
+  geom_hline(yintercept = 1.30) +
+  scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels'))
 
-#Heat map
 
-```{r}
-# Heatmap of count table
-library(gplots)
+Mem_Volcanoplot
 
-load("../Data/dds_deseq2.Rda")
-
-#use a DESeq()-ready data object
-Select <- order(rowMeans(counts(dds_deseq2, normalized=TRUE)), 
-                decreasing=TRUE)[1:30]
-hmcol <- colorRampPalette(brewer.pal(9, "GnBu"))(100)
-
-heatmap.2(counts(dds_deseq, normalized=TRUE)[Select,], col = hmcol,
-          Rowv = FALSE, Colv = FALSE, scale = "none",
-          dendrogram = "none", trace = "none", margin = c(10,6))
-
-dev.off()
-heatmap.2(assay(rld)[Select,], col = hmcol,
-          Rowv = FALSE, Colv = FALSE, scale = "none",
-          dendrogram = "none", trace = "none", margin = c(10,6))
-
-dev.off()
-heatmap.2(assay(vsd)[Select,], col = hmcol,
-          Rowv = FALSE, Colv = FALSE, scale = "none",
-          dendrogram = "none", trace = "none", margin = c(10,6))
-
-# Heatmap of the sample-sample distance
-#dev.off()
-#distRL <- dist(t(assay(rld)))
-#Matt <- as.matrix(distRL)
-#rownames(Matt) <- colnames(Matt) <- with(colData(dds_deseq),
-                                         #paste(treatment, tissue, sep=":"))
-#heatmap.2(Matt, trace = "none", col = rev(hmcol), margin=c(8,8))
+ggsave(Learn_Volcanoplot, filename="../Plots/Learn_Volcanoplot.pdf", width=6, height=4)
+ggsave(Mem_Volcanoplot, filename="../Plots/Mem_Volcanoplot.pdf", width=6, height=4)
 
 
 ```
@@ -110,16 +82,14 @@ heatmap.2(assay(vsd)[Select,], col = hmcol,
 # different ways to visualize
 
 ```{r}
-
-
 load("../Data/TTdds_deseq.Rda")
 
 rlogtransTTdds_deseq <- rlogTransformation(TTdds_deseq, blind=TRUE) #time intensive
 vstransTTdds_deseq <- varianceStabilizingTransformation(TTdds_deseq, blind = TRUE)
 
 dev.off()
-print(plotPCA(rlogtransTTdds_deseq, intgroup=c("pool", "condition")))
-plotPCA(rlogtransTTdds_deseq, intgroup=c("pool"), returnData=FALSE)
+print(plotPCA(rlogtransTTdds_deseq, intgroup=c("treatement", "replicate")))
+plotPCA(rlogtransTTdds_deseq, intgroup=c("treatment"), returnData=FALSE)
 
 ###save plots as pdf
 
