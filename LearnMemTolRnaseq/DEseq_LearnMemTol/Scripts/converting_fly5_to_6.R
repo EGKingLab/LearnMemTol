@@ -2,15 +2,16 @@ options(scipen=999)
 
 
 #load genome scan data
-load(file="../ProcessedData/Tolpeaks.rda")
+#load(file="../ProcessedData/Tolpeaks.rda")
 load(file="../ProcessedData/Memorypeaks.rda")
 load(file="../ProcessedData/Learningpeaks.rda")
 
 
 #read in signigicant gene list
-L.DEG <- read.csv("../LearnMemTolRnase/DEseq_LearnMemTol/Data/LearnDEseqSVA_resOrdered_padj.csv",header=TRUE,stringsAsFactors = FALSE)
-M.DEG <- read.csv("../RawData/Learn_Mem_Tol_rna-seq/Significant_Memgene_Results.csv",header=TRUE,stringsAsFactors = FALSE)
-I.DEG <- read.csv("../RawData/Learn_Mem_Tol_rna-seq/Significant_Tolgenes_Results.csv",header=TRUE,stringsAsFactors = FALSE)
+L.DEG <- read.csv("../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/LearnDEseqSVA_resOrdered_padj.csv",header=TRUE,stringsAsFactors = FALSE)
+M.DEG <- read.csv("../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/MemDEseqSVA_resOrdered_padj.csv",header=TRUE,stringsAsFactors = FALSE)
+
+#I.DEG <- read.csv("../RawData/Learn_Mem_Tol_rna-seq/Significant_Tolgenes_Results.csv",header=TRUE,stringsAsFactors = FALSE)
 
 
 load(file = "/home/kingeg/Projects/DSPRgeneral/Convert5_6/DSPR_5_6_parsed.rda")
@@ -83,7 +84,7 @@ for(kk in 1:length(Memorypeaks))
 }
 
 
-
+#Thermal Tolerance
 Incap_p <- data.frame('CHROM'=character(length=length(Incappeaks)), 
                       'PeakP'=numeric(length=length(Incappeaks)), 
                       'Gpos'=numeric(length=length(Incappeaks)), 

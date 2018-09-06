@@ -102,7 +102,7 @@ scanresults_Memory$phenotype <- as.data.frame(scanresults_Memory$phenotype)
 
 #to create peaks for qtl
 Learningpeaks <- DSPRpeaks(scanresults_Learning, threshold = 6.73, LODdrop = 2)
-Memorypeaks <- DSPRpeaks(scanresults_Memory, threshold = 6.6, LODdrop = 2)
+Memorypeaks <- DSPRpeaks(scanresults_Memory, threshold = 6.65, LODdrop = 2)
 
 save(Learningpeaks,file= "../ProcessedData/Learningpeaks.rda")
 save(Memorypeaks,file= "../ProcessedData/Memorypeaks.rda")
@@ -115,6 +115,8 @@ Learningpeaks[[6]]
 Memorypeaks[[3]]
 Memorypeaks[[7]]
 
+
+#to view specific location on chromosome
 scanresults_Learning$LODscores[10800:10810,]
 
 #to zoom in on the qtl map
@@ -144,7 +146,7 @@ str(Memorypeaks)
 Memorypeaks[[1]]
 
 #to make a QTL map for learning 
-learning_qtlmap <- DSPRplot(list(scanresults_Learning), threshold=7.17)
+learning_qtlmap <- DSPRplot(list(scanresults_Learning), threshold=6.73)
 
 learning_qtlmap
 
@@ -155,7 +157,9 @@ dev.off()
 
 
 #to make a QTL map for memory
-memory_qtlmap <- DSPRplot(list(scanresults_Memory), threshold=6.7)
+memory_qtlmap <- DSPRplot(list(scanresults_Memory), threshold=6.65)
+
+memory_qtlmap
 
 ggsave(memory_qtlmap, file="../Plots/Memory_qtl.pdf", width=10, height=4)
 
