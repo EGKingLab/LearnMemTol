@@ -26,6 +26,25 @@ output: html_document
 
 A record of notes in the style of a lab notebook
 
+#Sep 06, 2018 (moved notes from script to here)
+
+- Generate a list of gtf commands - ref p.92-93 Dunn book
+
+  -grep -li assemb *.gtf > ~/LearnMemTolRnaseq/DEseq_LearnMemTol/Data/gtf_list.txt
+  -searches and list all .gtf which includes assemb*
+
+-Open gtf_list.txt in TextWrangler [command+F]
+-In the search window type ^
+  -In the replace window, type full path i.e: ~/LearnMemTolRnaseq/DEseq_LearnMemTol/Scripts/
+  -Do Replace All
+  -This gives full path to each of the .gtf
+
+Alternatively:
+  -While in processed/ (i.e. where directory "ballgown" is located), run:
+  -python ../LearnMemTolRnaseq/DEseq_LearnMemTol/Scripts/prepDE.py
+  -Two output matrices are written: `transcript_count_matrix.csv` and `gene_count_matrix.csv`
+
+
 #Sep 03, 2018
 -Updated script LearnMem_RNAproc_DESEq_eb. Ran the data through the DESeq pipeline, however when i got to the step where I make the SVs a part of the dataset i got a error.
 

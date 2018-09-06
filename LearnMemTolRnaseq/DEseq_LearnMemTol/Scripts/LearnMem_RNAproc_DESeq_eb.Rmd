@@ -17,35 +17,19 @@ library(RColorBrewer)
 
 ```
 
-# Generate a list of gtf commands - ref p.92-93 Dunn book
 
-##grep -li assemb *.gtf > ~/MyGithub/BasePop_RNAseq/processed/gtf_list.txt
-# searches and list all .gtf which includes assemb*
-
-#Open gtf_list.txt in TextWrangler [command+F]
-#In the search window type ^
-#In the replace window, type full path i.e: ~/MyGithub/BasePop_RNAseq/scripts/DESeq_scripts/
-#Do Replace All
-#This gives full path to each of the .gtf
-
-#Alternatively:
-#While in processed/ (i.e. where directory "ballgown" is located), run:
-#python ../scripts/DESeq_scripts/prepDE.py
-#Two output matrices are written: `transcript_count_matrix.csv` and `gene_count_matrix.csv`
-
-
-
-# Load gene(/transcript) count matrix and labels
+# Process gene count matrix and phenotype dataset
 
 ```{r}
+
+#load datset
 LMgenes <- read.csv("../Data/LearnMemBallgown/ballgown_eb/LMgene_count_matrix_eb.csv", row.names="gene_id")
 
 phenData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE)
 
 
 
-#Separate traits into different obejects and ad id column 
-
+#Make an object with only LearnMem data and add id column 
 LMpheno <- phenData %>% filter(treatment %in% c("LL", "LH", "ML", "MH" ))
 
 names(LMpheno)[1]<-"ids"
@@ -69,43 +53,23 @@ all(rownames(LMpheno) %in% colnames(LMgenes))
 LMgenes <- LMgenes[, rownames(LMpheno)]
 all(rownames(LMpheno) == colnames(LMgenes))
 
-#colData <- pData(phenDat)[,c("treatment","tissue")]
+
 LMpheno <- as.matrix(LMpheno)
 
 save(LMpheno, file="../Data/LMRNAproc_data_eb.rda")
 
 ```
 
-# Model with batch, treatment and tissue
-
-```{r}
-# Create a DESeqDataSet from count matrix and labels
-LMdds <- DESeqDataSetFromMatrix(countData = LMgenes,
-colData = LMpheno, design = ~  replicate + treatment)
-
-
-# Run the default analysis for DESeq2 and generate results table
-
-LMddsDE <- DESeq(LMdds)
-
-Learnres <- results(LMddsDE, contrast =c("treatment", "LH", "LL"))
-Memres <- results(LMddsDE, contrast =c("treatment", "MH", "ML"))
-
-#Sort by adjusted p-value and display
-(LearnresOrdered <- Learnres[order(Learnres$padj), ])
-(MemresOrdered <- Memres[order(Memres$padj), ])
-
- 
-#save(LearnresOrdered, file = "../Data/LearnresOrdered.Rda")
-#save(MemresOrdered, file = "../Data/MemresOrdered.Rda")
-
-
-
-```
 
 # Control for batch effects
 
 ```{r}
+#fit model
+LMdds <- DESeqDataSetFromMatrix(countData = LMgenes,
+                              colData = LMpheno, 
+                              design = ~ batch + treatment)
+
+
 LMdds_sva <- estimateSizeFactors(LMdds)
 LMdat_sva <- counts(LMdds_sva, normalized=TRUE)
 LMcc_c <- rowSums(LMdat_sva)
@@ -117,16 +81,14 @@ LMdat_sva <- LMdat_sva[which(LMcc_c>0),]
 
 LMpheno <- as.data.frame(LMpheno)
 
-
 #fit model
-LMmod <- model.matrix(~as.factor(treatment) +
-                               as.factor(replicate),
+LMmod <- model.matrix(~as.factor(batch) +
+                               as.factor(treatment),
                               data=LMpheno)
-
 
 #intercept
 LMmod0 <- model.matrix(~as.factor(treatment), data=LMpheno) 
-#LMmod0 <- model.matrix(~1, data=LMpheno) 
+
 
 # calculate number of surrogate variables
 LMn_sv <- num.sv(LMdat_sva, LMmod, method = "be")
@@ -144,29 +106,31 @@ LMpheno$SV1 <- LMsvobj$sv[,1]
 LMpheno <- as.data.frame(LMpheno)
 
 
-#ggplot(LMdat.sva, aes(x=SV1, y=SV2)) +
- # geom_point(alpha=1/5, size=3)
-
-```
-
-#DESeq with surrogate variables, treatment and replicate
-
-
-```{r}
 # countData colnames() must be identical to colData rownames()
 all(rownames(LMpheno) %in% colnames(LMgenes))
 countdata <- LMgenes[, rownames(LMpheno)]
 all(rownames(LMpheno) == colnames(LMgenes))
 
+```
+
+
+#Model with surrogate variables, treatment and replicate
+
+
+```{r}
 
 # DESeqDataSet for all variables,
 
-LMsv_dds_ttSS <- DESeqDataSetFromMatrix(countData = LMgenes, 
+LM_dds_ttSS <- DESeqDataSetFromMatrix(countData = LMgenes, 
                                    colData = LMpheno, 
-                                   design = ~ SV1 + treatment + replicate)
+                                   design = ~ SV1 + batch + treatment)
 
 LMsv_dds_deseq <- DESeq(LMsv_dds_ttSS, fitType = "local") #3 rows did not converge in beta
 
+#remove rows that didnt converge
+
+
+#pairwise comparison
 LearnresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "LH", "LL"))
 MemresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "MH", "ML"))
 

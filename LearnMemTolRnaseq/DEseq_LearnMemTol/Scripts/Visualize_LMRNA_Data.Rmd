@@ -21,11 +21,15 @@ load("../Data/LearnresSVOrder.Rda")
 load("../Data/MemresSVOrder.Rda")
 
 # Could do with built-in DESeq2 function:
-DESeq2::plotMA(LearnresSVorder, ylim=c(-25,25))
-DESeq2::plotMA(MemresSVorder, ylim=c(-25,25))
+LearnMAplot <- DESeq2::plotMA(LearnresSVorder, ylim=c(-25,25))
+MemMAplot <- DESeq2::plotMA(MemresSVorder, ylim=c(-25,25))
+
+ggsave(LearnMAplot, file="../Plots/LearnMAplot.pdf", width=10, height=4)
+ggsave(MemMAplot, file="../Plots/MemMAplot.pdf", width=10, height=4)
 
 # see all results available
-resultsNames(LMsv_dds_deseq)
+resultsNames(LearnresSVorder)
+resultsNames(MemresSVorder)
 
 
 ```
