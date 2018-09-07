@@ -27,15 +27,12 @@ LMgenes <- read.csv("../Data/LearnMemBallgown/ballgown_eb/LMgene_count_matrix_eb
 
 phenData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE)
 
-
-
 #Make an object with only LearnMem data and add id column 
 LMpheno <- phenData %>% filter(treatment %in% c("LL", "LH", "ML", "MH" ))
 
 names(LMpheno)[1]<-"ids"
 LMpheno <- LMpheno %>%
   select(ids,treatment,replicate)
-
 
 rownames(LMpheno) <- LMpheno[,1]
 LMpheno[,1] <- NULL
@@ -53,7 +50,6 @@ all(rownames(LMpheno) %in% colnames(LMgenes))
 LMgenes <- LMgenes[, rownames(LMpheno)]
 all(rownames(LMpheno) == colnames(LMgenes))
 
-
 LMpheno <- as.matrix(LMpheno)
 
 save(LMpheno, file="../Data/LMRNAproc_data_eb.rda")
@@ -67,7 +63,7 @@ save(LMpheno, file="../Data/LMRNAproc_data_eb.rda")
 #fit model
 LMdds <- DESeqDataSetFromMatrix(countData = LMgenes,
                               colData = LMpheno, 
-                              design = ~ batch + treatment)
+                              design = ~ treatment)
 
 
 LMdds_sva <- estimateSizeFactors(LMdds)
@@ -82,12 +78,11 @@ LMdat_sva <- LMdat_sva[which(LMcc_c>0),]
 LMpheno <- as.data.frame(LMpheno)
 
 #fit model
-LMmod <- model.matrix(~as.factor(batch) +
-                               as.factor(treatment),
+LMmod <- model.matrix(~ as.factor(treatment),
                               data=LMpheno)
 
 #intercept
-LMmod0 <- model.matrix(~as.factor(treatment), data=LMpheno) 
+LMmod0 <- model.matrix(~1, data=LMpheno) 
 
 
 # calculate number of surrogate variables
@@ -104,7 +99,6 @@ LMpheno$SV1 <- LMsvobj$sv[,1]
 
 
 LMpheno <- as.data.frame(LMpheno)
-
 
 # countData colnames() must be identical to colData rownames()
 all(rownames(LMpheno) %in% colnames(LMgenes))
@@ -123,12 +117,9 @@ all(rownames(LMpheno) == colnames(LMgenes))
 
 LM_dds_ttSS <- DESeqDataSetFromMatrix(countData = LMgenes, 
                                    colData = LMpheno, 
-                                   design = ~ SV1 + batch + treatment)
+                                   design = ~ SV1 + treatment)
 
-LMsv_dds_deseq <- DESeq(LMsv_dds_ttSS, fitType = "local") #3 rows did not converge in beta
-
-#remove rows that didnt converge
-
+LMsv_dds_deseq <- DESeq(LM_dds_ttSS) 
 
 #pairwise comparison
 LearnresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "LH", "LL"))
