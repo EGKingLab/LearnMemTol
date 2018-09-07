@@ -21,7 +21,7 @@ library(ggplot2)
 load("../Data/TTDEseqSVA_resOrdered_padj.Rda")
 
 # Could do with built-in DESeq2 function:
-DESeq2::plotMA(TTsv_dds_deseq, ylim=c(-10,6))
+DESeq2::plotMA(TTsv_res.dds_table, ylim=c(-10,6))
 
 # see all results available
 resultsNames(TTsv_dds_deseq)

@@ -120,25 +120,12 @@ TTres <- results(TTDE)
 
 ```
 
-#Model with batch, pool and condition
-```{r}
-# DESeqDataSet for all variables, no interaction
-TTdds2 <- DESeqDataSetFromMatrix(countData = TTgenes, 
-                                   colData = TTpheno, 
-                                   design = ~ batch + pool + condition)
-
-
-TTdds_deseq2 <- DESeq(TTdds2)
-TTres_dds2 <- results(TTdds_deseq2)
-(TTresOrder2 <- TTres_dds2[order(TTres_dds2$padj), ])
-
-
-```
-
-
 # Control for batch effects
 
 ```{r}
+TTdds <- DESeqDataSetFromMatrix(countData = TTgenes,
+                              colData = TTpheno, 
+                              design = ~batch + pool + condition)
 
 
 TTdds_sva <- estimateSizeFactors(TTdds)
@@ -180,32 +167,54 @@ TTdat_sva <- as.data.frame(TTdat_sva)
 ggplot(TTpheno, aes(x=SV1, y=SV2)) +
 geom_point(alpha=1/5, size=3)
 
-```
 
-
-#DESeq with surrogate variables
-
-
-```{r}
 # countData colnames() must be identical to colData rownames()
 all(rownames(TTpheno) %in% colnames(TTgenes))
 countdata <- TTgenes[, rownames(TTpheno)]
 all(rownames(TTpheno) == colnames(TTgenes))
 
+```
 
+
+#Model with surrogate variables, batch, pool, and condition
+
+
+```{r}
 # DESeqDataSet for all variables,
 
-TTsv_dds_ttSS <- DESeqDataSetFromMatrix(countData = TTgenes, 
+TT_dds_01 <- DESeqDataSetFromMatrix(countData = TTgenes, 
                                    colData = TTpheno, 
                                    design = ~ SV1 + SV2 + batch + pool + condition)
 
-TTsv_dds_deseq <- DESeq(TTsv_dds_ttSS, fitType = "local")
-TTsv_res_dds <- results(TTsv_dds_deseq)
-(TTsv_res_dds <- TTsv_res_dds[order(TTsv_res_dds$padj), ])
+
+TT_dds_02 <- DESeqDataSetFromMatrix(countData = TTgenes, 
+                                   colData = TTpheno, 
+                                   design = ~ SV1 + SV2 + batch + pool*condition)
+
+#perform DEseq
+
+TTlrt_condition <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + pool)
+TTlrt_condition <- results(TTlrt_condition)
+
+save(TTlrt_condition, file = "../Data/TTlrt_condition.Rda")
+
+
+TTlrt_pool <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + condition)
+TTlrt_pool <- results(TTlrt_pool)
+
+save(TTlrt_pool, file = "../Data/TTlrt_pool.Rda")
+
+TTlrt_inter <- DESeq(TT_dds_02, test="LRT", reduced=~ SV1 + SV2 + batch + pool + condition)
+TTlrt_inter <- results(TTlrt_inter)
+
+save(TTlrt_inter, file = "../Data/TTlrt_inter.Rda")
+
+```
 
 
 
-## Merge with normalized count data
+```{r}
+#Merge with normalized count data
 TTsv_res_dds_table <- merge(as.data.frame(TTsv_res_dds), 
                        as.data.frame(counts(TTsv_dds_deseq, normalized=TRUE)), 
                        by="row.names", sort=FALSE)
@@ -225,4 +234,8 @@ metadata(TTsv_res_dds)$filterThreshold
 
 plot(metadata(TTsv_res_dds)$filterNumRej, type="b", xlab="quantiles of baseMean", ylab="number of rejections")
 ```
+
+
+```
+
 
