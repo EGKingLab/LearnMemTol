@@ -97,26 +97,55 @@ save(TTpheno, file="../Data/ThermRNAproc_data.rda")
 
 ```
 
-# Model with pool and condition 
+
+
+# Control for batch effects
 
 ```{r}
-
-load(file="../Data/ThermRNAproc_data.rda")
-
-# Create a DESeqDataSet from count matrix and labels
+#fit model
 TTdds <- DESeqDataSetFromMatrix(countData = TTgenes,
                               colData = TTpheno, 
-                              design = ~  pool + condition)
+                              design = ~ pool +condition)
 
 
-# Run the default analysis for DESeq2 and generate results table
+TTdds_sva <- estimateSizeFactors(LMdds)
+TTdat_sva <- counts(LMdds_sva, normalized=TRUE)
+LMcc_c <- rowSums(LMdat_sva)
 
-TTDE <- DESeq(TTdds)
-TTres <- results(TTDE)
 
-#Sort by adjusted p-value and display
+#remove all genes with 0s for all samples
+LMdat_sva <- LMdat_sva[which(LMcc_c>0),]
 
-(TTresOrdered <- TTres[order(TTres$padj), ])
+
+LMpheno <- as.data.frame(LMpheno)
+
+#fit model
+LMmod <- model.matrix(~ as.factor(treatment),
+                              data=LMpheno)
+
+#intercept
+LMmod0 <- model.matrix(~1, data=LMpheno) 
+
+
+# calculate number of surrogate variables
+LMn_sv <- num.sv(LMdat_sva, LMmod, method = "be")
+
+print(c("Calculated number of significant SVs = ", LMn_sv))
+
+
+LMsvobj <- svaseq(LMdat_sva, LMmod, LMmod0, n.sv=LMn_sv)
+
+
+#add the SV values to the pheno dataset
+LMpheno$SV1 <- LMsvobj$sv[,1]
+
+
+LMpheno <- as.data.frame(LMpheno)
+
+# countData colnames() must be identical to colData rownames()
+all(rownames(LMpheno) %in% colnames(LMgenes))
+countdata <- LMgenes[, rownames(LMpheno)]
+all(rownames(LMpheno) == colnames(LMgenes))
 
 ```
 
@@ -196,18 +225,18 @@ TT_dds_02 <- DESeqDataSetFromMatrix(countData = TTgenes,
 TTlrt_condition <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + pool)
 TTlrt_condition <- results(TTlrt_condition)
 
-save(TTlrt_condition, file = "../Data/TTlrt_condition.Rda")
+#save(TTlrt_condition, file = "../Data/TTlrt_condition.Rda")
 
 
 TTlrt_pool <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + condition)
 TTlrt_pool <- results(TTlrt_pool)
 
-save(TTlrt_pool, file = "../Data/TTlrt_pool.Rda")
+#save(TTlrt_pool, file = "../Data/TTlrt_pool.Rda")
 
 TTlrt_inter <- DESeq(TT_dds_02, test="LRT", reduced=~ SV1 + SV2 + batch + pool + condition)
 TTlrt_inter <- results(TTlrt_inter)
 
-save(TTlrt_inter, file = "../Data/TTlrt_inter.Rda")
+#save(TTlrt_inter, file = "../Data/TTlrt_inter.Rda")
 
 ```
 

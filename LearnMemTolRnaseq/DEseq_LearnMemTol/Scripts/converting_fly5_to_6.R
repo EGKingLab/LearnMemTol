@@ -133,6 +133,7 @@ for(ii in 1:nrow(L.DEG))
     I.dd.B <-c(I.dd.B,ii)
   }
   }
+
 L.DEG[I.dd.L,'SYMBOL']
 L.DEG[I.dd.B,'SYMBOL']
 
