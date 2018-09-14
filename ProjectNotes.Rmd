@@ -26,6 +26,10 @@ output: html_document
 
 A record of notes in the style of a lab notebook
 
+#Sept 14, 2018
+
+- Updated mapping scripts to calculate CIs and convert coordinates to release 6.
+
 #Sep 06, 2018 (moved notes from script to here)
 
 - Generate a list of gtf commands - ref p.92-93 Dunn book

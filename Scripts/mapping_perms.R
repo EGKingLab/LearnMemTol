@@ -90,15 +90,16 @@ colnames(all.LL)<-rep(colnames(pp),1000)
 save(all.LL, file="../Data/Perm_LODS_FDR.rda")
 
 
+
 #### Get FDR for different thresholds
 
-th.set<-seq(5,9, by=0.25)
+th.set<-seq(3,7, by=0.25)
 
 N.positives<-numeric(length(th.set))
 
 for(tt in 1:length(th.set))
 {
-  N.positives[tt]<-sum(apply(obs.LL,2,function(x) pfind(x,cM=positions[,c('chr','Gpos')] ,th=th.set[tt], tol.dist=5)))
+  N.positives[tt]<-sum(apply(obs.LL[,1:3],2,function(x) pfind(x,cM=positions[,c('chr','Gpos')] ,th=th.set[tt], tol.dist=5)))
 }
 
 
@@ -122,7 +123,9 @@ fp/N.positives
 
 quantile(Max.L,0.95)
 
-rbind(th.set, fp, N.positives)
+fdr.out <- data.frame('threshold'=th.set, 'fp'=fp, 'tp'= N.positives,'fdr'=fp/N.positives)
+fdr.out <- list('fdr'=fdr.out, 'fwer'=quantile(Max.L,0.95))
+save(fdr.out, file="../Data/sig_ths.rda")
 
 tt<-seq(1, 3000,by=3)
 tt.m<-apply(all.LL[,tt], 2,max)
