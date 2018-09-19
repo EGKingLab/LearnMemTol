@@ -1,4 +1,6 @@
 library(DSPRqtl)
+library(dplyr)
+library(tidyr)
 data("positionlist_wgenetic")
 load(file = "/home/kingeg/Projects/DSPRgeneral/Convert5_6/DSPR_5_6_parsed.rda")
 
@@ -43,7 +45,7 @@ pp.set$llod[jj] <- ff$LOD[1]
 pp.set[,c('chr','Ppos')] <- merge(pp.set[,c('chr','Ppos')], coord.table, by.x=c('chr','Ppos'), by.y=c('R5chr','R5pos'))[,c('R6chr','R6pos')]
 pp.set[,c('up')] <- merge(pp.set[,c('chr','up')], coord.table, by.x=c('chr','up'), by.y=c('R5chr','R5pos'))[,c('R6pos')]
 pp.set[,c('lp')] <- merge(pp.set[,c('chr','lp')], coord.table, by.x=c('chr','lp'), by.y=c('R5chr','R5pos'))[,c('R6pos')]
-pp.set<-pp.set[,order(c('chr','Ppos'))]
+pp.set<-pp.set[order(pp.set$chr,pp.set$Ppos),]
 
 ci.peak[[kk]]<-pp.set
 }
@@ -51,7 +53,53 @@ ci.peak[[kk]]<-pp.set
 save(ci.peak,file="../Data/Peaks_wCIs.rda")
 
 
-#sort by position
+###########
+
+
+#load in all the datasets
+
+#significant qtl peaks
+load(file ="../Data/Peaks_wCIs.rda")
+str(ci.peak)
+
+#DE genes for Learning
+load(file = "../Data/LearnresSVOrder.Rda")
+str(LearnresSVorder)
+
+#DE genes for Memory
+load(file = "../Data/MemresSVOrder.Rda")
+str(MemresSVorder)
+
+
+#gene list form Fly Base
+gene_map_table <-read.table(file = "./DSPR/RawData/gene_map_table_fb_2015_03.tsv", sep = '\t', header = FALSE, stringsAsFactors = FALSE)
+str(gene_map_table)
+
+#sort gene_map_table dataset
+
+
+gene_map_table_sort <- data.frame('current_symbol ')character(length=length(gene_map_table)),
+                                 'recombination_loc'=numeric(length=length(gene_map_table)), 
+                                 'cytogenetic_loc'=numeric(length=length(gene_map_table)),
+                                'sequence_loc'=numeric(length=length(Incappeaks)), stringsAsFactors = FALSE)
+
+#hack
+gene_map_table <- rbind(gene_map_table_sort,c('2R','21410000','NA','NA'))
+
+for(kk in 1:length(gene_map_table))
+  
+  
+#change colnames to match up with the other dataset
+
+
+#merge DE genes with gene list from Fly base
+Learn_gene_list_merged <- merge(LearnresSVorder, gene_map_table, by="gene_name")
+Mem_gene_list_merged <- merge(MemresSVorder, gene_map_table, by="gene_name")
+
+
+
+
+
 
 
 

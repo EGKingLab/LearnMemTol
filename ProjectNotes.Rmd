@@ -26,7 +26,15 @@ output: html_document
 
 A record of notes in the style of a lab notebook
 
-#Sept 14, 2018
+
+#Sep. 19, 2018
+
+-Today I tried to identfy the genes that are located under the qtl peaks. The first attempt was not successful, because I need to split a col in the dataset (gene_map_table), but with no avail. Below is an example:
+
+2L:8466817..8488671(1), I need to remove :, .., and (1), then split the rest of the info into separate columns. I will try again tonight. (PW-S)
+
+
+#Sep. 14, 2018
 
 - Updated mapping scripts to calculate CIs and convert coordinates to release 6.
 

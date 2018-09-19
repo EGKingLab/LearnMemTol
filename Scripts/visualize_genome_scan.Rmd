@@ -21,6 +21,7 @@ load(file="../Data/Lodscores_3traits.rda")
 
 str(obs.LL)
 
+
 ####Making qtl plot using Basee R 
 
 
