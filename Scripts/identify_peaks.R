@@ -41,9 +41,14 @@ pp.set$lg[jj] <- ff$Gpos[1]
 pp.set$ulod[jj] <- ff$LOD[2]
 pp.set$llod[jj] <- ff$LOD[1] 
 } 
-pp.set[,c('chr','Ppos')] <- merge(pp.set[,c('chr','Ppos')], coord.table, by.x=c('chr','Ppos'), by.y=c('R5chr','R5pos'))[,c('R6chr','R6pos')]
-pp.set[,c('up')] <- merge(pp.set[,c('chr','up')], coord.table, by.x=c('chr','up'), by.y=c('R5chr','R5pos'))[,c('R6pos')]
-pp.set[,c('lp')] <- merge(pp.set[,c('chr','lp')], coord.table, by.x=c('chr','lp'), by.y=c('R5chr','R5pos'))[,c('R6pos')]
+
+pp.set[,c('chr','Ppos')] <- merge(pp.set, coord.table, by.x=c('chr','Ppos'), by.y=c('R5chr','R5pos'),sort=FALSE)[,c('R6chr','R6pos')]
+pp.set[,c('up')] <- merge(pp.set, coord.table, by.x=c('chr','up'), by.y=c('R5chr','R5pos'),sort=FALSE)[,c('R6pos')]
+pp.set[,c('lp')] <- merge(pp.set[,c('chr','lp')], coord.table, by.x=c('chr','lp'), by.y=c('R5chr','R5pos'),sort=FALSE)[,c('R6pos')]
+pp.set$Ppos<- as.numeric(pp.set$Ppos)
+pp.set$up<- as.numeric(pp.set$up)
+pp.set$lp<- as.numeric(pp.set$lp)
+
 pp.set<-pp.set[order(pp.set$chr,pp.set$Ppos),]
 
 ci.peak[[kk]]<-pp.set
