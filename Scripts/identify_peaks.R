@@ -49,6 +49,8 @@ pp.set<-pp.set[order(pp.set$chr,pp.set$Ppos),]
 ci.peak[[kk]]<-pp.set
 }
 
+
+
 save(ci.peak,file="../Data/Peaks_wCIs.rda")
 
 
@@ -62,19 +64,39 @@ load(file ="../Data/Peaks_wCIs.rda")
 str(ci.peak)
 
 #DE genes for Learning
-#these paths are incorrect
 load(file = "../Data/LearnresSVOrder.Rda")
 str(LearnresSVorder)
+LearnresSVorder$FBgn <- rownames(LearnresSVorder)
+colnames(LearnresSVorder)
+
+Learn_sig_genes <- as.data.frame(LearnresSVorder)
+
+#colnames(LearnresSVorder)[which(names(LearnresSVorder) == "rownames")] <- "FBgn"
 
 #DE genes for Memory
 load(file = "../Data/MemresSVOrder.Rda")
 str(MemresSVorder)
+MemresSVorder$FBgn <- rownames(MemresSVorder)
+colnames(MemresSVorder)
+
+Mem_sig_genes <- as.data.frame(MemresSVorder)
+
+#DE genes thermal Tolerance 
+load(file="../Data/TTlrt_inter.Rda")
+str(TTlrt_inter)
+TTlrt_inter$FBgn <- rownames(TTlrt_inter)
+colnames(TTlrt_inter)
+
+ThermTol_sig_genes <- as.data.frame(TTlrt_inter)
 
 
 #gene list form Fly Base
-gene_map_table <-read.table(file = "/home/pwilliams/DSPR/RawData/gene_map_table_fb_2015_03.tsv", sep = '\t', header = FALSE, stringsAsFactors = FALSE)
+gene_map_table <-read.table(file = "../Data/gene_map_table_fb_2015_03.tsv.gz", sep = '\t', header = FALSE, stringsAsFactors = FALSE)
 str(gene_map_table)
 colnames(gene_map_table) <- c('gname','FBgn','v3','cyt','pos')
+
+###
+####
 #is this truncating early? file has 244185 lines total
 
 gene_map_table$chr <- str_split(gene_map_table$pos, ":",simplify=TRUE)[,1]
@@ -84,29 +106,17 @@ gene_map_table$startp <- temp.s1[,1]
 
 gene_map_table$stopp <- str_split(temp.s1[,2],fixed("("),simplify = TRUE)[,1]
 
+str(gene_map_table)
 
+#gene_map_table <- as.numeric(gene_map_table$startp)
 
-#sort gene_map_table dataset
+#merge DE genes with gene list from Fly base (merge by FBgn num)
+Learn_gene_list_merged <- merge(Learn_sig_genes, gene_map_table, by="FBgn")
+Mem_gene_list_merged <- merge(Mem_sig_genes, gene_map_table, by="FBgn")
+ThermTol_gene_list_merged <- merge(ThermTol_sig_genes, gene_map_table, by="FBgn")
 
-
-gene_map_table_sort <- data.frame('current_symbol ')character(length=length(gene_map_table)),
-                                 'recombination_loc'=numeric(length=length(gene_map_table)), 
-                                 'cytogenetic_loc'=numeric(length=length(gene_map_table)),
-                                'sequence_loc'=numeric(length=length(Incappeaks)), stringsAsFactors = FALSE)
-
-#hack
-gene_map_table <- rbind(gene_map_table_sort,c('2R','21410000','NA','NA'))
-
-for(kk in 1:length(gene_map_table))
-  
-  
-#change colnames to match up with the other dataset
-
-
-#merge DE genes with gene list from Fly base
-Learn_gene_list_merged <- merge(LearnresSVorder, gene_map_table, by="gene_name")
-Mem_gene_list_merged <- merge(MemresSVorder, gene_map_table, by="gene_name")
-
+str(Learn_gene_list_merged)
+colnames(Learn_gene_list_merged)
 
 
 
