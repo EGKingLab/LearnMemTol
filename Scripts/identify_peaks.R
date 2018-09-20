@@ -1,6 +1,5 @@
 library(DSPRqtl)
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 data("positionlist_wgenetic")
 load(file = "/home/kingeg/Projects/DSPRgeneral/Convert5_6/DSPR_5_6_parsed.rda")
 
@@ -63,6 +62,7 @@ load(file ="../Data/Peaks_wCIs.rda")
 str(ci.peak)
 
 #DE genes for Learning
+#these paths are incorrect
 load(file = "../Data/LearnresSVOrder.Rda")
 str(LearnresSVorder)
 
@@ -72,8 +72,19 @@ str(MemresSVorder)
 
 
 #gene list form Fly Base
-gene_map_table <-read.table(file = "./DSPR/RawData/gene_map_table_fb_2015_03.tsv", sep = '\t', header = FALSE, stringsAsFactors = FALSE)
+gene_map_table <-read.table(file = "/home/pwilliams/DSPR/RawData/gene_map_table_fb_2015_03.tsv", sep = '\t', header = FALSE, stringsAsFactors = FALSE)
 str(gene_map_table)
+colnames(gene_map_table) <- c('gname','FBgn','v3','cyt','pos')
+#is this truncating early? file has 244185 lines total
+
+gene_map_table$chr <- str_split(gene_map_table$pos, ":",simplify=TRUE)[,1]
+temp.s1 <- str_split(gene_map_table$pos, ":",simplify=TRUE)[,2] %>% 
+  str_split(fixed(".."),simplify=TRUE)
+gene_map_table$startp <- temp.s1[,1]
+
+gene_map_table$stopp <- str_split(temp.s1[,2],fixed("("),simplify = TRUE)[,1]
+
+
 
 #sort gene_map_table dataset
 

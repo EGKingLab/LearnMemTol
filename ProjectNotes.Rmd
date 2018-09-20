@@ -26,6 +26,9 @@ output: html_document
 
 A record of notes in the style of a lab notebook
 
+#Sep. 20, 2018
+
+- Added code to split gene positions to identify.peaks script. Also added a couple notes for checking some things.
 
 #Sep. 19, 2018
 
