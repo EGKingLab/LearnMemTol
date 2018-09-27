@@ -60,10 +60,10 @@ abline(h=-log10(max(TTtop$pvalue[TTtop$padj<0.05], na.rm=TRUE)), col="black", lt
 
 ```{r}
 
-TTgene_list <- read.table("../Data/TTDEseqSVA_resOrdered_padj.csv", header=T, sep=",")
+load("../Data/TTlrt_inter.Rda")
 
 
-TTgene_list <- as.data.frame(TTgene_list)
+TTgene_list <- as.data.frame(TTlrt_inter)
 
 
 TTgene_list <-TTgene_list %>% mutate(ThermTol_Genes = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))

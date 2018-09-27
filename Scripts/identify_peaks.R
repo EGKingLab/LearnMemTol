@@ -113,6 +113,7 @@ gene_map_table$stopp <- str_split(temp.s1[,2],fixed("("),simplify = TRUE)[,1]
 
 str(gene_map_table)
 
+
 #gene_map_table <- as.numeric(gene_map_table$startp)
 
 #merge DE genes with gene list from Fly base (merge by FBgn num)
@@ -124,8 +125,26 @@ str(Learn_gene_list_merged)
 colnames(Learn_gene_list_merged)
 
 
+#select specific columns
+
+Learn_gene_list_sub <- Learn_gene_list_merged[c(1,3,6,7,12:14)]
+colnames(Learn_gene_list_sub)
+
+Mem_gene_list_sub <- Mem_gene_list_merged[c(1,3,6,7,12:14)]
+colnames(Mem_gene_list_sub)
+
+ThermTol_gene_list_sub <- ThermTol_gene_list_merged[c(1,3,6,7,12:14)]
+colnames(ThermTol_gene_list_sub)
+
+#filter dataset to narrow down options
+#by chromosome number 
+TT_genes_3Rpeak <- ThermTol_gene_list_sub %>% filter(chr %in% c("3R"))
+str(TT_genes_3Rpeak)
+
+#by startp number
+TT_genes_startp <-TT_genes_3Rpeak %>% filter(startp %in% 20000000:21100000)
+str(TT_genes_startp)
 
 
-
-
-
+#TT_genes_FBgn <- TT_genes_startp %>% filter(FBgn %in% c("FBgn0001217"))
+#str(TT_genes_FBgn)
