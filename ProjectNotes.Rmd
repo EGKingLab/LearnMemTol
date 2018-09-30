@@ -26,9 +26,21 @@ output: html_document
 
 A record of notes in the style of a lab notebook
 
+#Sep. 30, 2018
+
+Issues with the gene map file
+  - The gene map table being used is old (from 2015). I got the new version. 
+  - The file was zipped so I unzipped it
+  - There are other Drosophila species included so we need to subset to D. mel
+  
+Updated peaks list. We need to map thermal tolerance after correcting for the large peak & recalculate fdr.
+
+Added code to look at differentially expressed genes within a peak interval. Needs to be applied to each peak.
+
+
 #Sep. 20, 2018
 
-- Added code to split gene positions to identify.peaks script. Also added a couple notes for checking some things.
+- Added code to split gene positions to identify.peaks script. Also added a couple notes for checking some things. -EGK
 
 #Sep. 19, 2018
 
