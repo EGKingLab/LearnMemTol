@@ -130,13 +130,31 @@ colnames(MemresSVorder)
 Mem_sig_genes <- as.data.frame(MemresSVorder)
 
 #DE genes thermal Tolerance 
-#are these only interaction?
+
+#interaction
 load(file="../Data/TTlrt_inter.Rda")
 str(TTlrt_inter)
 TTlrt_inter$FBgn <- rownames(TTlrt_inter)
 colnames(TTlrt_inter)
 
-ThermTol_sig_genes <- as.data.frame(TTlrt_inter)
+ThermTol_inter_sig_genes <- as.data.frame(TTlrt_inter)
+
+#condition
+load(file="../Data/TTlrt_condition.Rda")
+str(TTlrt_condition)
+TTlrt_condition$FBgn <- rownames(TTlrt_condition)
+colnames(TTlrt_condition)
+
+ThermTol_condition_sig_genes <- as.data.frame(TTlrt_condition)
+
+
+#pool
+load(file="../Data/TTlrt_pool.Rda")
+str(TTlrt_pool)
+TTlrt_pool$FBgn <- rownames(TTlrt_pool)
+colnames(TTlrt_pool)
+
+ThermTol_pool_sig_genes <- as.data.frame(TTlrt_pool)
 
 
 #gene list from Fly Base
@@ -159,6 +177,7 @@ gene_map_table$startp <- as.numeric(temp.s1[,1])
 gene_map_table$stopp <- as.numeric(str_split(temp.s1[,2],fixed("("),simplify = TRUE)[,1])
 
 str(gene_map_table)
+colnames(gene_map_table)
 
 
 #gene_map_table <- as.numeric(gene_map_table$startp)
@@ -166,7 +185,11 @@ str(gene_map_table)
 #merge DE genes with gene list from Fly base (merge by FBgn num)
 Learn_gene_list_merged <- merge(Learn_sig_genes, gene_map_table, by="FBgn")
 Mem_gene_list_merged <- merge(Mem_sig_genes, gene_map_table, by="FBgn")
-ThermTol_gene_list_merged <- merge(ThermTol_sig_genes, gene_map_table, by="FBgn")
+ThermTol_inter_gene_list_merged <- merge(ThermTol_inter_sig_genes, gene_map_table, by="FBgn")
+ThermTol_pool_gene_list_merged <- merge(ThermTol_pool_sig_genes, gene_map_table, by="FBgn")
+ThermTol_condition_gene_list_merged <- merge(ThermTol_condition_sig_genes, gene_map_table, by="FBgn")
+
+
 
 str(Learn_gene_list_merged)
 colnames(Learn_gene_list_merged)
@@ -182,26 +205,23 @@ Mem_gene_list_sub <- Mem_gene_list_merged[c(1,3,6,7,13:15)]
 colnames(Mem_gene_list_sub)
 Mem_gene_list_sub <- subset(Mem_gene_list_sub, padj <=0.05)
 
+ThermTol_inter_gene_list_sub <- ThermTol_inter_gene_list_merged[c(1,3,6,7,13:15)]
+colnames(ThermTol_inter_gene_list_sub)
+ThermTol_inter_gene_list_sub <- subset(ThermTol_inter_gene_list_sub, padj <=0.05)
 
-ThermTol_gene_list_sub <- ThermTol_gene_list_merged[c(1,3,6,7,13:15)]
-colnames(ThermTol_gene_list_sub)
-ThermTol_gene_list_sub <- subset(ThermTol_gene_list_sub, padj <=0.05)
+ThermTol_pool_gene_list_sub <- ThermTol_pool_gene_list_merged[c(1,3,6,7,13:15)]
+colnames(ThermTol_pool_gene_list_sub)
+ThermTol_pool_gene_list_sub <- subset(ThermTol_pool_gene_list_sub, padj <=0.05)
 
-
-#filter dataset to narrow down options
-#by chromosome number 
-#TT_genes_3Rpeak <- ThermTol_gene_list_sub %>% filter(chr %in% c("3R"))
-#str(TT_genes_3Rpeak)
-
-#by startp number
-#TT_genes_startp <-TT_genes_3Rpeak %>% filter(startp %in% 20000000:21100000)
-#str(TT_genes_startp)
+ThermTol_condition_gene_list_sub <- ThermTol_condition_gene_list_merged[c(1,3,6,7,13:15)]
+colnames(ThermTol_condition_gene_list_sub)
+ThermTol_conditiion_gene_list_sub <- subset(ThermTol_condition_gene_list_sub, padj <=0.05)
 
 
-#TT_genes_FBgn <- TT_genes_startp %>% filter(FBgn %in% c("FBgn0001217"))
-#str(TT_genes_FBgn)
-
+#filter dataset to narrow down genes under the qtl peaks
 #USE R6
+
+#Learning
 foc.peak <- ci.peak[[1]][1,]
 
 lw <- (which(Learn_gene_list_sub$chr==foc.peak$chr & 
@@ -211,3 +231,10 @@ Learn_gene_list_sub[lw,]
 
 #make a plot showing locations & pvalues?
 
+#Learning
+foc.peak <- ci.peak[[1]][1,]
+
+lw <- (which(Learn_gene_list_sub$chr==foc.peak$chr & 
+               ((Learn_gene_list_sub$startp <= foc.peak$upR6 & Learn_gene_list_sub$stopp >= foc.peak$lpR6))))  
+
+Learn_gene_list_sub[lw,]

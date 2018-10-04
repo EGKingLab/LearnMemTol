@@ -92,9 +92,53 @@ ggplot(obs.LL_long, aes(x=Gaxis, y=LOD, color=Trait)) +
 ```
 
 
+#QTl mapping ThermTol
 ```{r}
-#QTl mapping LearnMem
 
+pdf("Plots/ThermTol_QTL.pdf",width=ww,height=hh)
+par(mar=c(7,7,0.5,0.5),mgp=c(4.5,1,0))
+
+plot(obs.LL$Gaxis, obs.LL$LearnPowerTrans,type='n',ylim=c(0,26),xlab='Position (cM)',ylab="LOD",axes=FALSE,cex.lab=2)
+
+top<-max(obs.LL$Gaxis)
+
+
+#put in bands to denote chromosome arms
+rect(66.3,-10,120.3,top+10,col="grey90",lty=0)
+rect(174,-10,221,top+10,col="grey90",lty=0)
+
+#put in threshold line
+abline(h=th,lty=3,col='black')
+
+#add lines for each phenotype
+lines(obs.LL$Gaxis,obs.LL$LearnPowerTrans,lwd=1.2,col='blue2')
+lines(obs.LL$Gaxis,obs.LL$Memory_Mean,lwd=1.2,col='red2')
+
+
+#add box back in
+box() 
+
+#add x axis in cM
+axis(1, at = c(0,66.3,120,174,221,277), labels= c(0,"66  0",54,"108  0",47,103), tick=FALSE,cex.axis=1)
+
+# add y axis back in, cex.axis=size of numbers 
+axis(2,cex.axis=1.5)
+
+
+#add chromosome labels at midpts
+mtext("X",line = 2.5,side=1, at =33.15, cex=1.5)
+mtext("2L",line = 2.5,side=1, at =93.3, cex=1.5)
+mtext("2R",line = 2.5,side=1, at =147, cex=1.5)
+mtext("3L",line = 2.5,side=1, at =197.5, cex=1.5)
+mtext("3R",line = 2.5,side=1, at =249, cex=1.5)
+
+
+dev.off()
+```
+
+#qtl map Therm Tol
+
+```{r}
 pdf("Plots/L_M_QTL.pdf",width=ww,height=hh)
 par(mar=c(7,7,0.5,0.5),mgp=c(4.5,1,0))
 
