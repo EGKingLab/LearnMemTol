@@ -8,8 +8,10 @@ source("mappingfunctions.R")
 load(file="../Data/sig_ths.rda")#fdr.out
 load(file="../Data/Lodscores_3traits.rda")#obs.LL
 
-#th.l <- fdr.out$fwer
+#th.2 <- fdr.out$fwer
 th.l <- fdr.out$fdr$th[min(which(fdr.out$fdr$fdr<=0.05))]
+
+
 
 #find peaks
 peak.i <- apply(obs.LL[,1:3],2,function(x) peakInfo(x,cM=poslist[,c('chr','Gpos')] ,th=th.l, tol.dist=3))
@@ -232,7 +234,7 @@ Learn_gene_list_sub[lw,]
 #make a plot showing locations & pvalues?
 
 #Learning
-foc.peak <- ci.peak[[1]][1,]
+foc.peak <- ci.peak[['LearnPowerTrans']][1,]
 
 lw <- (which(Learn_gene_list_sub$chr==foc.peak$chr & 
                ((Learn_gene_list_sub$startp <= foc.peak$upR6 & Learn_gene_list_sub$stopp >= foc.peak$lpR6))))  
