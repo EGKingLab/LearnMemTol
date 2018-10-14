@@ -226,17 +226,63 @@ ThermTol_conditiion_gene_list_sub <- subset(ThermTol_condition_gene_list_sub, pa
 #Learning
 foc.peak <- ci.peak[[1]][1,]
 
-lw <- (which(Learn_gene_list_sub$chr==foc.peak$chr & 
-               ((Learn_gene_list_sub$startp <= foc.peak$upR6 & Learn_gene_list_sub$stopp >= foc.peak$lpR6))))  
+learn.list <-vector(mode='list', length=nrow(ci.peak$LearnPowerTrans))
 
-Learn_gene_list_sub[lw,]
+Learn_totdf<-data.frame(NULL)
+for(row in 1:nrow(ci.peak$LearnPowerTrans)) 
+  
+  {
+  
+  foc.peak<-ci.peak[['LearnPowerTrans']][row,]
+  lw <- (which(Learn_gene_list_sub$chr==foc.peak$chr & 
+                 ((Learn_gene_list_sub$startp <= foc.peak$upR6 & Learn_gene_list_sub$stopp >= foc.peak$lpR6))))  
+  
+  Learn_genes_under_peak<-Learn_gene_list_sub[lw,]
+  learn.list[[row]] <-Learn_genes_under_peak
+  
+ }
 
-#make a plot showing locations & pvalues?
+save(Learn_genes_under_peak,file="../Data/Learn_genes_under_peak.rda")
 
-#Learning
+
+#Memory 
+
+Mem_foc_peak <- ci.peak[["Memory_Mean"]][1,]
+
+Mem.list <-vector(mode='list', length=nrow(ci.peak$Memory_Mean))
+
+Mem_totdf<-data.frame(NULL)
+for(row in 1:nrow(ci.peak$Memory_Mean)) 
+  
+  {
+  
+  foc.peak<-ci.peak[['Memory_Mean']][row,]
+  mw <- (which(Mem_gene_list_sub$chr==foc.peak$chr & 
+                 ((Mem_gene_list_sub$startp <= foc.peak$upR6 & Mem_gene_list_sub$stopp >= foc.peak$lpR6))))  
+  
+ 
+  Mem_Mem_genes_under_peak<-Mem_gene_list_sub[mw,]
+  
+  Mem.list[[row]] <-Mem_genes_under_peak
+  
+}
+
+
+Mem_genes_under_peak
+
+save(Mem_genes_under_peak,file="../Data/Mem_genes_under_peak.rda")
+
+
+#Learning (for a single peak)
 foc.peak <- ci.peak[['LearnPowerTrans']][1,]
 
 lw <- (which(Learn_gene_list_sub$chr==foc.peak$chr & 
                ((Learn_gene_list_sub$startp <= foc.peak$upR6 & Learn_gene_list_sub$stopp >= foc.peak$lpR6))))  
 
 Learn_gene_list_sub[lw,]
+
+
+
+
+#make a plot showing locations & pvalues?
+

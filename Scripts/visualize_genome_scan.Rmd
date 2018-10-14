@@ -89,10 +89,23 @@ obs.LM_long <-gather(obs.LL, key='Trait', value='LOD', LearnPowerTrans, Memory_M
 #plot using ggplot
 
 ggplot(obs.LM_long, aes(x=Gaxis, y=LOD, color=Trait)) +
+  geom_rect(xmin=66.3,ymin=-10,xmax=120.3,ymax=top+10,fill='aliceblue',color='aliceblue')+
+  geom_rect(xmin=174,ymin=-10,xmax=221,ymax=top+10,fill='aliceblue',color='aliceblue')+
   geom_line(alpha=1/2) +
-geom_hline(yintercept=6.8) +
-  geom_hline(yintercept=5.5) +
-  geom_hline(yintercept=7.3) 
+    geom_hline(yintercept=5.5) +
+  geom_text(label= FDR)
+  geom_hline(yintercept=7.3, color='gray') +
+  
+  scale_x_continuous(breaks=c(0,66.3,120,174,221,277,33.15,98.3,145,205,249), 
+                     labels=c(0,"66  0",54,"108  0",47,103,'\nX','\n2L','\n2R','\n3L','\n3R'))+
+  
+  theme(axis.ticks.x=element_blank())+
+  ylab(expression("-log"[10]*"(P-value)"))+
+  xlab("Position (cM)")
+  
+  geom_text(label="5% LD",x=275,y=getP(8.75, 258,7,250),color='grey80',size=tt.ss)
+  
+  
   
 #########note to self
 #-add time to hlines, and change colors
