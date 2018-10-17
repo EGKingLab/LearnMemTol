@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
+library(cowplot)
 library(dplyr)
 source(file="../../Scripts/ggplot_theme.R")
 ```
@@ -43,8 +44,22 @@ RIL_rna <- data.frame("Pool"= rep(c('LH','LL','MH','ML','TH','TL'),each=7),
 
 ```{r}
 rawdLM$Lname <- with(rawdLM, reorder(patRIL, Learning, function(x) mean(x)))
+levels(rawdLM$Lname) <- c(levels(rawdLM$Lname),'axhold1','axhold2')
 rawdLM$Mname <- with(rawdLM, reorder(patRIL, Memory, function(x) mean(x)))
+levels(rawdLM$Mname) <- c(levels(rawdLM$Mname),'axhold1','axhold2')
 rawdTT$Tname <- with(rawdTT, reorder(patRIL, incapacitation, function(x) mean(x)))
+
+rr.temp <- rawdLM[1,]
+rr.temp[,1:6] <- NA
+rr.temp[,7:8] <- 'axhold1'
+
+rawdLM <- rbind(rawdLM, rr.temp)
+
+rr.temp <- rawdLM[1,]
+rr.temp[,1:6] <- NA
+rr.temp[,7:8] <- 'axhold2'
+
+rawdLM <- rbind(rawdLM, rr.temp)
 
 ```
 
@@ -55,34 +70,48 @@ rawdTT$Tname <- with(rawdTT, reorder(patRIL, incapacitation, function(x) mean(x)
 
 LL.rna <- subset(RIL_rna, Pool %in% c('LL')) 
 LH.rna <- subset(RIL_rna, Pool %in% c('LH')) 
-
+LL.rna <- rawdLM[rawdLM$patRIL %in% LL.rna$patRIL,c('Lname','patRIL')]
+LL.rna <- unique(LL.rna, MARGIN=1)
+LH.rna <- rawdLM[rawdLM$patRIL %in% LH.rna$patRIL,c('Lname','patRIL')]
+LH.rna <- unique(LH.rna, MARGIN=1)
 
 Learn_indi_points <- ggplot(rawdLM, aes(x = Lname, y = Learning)) +
-  geom_point(stat = "identity",
-             position = position_dodge(width = 0.5),
-             size = 1,
-             alpha = 1/10) +
+  geom_point(size = 0.01, alpha = 1/6) +
   stat_summary(fun.y = mean,
                position = position_dodge(width = 0.5),
                geom = "point",
                color = "red",
-               size = 1) +
-  stat_summary(fun.data = mean_se, geom = "errorbar", color = 'red') +
-  geom_point(data=rawdLM[rawdLM$patRIL %in% LL.rna$patRIL,], 
+               size = 0.01, alpha = 1/4) +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'red', width=0, size=0.3) +
+  geom_point(data=LL.rna, 
              aes(x=Lname, y=-1.05), 
-             pch=17, alpha= 1/5, color='darkcyan') +
-  geom_point(data=rawdLM[rawdLM$patRIL %in% LH.rna$patRIL,], 
+             pch=17, alpha = 0.6, color='darkcyan') +
+  geom_text(data=LL.rna[LL.rna$patRIL != '11189',], 
+             aes(x=Lname, y=-1.05, label=patRIL), 
+            size = 1.5, hjust = -0.2 ,vjust = 0.7, 
+            angle = 290, color='darkcyan') +
+  geom_text(data=LL.rna[LL.rna$patRIL == '11189',], 
+             aes(x=Lname, y=-1.05, label=patRIL), 
+            size = 1.5, hjust = -0.2 ,vjust = 0.7, 
+            angle = 70, color='darkcyan') +
+  geom_point(data=LH.rna, 
              mapping=aes(x=Lname, y=-1.05), 
-             pch=17, alpha= 1/5, color='darkorchid') +
+             pch=17, alpha= 0.6, color='darkorchid') +
+  geom_text(data=LH.rna, 
+             aes(x=Lname, y=-1.05, label=patRIL), 
+            size = 1.5, hjust = -0.2 ,vjust = 0.7, 
+            angle = 290, color='darkorchid') +
   theme(legend.position = "none",axis.ticks.x=element_blank()) +
   xlab("RILs") +
   ylab("Learning PI") +
-  ylim(c(-1.1,1))+
+  ylim(c( -1.2 , 1))+
   theme(axis.text.x = element_blank()) +
   my_theme
 
 #to view plot
-Learn_indi_points
+ Learn_indi_points
 
 #to save plot
 ggsave(Learn_indi_points, file="../../Plots/Learn_indi_plot.pdf", width=6.5, height=3)
