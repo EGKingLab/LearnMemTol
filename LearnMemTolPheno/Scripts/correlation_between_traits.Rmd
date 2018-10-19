@@ -17,8 +17,8 @@ library(tidyverse)
 ##load flies
 
 ```{r}
-load(file="../Data/L_MDATA.rda")
-load(file="../Data/T_TDATA.rda")
+load(file="../ProcessedData/L_MDATA.rda")
+load(file="../ProcessedData/T_TDATA.rda")
 
 ```
 
