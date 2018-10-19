@@ -12,6 +12,9 @@ output: html_document
 
 ## Analysis Workflow 
 
+-Fetch data from repository (zenodo)- when done, update .pl and process raw scripts
+
+### Phenotype steps are in LearnMemTolPheno folder
 1. Process raw data for learning, memory, and thermal tolerance
   - Learning and Memory
       - Processed data from HeatCalc is parsed using a perl script (heatcalcRead_LearnMem.pl) and outputs: HeatProc_Learn.txt
@@ -22,9 +25,15 @@ output: html_document
 
 2. Raw data and processed data are checked using check_raw_data.Rmd. Notes within this script.
 
+3. Processing_Pheno_data get line means etc.
+4. Visualize_pheno_data makes phenotype plots
 ## Notes
 
 A record of notes in the style of a lab notebook
+
+#October 19, 2018
+Reorganize files. May need to check paths etc. for many scripts.
+Should we set up a script to fetch the raw data from zenodo (or wherever)
 
 #Sep. 30, 2018
 
