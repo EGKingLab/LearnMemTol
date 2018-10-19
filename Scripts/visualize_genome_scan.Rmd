@@ -23,59 +23,11 @@ load(file="../Data/Lodscores_3traits.rda")
 str(obs.LL)
 
 
-####Making qtl plot using Basee R 
-
-#set dimentions of map
-
-th<-6.8
-hh<-4
-ww<-10
+#set value for theresholds 
+top<-10
 fdr<-5.5
 fwer<-7.3
 
-
-#QTL mapping LearnMemTol
-
-pdf("../Plots/L_MQTL.pdf",width=ww,height=hh)
-par(mar=c(7,7,0.5,0.5),mgp=c(4.5,1,0))
-
-plot(obs.LL$Gaxis, obs.LL$Tolsqrtvariable,type='n',ylim=c(0,26),xlab='Position (cM)',ylab="LOD",axes=FALSE,cex.lab=2)
-
-top<-max(obs.LL$Gaxis)
-
-#put in bands to denote chromosome arms
-rect(66.3,-10,120.3,top+10,col="grey90",lty=0)
-rect(174,-10,221,top+10,col="grey90",lty=0)
-
-#put in threshold, fdr and fwer lines
-abline(h=th,lty=3,col='black')
-abline(h=fdr,lty=3, col='gray')
-#abline(h=fwer,lty=3, col='gray60')
-
-#add lines for each phenotype
-lines(obs.LL$Gaxis,obs.LL$LearnPowerTrans,lwd=1.2,col='blue2')
-lines(obs.LL$Gaxis,obs.LL$Memory_Mean,lwd=1.2,col='red2')
-#lines(obs.LL$Gaxis,obs.LL$Tolsqrtvariable,lwd=1.2,col='black')
-
-#add box back in
-box() 
-
-#add x axis in cM
-axis(1, at = c(0,66.3,120,174,221,277), labels= c(0,"66  0",54,"108  0",47,103), tick=FALSE,cex.axis=1)
-
-# add y axis back in, cex.axis=size of numbers 
-axis(2,cex.axis=1.5)
-
-
-#add chromosome labels at midpts
-mtext("X",line = 2.5,side=1, at =33.15, cex=1.5)
-mtext("2L",line = 2.5,side=1, at =93.3, cex=1.5)
-mtext("2R",line = 2.5,side=1, at =147, cex=1.5)
-mtext("3L",line = 2.5,side=1, at =197.5, cex=1.5)
-mtext("3R",line = 2.5,side=1, at =249, cex=1.5)
-
-
-dev.off()
 ```
 
 #Making qtl plots using ggplot
@@ -85,7 +37,6 @@ dev.off()
 #make dataframe long
 obs.LM_long <-gather(obs.LL, key='Trait', value='LOD', LearnPowerTrans, Memory_Mean)
 
-#obs.LL_long <-gather(obs.LL, key='Trait', value='LOD', LearnPowerTrans, Memory_Mean, #Tolsqrtvariable)
 
 #plot using ggplot
 line.ww <- 0.5
@@ -109,64 +60,7 @@ p1 <- ggplot(obs.LM_long, aes(x=Gaxis, y=LOD, color=Trait)) +
   my_theme
 
 ggsave(p1, filename = "../Plots/L_M_QTL.pdf", height=3,width=6.5)
-  
- 
-  
-  
-  
-#########note to self
-#-add time to hlines, and change colors
-#-double check the higher threshold between L and M
-
-
-#if you want only a couple traits, just subset the trait column
 
 ```
-
-
-#QTl mapping ThermTol
-```{r}
-
-pdf("Plots/ThermTol_QTL.pdf",width=ww,height=hh)
-par(mar=c(7,7,0.5,0.5),mgp=c(4.5,1,0))
-
-plot(obs.LL$Gaxis, obs.LL$LearnPowerTrans,type='n',ylim=c(0,26),xlab='Position (cM)',ylab="LOD",axes=FALSE,cex.lab=2)
-
-top<-max(obs.LL$Gaxis)
-
-
-#put in bands to denote chromosome arms
-rect(66.3,-10,120.3,top+10,col="grey90",lty=0)
-rect(174,-10,221,top+10,col="grey90",lty=0)
-
-#put in threshold line
-abline(h=th,lty=3,col='black')
-
-#add lines for each phenotype
-lines(obs.LL$Gaxis,obs.LL$LearnPowerTrans,lwd=1.2,col='blue2')
-lines(obs.LL$Gaxis,obs.LL$Memory_Mean,lwd=1.2,col='red2')
-
-
-#add box back in
-box() 
-
-#add x axis in cM
-axis(1, at = c(0,66.3,120,174,221,277), labels= c(0,"66  0",54,"108  0",47,103), tick=FALSE,cex.axis=1)
-
-# add y axis back in, cex.axis=size of numbers 
-axis(2,cex.axis=1.5)
-
-
-#add chromosome labels at midpts
-mtext("X",line = 2.5,side=1, at =33.15, cex=1.5)
-mtext("2L",line = 2.5,side=1, at =93.3, cex=1.5)
-mtext("2R",line = 2.5,side=1, at =147, cex=1.5)
-mtext("3L",line = 2.5,side=1, at =197.5, cex=1.5)
-mtext("3R",line = 2.5,side=1, at =249, cex=1.5)
-
-
-dev.off()
-```
-
 
 

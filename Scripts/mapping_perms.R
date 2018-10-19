@@ -5,8 +5,10 @@ set.seed(87523771)
 
 
 ##Load datasets
-load(file="../Data/L_MDATA.rda")
-load(file="../Data/T_TDATA.rda")
+#####note to self######
+#path is temporary, please change.
+load(file="Home/kingeg/Projects/LearnMemTol/Data/L_MDATA.rda")
+load(file="home/kingeg/Projects/LearnMemTol/Data/T_TDATA.rda")
 
 #View dataset
 str(L_MDATA)
