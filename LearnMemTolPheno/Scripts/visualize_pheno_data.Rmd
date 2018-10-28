@@ -24,8 +24,8 @@ rawdTT <- read.table("../ProcessedData/ThermalTol_processed.txt",sep="\t", heade
 str(rawdTT)
 
 #make mean graphs
-load(file="../../Data/L_MDATA.rda")
-load(file="../../Data/T_TDATA.rda")
+load(file="../ProcessedData/L_MDATA.rda")
+load(file="../ProcessedData/T_TDATA.rda")
 
 #RILs that we used in RNAseq
 RIL_rna <- data.frame("Pool"= rep(c('LH','LL','MH','ML','TH','TL'),each=7), 
@@ -63,10 +63,10 @@ rawdLM <- rbind(rawdLM, rr.temp)
 
 ```
 
-## Visualize phenotype data (individual plots)
+## Visualize Learning phenotype data (individual plots)
 
 ```{r}
-##learning scatter plot 
+##using ggplot2
 
 LL.rna <- subset(RIL_rna, Pool %in% c('LL')) 
 LH.rna <- subset(RIL_rna, Pool %in% c('LH')) 
@@ -114,37 +114,60 @@ Learn_indi_points <- ggplot(rawdLM, aes(x = Lname, y = Learning)) +
  Learn_indi_points
 
 #to save plot
-ggsave(Learn_indi_points, file="../../Plots/Learn_indi_plot.pdf", width=6.5, height=3)
+ggsave(Learn_indi_points, file="../Plots/Learn_indi_plot.pdf", width=6.5, height=3)
 
 ```
 
-
+#Visualize memory phenotypic data
 
 ```{r}
-#memory scatter plot
+#using ggplot2
+
+ML.rna <- subset(RIL_rna, Pool %in% c('ML')) 
+MH.rna <- subset(RIL_rna, Pool %in% c('MH')) 
+ML.rna <- rawdLM[rawdLM$patRIL %in% ML.rna$patRIL,c('Mname','patRIL')]
+ML.rna <- unique(ML.rna, MARGIN=1)
+MH.rna <- rawdLM[rawdLM$patRIL %in% MH.rna$patRIL,c('Mname','patRIL')]
+MH.rna <- unique(MH.rna, MARGIN=1)
+
 
 Mem_indi_points <- ggplot(rawdLM, aes(x = Mname, y = Memory)) +
-  geom_point(stat = "identity",
-             position = position_dodge(width = 0.5),
-             size = 1,
-             alpha = 1/5) +
+  geom_point(size = 0.01, alpha = 1/6) +
   stat_summary(fun.y = mean,
                position = position_dodge(width = 0.5),
                geom = "point",
                color = "red",
-               size = 1) +
-  stat_summary(fun.data = mean_se, geom = "errorbar", color = 'red') +
-  theme(legend.position = "none") +
-  xlab("741 RILs") +
-  ylab("Memory PI") +
-  ylim(c(-1,1))+
-  theme(axis.text.x = element_blank())
+               size = 0.01, alpha = 1/4) +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'red', width=0, size=0.3) +
+  geom_point(data=ML.rna, 
+             aes(x=Mname, y=-1.05), 
+             pch=17, alpha = 0.6, color='darkcyan') +
+  geom_text(data=ML.rna, 
+             aes(x=Mname, y=-1.05, label=patRIL), 
+            size = 1.5, hjust = -0.2 ,vjust = 0.7, 
+            angle = 290, color='darkcyan') +
+  geom_point(data=MH.rna, 
+             mapping=aes(x=Mname, y=-1.05), 
+             pch=17, alpha= 0.6, color='darkorchid') +
+  geom_text(data=MH.rna, 
+             aes(x=Mname, y=-1.05, label=patRIL), 
+            size = 1.5, hjust = -0.2 ,vjust = 0.7, 
+            angle = 290, color='darkorchid') +
+  theme(legend.position = "none",axis.ticks.x=element_blank()) +
+  xlab("RILs") +
+  ylab("MEMORY PI") +
+  ylim(c( -1.2 , 1))+
+  theme(axis.text.x = element_blank()) +
+  my_theme
+
 
 #to view plot
 Mem_indi_points
 
 #to save plot
-ggsave(Mem_indi_points, file="../Plots/Mem_indi_plot.pdf", width=10, height=4)
+ggsave(Mem_indi_points, file="../Plots/Mem_indi_plot.pdf", width=6.5, height=3)
 
 
 ```

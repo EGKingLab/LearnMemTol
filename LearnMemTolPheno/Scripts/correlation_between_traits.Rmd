@@ -22,7 +22,7 @@ load(file="../ProcessedData/T_TDATA.rda")
 
 ```
 
-##merge folies 
+##merge filies 
 
 ```{r}
 All_3_Traits_Data <- merge(L_MDATA, T_TDATA, by='patRIL')
@@ -42,6 +42,33 @@ cor.test(All_3_Traits_Data$Learning_Mean,All_3_Traits_Data$Incapacitation_Mean)
 
 ```{r}
 
+#making scatter plots
+#this had jitter - only use jitter when overlapping
+
+cor_Learn_Mem_plot <-ggplot(All_3_Traits_Data, aes(x = Learning_Mean, 
+                     y = Memory_Mean)) +
+  geom_point(position = position_jitter(width = 0.1)) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  theme_classic(base_size = 12, base_family = "")
+
+line_color <- 'red'
+
+#It's better to use alpha
+
+cor_Learn_Mem_plot <- ggplot (All_3_Traits_Data, aes(x = Learning_Mean, y = Memory_Mean)) +
+  geom_point(alpha=1/2, size=2.5) +
+  geom_smooth(method = "lm", color = line_color, se = FALSE) +
+  theme_classic(base_size = 12,base_family = "")+
+  xlab("Learning") +
+  ylab("Memory") 
+
+
+#to view plot
+cor_Learn_Mem_plot
+
+#To make figures into files, assign to an object and use ggsave
+
+ggsave(cor_Learn_Mem_plot, file="../Plots/Learn_Mem_Cor.pdf", width=3, height=3)
 
 ```
 
