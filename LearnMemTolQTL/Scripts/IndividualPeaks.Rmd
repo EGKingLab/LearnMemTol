@@ -1,0 +1,72 @@
+---
+title: "Individual_peak"
+author: "EGK & PW-S"
+date: "10/28/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DSPRqtl)
+library(ggplot2)
+
+#conversion table
+load(file = "/home/kingeg/Projects/DSPRgeneral/Convert5_6/DSPR_5_6_parsed.rda")
+coord.table$R5pos<-as.numeric(coord.table$R5pos)
+coord.table$R6pos<-as.numeric(coord.table$R6pos)
+
+source("../../Scripts/mappingfunctions.R")
+source("../../Scripts/ggplot_theme.R")
+
+
+```
+
+# Make individual peak plots
+  - Get set of peaks
+  - Get genes under peaks (all?)
+  - highlight DE genes
+
+
+## Load data
+```{r}
+#phenotype data
+load(file="../../Data/myGenos.rda")
+Nrils <- nrow(myGenos$phenotype)
+rm(myGenos)
+
+#LOD scores 
+load(file="../../Data/Lodscores_3traits.rda")
+
+#Peak data
+load(file ="../../Data/Peaks_wCIs.rda")
+
+#DE genes
+#load(file="../Data/Learn_genes_under_peak.rda")
+
+#convert LOD data to long format
+#convert 5-6
+#convert LOD to p-value
+obs.LM_long <-gather(obs.LL, key='Trait', value='LOD', LearnPowerTrans, Memory_Mean)
+
+obs.LM_long <- merge(obs.LM_long, coord.table, by.x=c('chr','Ppos'), by.y=c('R5chr','R5pos'),sort=FALSE)
+
+obs.LM_long$pval <- getP(obs.LM_long$LOD,Nrils,7,Nrils-8)
+
+```
+
+## Make ind plot
+
+```{r}
+#only do peaks with DEG in them
+pad.pos <- 50000
+
+
+
+
+
+```
+
+
+
+
+
