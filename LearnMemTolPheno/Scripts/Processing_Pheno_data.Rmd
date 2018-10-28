@@ -157,8 +157,8 @@ load(file ="../Processed/Data/MemDATA_sort.rda")
 load(file ="../ProcessedData/ThermTolDATA_sort.rda")
 
 #Identify RILs in the low cohort
-LearnDATA_sort[1:20,]
-MemDATA_sort[1:20,]
+LearnDATA_sort[11:20,]
+MemDATA_sort[11:20,]
 ThermTolDATA_sort[1:20,]
 
 
@@ -168,8 +168,8 @@ MemDATA_sort[349:374,]
 ThermTolDATA_sort[349:374,]
 
 #Identify RILs in the high cohort
-LearnDATA_sort[7:741,]
-MemDATA_sort[721:730,]
+LearnDATA_sort[731:741,]
+MemDATA_sort[731:741,]
 ThermTolDATA_sort[721:730,]
 
 ```
