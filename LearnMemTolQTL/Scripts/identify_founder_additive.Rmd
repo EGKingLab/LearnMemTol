@@ -1,0 +1,29 @@
+---
+title: "Finding Haplotype Positions"
+author: "Patricka Williams-Simon"
+date: "10/24/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(DSPRqtlDataA)
+library(DSPRqtl)
+```
+
+#load data and 
+
+```{r}
+load(file="../ProcessedData/L_MDATA.rda")
+
+data(A_X_12000000)
+
+
+#just additive
+pop_A <- A_X_12000000[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
+
+
+
+
+
+```
+

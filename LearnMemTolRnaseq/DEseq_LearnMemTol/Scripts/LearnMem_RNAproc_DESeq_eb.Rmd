@@ -74,6 +74,15 @@ LMcc_c <- rowSums(LMdat_sva)
 #remove all genes with 0s for all samples
 LMdat_sva <- LMdat_sva[which(LMcc_c>0),]
 
+#check dataset to see if there are any NAs
+length(which(is.na(Memgene_list$log2FoldChange)))
+length(which(is.na(Memgene_list$padj)))
+
+#look at specific columns
+testm <- Memgene_list[which(is.na(Memgene_list$padj)),]
+testm[1:5,]
+
+
 
 LMpheno <- as.data.frame(LMpheno)
 
