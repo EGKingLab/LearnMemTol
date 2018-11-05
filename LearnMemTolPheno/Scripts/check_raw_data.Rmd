@@ -18,18 +18,16 @@ There are three files. The raw data for Thermal Tolerance, the raw data for Lear
 ```{r}
 #raw learning and memory data
 #named LearnMem
-load(file="../Data/Learn_raw.rda")
+load(file="../ProcessedData/Learn_raw.rda")
 
 
 #learning and memory data processed through HeatCalc
-LM_proc <- read.table(file="../Data/HeatProc_Learn.txt", sep="\t", header=TRUE, stringsAsFactors = FALSE)
+LM_proc <- read.table(file="../ProcessedData/HeatProc_Learn.txt", sep="\t", header=TRUE, stringsAsFactors = FALSE)
 
 
 #raw thermal tolerance data
 #Named ThermTol
-load(file="../Data/Incapacitation.rda")
-
-
+load(file="../ProcessedData/Incapacitation.rda")
 
 ```
 
@@ -405,8 +403,8 @@ for(rr in raw.proc.therm.rils)
 ## Write out final files
 
 ```{r}
-write.table(ThermTol.keep,file= "../Data/ThermalTol_processed.txt",row.names=FALSE,sep="\t")
+write.table(ThermTol.keep,file= "../ProcessedData/ThermalTol_processed.txt",row.names=FALSE,sep="\t")
 
-write.table(LL.set,file= "../Data/LearnMem_processed.txt",row.names=FALSE,sep="\t")
+write.table(LL.set,file= "../ProcessedData/LearnMem_processed.txt",row.names=FALSE,sep="\t")
 ```
 

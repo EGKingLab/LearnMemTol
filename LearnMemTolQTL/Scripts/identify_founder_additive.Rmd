@@ -8,13 +8,12 @@ output: html_document
 ```{r setup, include=FALSE}
 library(DSPRqtlDataA)
 library(DSPRqtl)
+library(tidyverse)
 ```
 
-#load data and 
+#load in data (see DSPR tutorial) 
 
 ```{r}
-load(file="../ProcessedData/L_MDATA.rda")
-
 data(A_X_12000000)
 
 
@@ -22,8 +21,13 @@ data(A_X_12000000)
 pop_A <- A_X_12000000[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
 
 
+#filter RILs from top and bottom cohorts (common RILs appear once)
 
+LearnMemRNAseqRILs <- pop_A %>% filter(ril %in% c("12044", "12285", "12138", "11189", "12022", "12084", "12324","11065", "12359", "11146", "11144", "11006", "11122", "11023", "12030", "12383", "11038", "11133", "11186", "12018", "12039", "12074", "11184", "11122", "12071", "11023" ))
 
+str(LearnMemRNAseqRILs)
+
+load(file ="../../Data/Peaks_wCIs.rda")
 
 ```
 
