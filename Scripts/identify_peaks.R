@@ -98,7 +98,7 @@ ci.peak[[2]] <- ci.peak[[2]][-set.s,]
 set.s <- c(which(ci.peak[[3]]$chr=='2L' & ci.peak[[3]]$Ppos==20110000),
            which(ci.peak[[3]]$chr=='3L' & ci.peak[[3]]$Ppos==9380000),
            which(ci.peak[[3]]$chr=='3R' & ci.peak[[3]]$Ppos==16810000))
-ci.peak[[3]] <- ci.peak[[2]][set.s,]
+ci.peak[[3]] <- ci.peak[[3]][set.s,]
 
 
 save(ci.peak,file="../Data/Peaks_wCIs.rda")
@@ -142,7 +142,7 @@ colnames(TTlrt_inter)
 ThermTol_inter_sig_genes <- as.data.frame(TTlrt_inter)
 
 #condition
-load(file="../Data/TTlrt_condition.Rda")
+load(file="../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_condition.Rda")
 str(TTlrt_condition)
 TTlrt_condition$FBgn <- rownames(TTlrt_condition)
 colnames(TTlrt_condition)
@@ -244,6 +244,7 @@ for(row in 1:nrow(ci.peak$LearnPowerTrans))
 
 save(Learn_genes_under_peak,file="../Data/Learn_genes_under_peak.rda")
 
+load(file="../Data/Learn_genes_under_peak.rda")
 
 #Memory 
 
@@ -271,7 +272,7 @@ for(row in 1:nrow(ci.peak$Memory_Mean))
 Mem_genes_under_peak
 
 save(Mem_genes_under_peak,file="../Data/Mem_genes_under_peak.rda")
-
+load(file="../Data/Mem_genes_under_peak.rda")
 
 #Learning (for a single peak)
 foc.peak <- ci.peak[['LearnPowerTrans']][1,]
@@ -282,7 +283,17 @@ lw <- (which(Learn_gene_list_sub$chr==foc.peak$chr &
 Learn_gene_list_sub[lw,]
 
 
+foc.peak <- ci.peak[[3]][3,]
 
+lw <- (which(ThermTol_conditiion_gene_list_sub$chr==foc.peak$chr & 
+               ((ThermTol_conditiion_gene_list_sub$startp <= foc.peak$upR6 & ThermTol_conditiion_gene_list_sub$stopp >= foc.peak$lpR6))))  
+
+ThermTol_inter_gene_list_sub[lw,]
+
+lw <- (which(ThermTol_inter_gene_list_sub$chr==foc.peak$chr & 
+               ((ThermTol_inter_gene_list_sub$startp <= foc.peak$upR6 & ThermTol_inter_gene_list_sub$stopp >= foc.peak$lpR6))))  
+
+ThermTol_inter_gene_list_sub[lw,]
 
 #make a plot showing locations & pvalues?
 

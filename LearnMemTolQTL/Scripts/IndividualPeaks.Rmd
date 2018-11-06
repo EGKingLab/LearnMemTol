@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(DSPRqtl)
 library(ggplot2)
+library(cowplot)
 
 #conversion table
 load(file = "/home/kingeg/Projects/DSPRgeneral/Convert5_6/DSPR_5_6_parsed.rda")
@@ -57,12 +58,23 @@ obs.LM_long$pval <- getP(obs.LM_long$LOD,Nrils,7,Nrils-8)
 ## Make ind plot
 
 ```{r}
+fdr<-5.5
+fwer<-7.3
 #only do peaks with DEG in them
 pad.pos <- 50000
 
+set <- subset(obs.LM_long, chr=='2L' & Ppos < 6000000)
+line.ww <- 0.5
 
+p1 <- ggplot(set, aes(x=Ppos/1e6, y=LOD, color=Trait)) +
+    geom_line(alpha=0.8, size=line.ww) +
+  
+  geom_segment(x=-10, xend=6,y=fdr,yend=fdr, color='black', size=line.ww) +
+  ylab("LOD")+
+  xlab("Position (Mbp)") +
+  scale_color_discrete(name='Phenotype',breaks=c('LearnPowerTrans','Memory_Mean'), labels=c('Learning','Memory'))
 
-
+ggsave(p1, file="../Plots/indpeak.pdf",width=4, height=2)
 
 ```
 
