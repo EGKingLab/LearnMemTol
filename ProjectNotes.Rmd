@@ -31,8 +31,11 @@ output: html_document
 
 A record of notes in the style of a lab notebook
 
-#Oct. 28t, 2018
--Identify genesfounder haplotype that are in low and high cohorts. files is named identify_founder_additive.Rmd
+#Nov. 07th, 2018
+-continued working on identifying which haplotype is positioned at significant qtls.
+
+#Oct. 28th, 2018
+-Identify genesfounder haplotype that are in low and high cohorts. File is named identify_founder_additive.Rmd
 -Started working on script for individual QTL plots to show where all the significanly DE genes are located under the peaks.
 -Some padj values are set to NA. This happens when the count is extreme (low or high). See this link and add it to your project notes so we dont forget why this is happening. https://support.bioconductor.org/p/76144/
 

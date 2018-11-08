@@ -9,25 +9,46 @@ output: html_document
 library(DSPRqtlDataA)
 library(DSPRqtl)
 library(tidyverse)
+library(dplyr)
 ```
 
 #load in data (see DSPR tutorial) 
 
 ```{r}
-data(A_X_12000000)
+#founder haplotype data for a single position 
+data(A_2L_3160000)
 
 
-#just additive
-pop_A <- A_X_12000000[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
+#just additive at a specific position 
+pop_A <- A_2L_3160000[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
 
 
 #filter RILs from top and bottom cohorts (common RILs appear once)
 
-LearnMemRNAseqRILs <- pop_A %>% filter(ril %in% c("12044", "12285", "12138", "11189", "12022", "12084", "12324","11065", "12359", "11146", "11144", "11006", "11122", "11023", "12030", "12383", "11038", "11133", "11186", "12018", "12039", "12074", "11184", "11122", "12071", "11023" ))
+Learn_low <- pop_A %>% filter(ril %in% c("12044", "12285", "12138", "11189", "12022", "12084", "12324"))
 
-str(LearnMemRNAseqRILs)
+colSums(Learn_low[,2:9])
 
-load(file ="../../Data/Peaks_wCIs.rda")
+Learn_High <- pop_A %>% filter(ril %in% c("11065", "12359", "11146", "11144", "11006", "11122", "11023"))
+
+colSums(Learn_High[,2:9])
+
+
+Mem_Low <- pop_A %>% filter(ril %in% c("12030", "12383", "12285", "11189", "11038", "11133", "11186"))
+
+colSums(Mem_Low[,2:9])
+
+
+Mem_High <- pop_A %>% filter(ril %in% c("12018", "12039", "12074", "11184", "11122", "12071", "11023"))
+
+colSums(Mem_High[,2:9])
+
+
+
+load(file ="../ProcessedData/Peaks_wCIs.rda")
+
+ci.peak
+
 
 ```
 

@@ -61,12 +61,15 @@ str(Learngene_list)
 str(Memgene_list)
 
 
-Learn_Volcanoplot <- ggplot(Learngene_list, aes(y=-log10(padj), x=log2FoldChange)) +
+Learn_Volcanoplot <- ggplot(na.omit(Learngene_list), aes(y=-log10(padj), x=log2FoldChange)) +
   geom_point(aes(colour = Learn_Genes), size=1.3, alpha=0.5 ) +
   geom_hline(yintercept = 1.30) +
-  scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels'))
-
-
+  ylab(expression("-log"[10]*"(P"[adj]*")")) +
+  xlab(expression("log"[2]*"(fold change)"))+
+  scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
+ my_theme +
+  theme(legend.title=element_blank()) 
+ 
 Learn_Volcanoplot
 
 
@@ -76,12 +79,10 @@ Mem_Volcanoplot <- ggplot(na.omit(Memgene_list), aes(y=-log10(padj), x=log2FoldC
   ylab(expression("-log"[10]*"(P"[adj]*")")) +
   xlab(expression("log"[2]*"(fold change)"))+
   scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
-  xlim(c(-30,25)) +
+  xlim(c(-25,25)) +
    my_theme +
   theme(legend.title=element_blank()) 
  
-
-
 
 Mem_Volcanoplot
 

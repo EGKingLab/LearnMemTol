@@ -110,7 +110,7 @@ save(ci.peak,file="../Data/Peaks_wCIs.rda")
 #load in all the datasets
 
 #significant qtl peaks
-load(file ="../Data/Peaks_wCIs.rda")
+load(file ="../ProcessedData/Peaks_wCIs.rda")
 str(ci.peak)
 
 #DE genes for Learning
@@ -270,7 +270,7 @@ for(row in 1:nrow(ci.peak$Memory_Mean))
 
 Mem_genes_under_peak
 
-save(Mem_genes_under_peak,file="../Data/Mem_genes_under_peak.rda")
+save(Mem_genes_under_peak,file="../ProcessedData/Mem_genes_under_peak.rda")
 
 
 #Learning (for a single peak)
