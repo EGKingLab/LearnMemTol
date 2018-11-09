@@ -137,7 +137,7 @@ for(kk in folds)
 
 #save the R object
 LearnMem <- LL_Mem
-save(LearnMem, file="../Data/Learn_raw.rda")
+save(LearnMem, file="../ProcessedData/Learn_raw.rda")
 
 
 hist(LL_Mem$diff.train.A)

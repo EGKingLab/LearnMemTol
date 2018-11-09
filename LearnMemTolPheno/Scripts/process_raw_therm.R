@@ -175,5 +175,5 @@ tester <- ThermTol[which(ThermTol$incapacitation==0),]
 #ThermTol <- ThermTol[-which(ThermTol$incapacitation==0),]
 
 #save the R object
-save(ThermTol, file="../Data/Incapacitation.rda")
+save(ThermTol, file="../ProcessedData/Incapacitation.rda")
 

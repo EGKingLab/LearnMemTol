@@ -16,9 +16,7 @@ library(tidyverse)
 ## Read in LearnMem processed raw data and check 
 
 ```{r}
-#rawd <- read.table("/MyGitHub/LearnMemTol/Data/HeatProc.txt",sep="\t", #header=TRUE, stringsAsFactors = FALSE)
-
-rawdLM <- read.table("../ProcessedData/HeatProc_Learn.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+rawdLM <- read.table("../ProcessedData/LearnMem_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
 
 
 str(rawdLM)
@@ -58,15 +56,6 @@ T_TDATA <- rawdTT %>%
             N = length(incapacitation))
 ```
 
-## Check to see if SEMs are SEMs (optional)
-
-```{r}
-L_MDATA[1:10,c('patRIL','Learning_SEM')]
-
-#sd(rawd[rawd$patRIL==11002,'Learning'])/sqrt(length(rawd[rawd$patRIL==11002,'Learning']))
-
-
-```
 
 #Find Percentile for each RIL
 
@@ -80,24 +69,9 @@ T_TDATA$Percentile_ThermTol<- ecdf(T_TDATA$Incapacitation_Mean)(T_TDATA$Incapaci
 
 ```
 
-
-## Save data (note to self: make sure working directory is set as ~/MyGitHUb/LearnMemTol/Data/)
-
-```{r}
-save(L_MDATA, file="../ProcessedData/L_MDATA.rda")
-
-save(T_TDATA, file="../ProcessedData/T_TDATA.rda")
-
-```
-
 ## Visualize data
 
 ```{r}
-
-load(file="../ProcessedData/L_MDATA.rda")
-load(file="../ProcessedData/T_TDATA.rda")
-
-
 #Make histogram LearnMem
 Learnhisto <- ggplot(L_MDATA, aes(x = Learning_Mean)) +
   geom_histogram()
@@ -147,14 +121,14 @@ MemDATA_sort <- L_MDATA[order(L_MDATA$Memory_Mean),]
 ThermTolDATA_sort <- T_TDATA[order(T_TDATA$Incapacitation_Mean),]
 
 #save sorted dataset
-save(LearnDATA_sort, file="../ProcessedData/LearnDATA_sort.rda")
-save(MemDATA_sort, file="../ProcessedData/MemDATA_sort.rda")
-save(ThermTolDATA_sort, file="../ProcessedData/ThermTolDATA_sort.rda")
+#save(LearnDATA_sort, file="../ProcessedData/LearnDATA_sort.rda")
+#save(MemDATA_sort, file="../ProcessedData/MemDATA_sort.rda")
+#save(ThermTolDATA_sort, file="../ProcessedData/ThermTolDATA_sort.rda")
 
 #load files, if necessary
-load(file ="../ProcessedData/LearnDATA_sort.rda")
-load(file ="../Processed/Data/MemDATA_sort.rda")
-load(file ="../ProcessedData/ThermTolDATA_sort.rda")
+#load(file ="../ProcessedData/LearnDATA_sort.rda")
+#load(file ="../Processed/Data/MemDATA_sort.rda")
+#load(file ="../ProcessedData/ThermTolDATA_sort.rda")
 
 #Identify RILs in the low cohort
 LearnDATA_sort[11:20,]
@@ -181,33 +155,33 @@ ThermTolDATA_sort[721:730,]
 #Learning Low
 LearnRNAseqLow <- L_MDATA %>% filter(patRIL %in% c("12044", "12285", "12138", "11189", "12022", "12084", "12324"))
 
-save(LearnRNAseqLow, file="../ProcessedData/LearnRNAseqLow.rda")
+#save(LearnRNAseqLow, file="../ProcessedData/LearnRNAseqLow.rda")
 
 #Learning High
 LearnRNAseqHigh <- L_MDATA %>% filter(patRIL %in% c("11065", "12359", "11146", "11144", "11006", "11122", "11023"))
 
-save(LearnRNAseqHigh, file="../ProcessedData/LearnRNAseqHigh.rda")
+#save(LearnRNAseqHigh, file="../ProcessedData/LearnRNAseqHigh.rda")
 
 #Memory Low
 MemRNAseqLow <- L_MDATA %>% filter(patRIL %in% c("12030", "12383", "12285", "11189", "11038", "11133", "11186"))
 
-save(MemRNAseqLow, file="../ProcessedData/MemRNAseqLow.rda")
+#save(MemRNAseqLow, file="../ProcessedData/MemRNAseqLow.rda")
 
 #Memory High
 MemRNAseqHigh <- L_MDATA %>% filter(patRIL %in% c("12018", "12039", "12074", "11184", "11122", "12071", "11023"))
 
-save(MemRNAseqHigh, file="../ProcessedData/MemRNAseqHigh.rda")
+#save(MemRNAseqHigh, file="../ProcessedData/MemRNAseqHigh.rda")
 
 
 #Thermal Tolerance Low
 ThermRNAseqLow <- T_TDATA %>% filter(patRIL %in% c("12047", "12290", "12042", "11106", "12060", "11042", "11132"))
 
-save(ThermRNAseqLow, file="../ProcessedData/ThermRNAseqLow.rda")
+#save(ThermRNAseqLow, file="../ProcessedData/ThermRNAseqLow.rda")
 
 #Thermal Tolerance High
 ThermRNAseqHigh <- T_TDATA %>% filter(patRIL %in% c("12069", "12062", "11024", "11163", "11023", "11043", "11067"))
 
-save(ThermRNAseqHigh, file="../ProcessedData/ThermRNAseqHigh.rda")
+#save(ThermRNAseqHigh, file="../ProcessedData/ThermRNAseqHigh.rda")
 
 ```
 

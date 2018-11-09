@@ -1,0 +1,66 @@
+---
+title: "QTL plots"
+author: "Patricka Williams-Simon & ElizabethKing"
+date: "7/20/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(ggrepel)
+library(tidyr)
+library(dplyr)
+library(reshape)
+library(cowplot)
+```
+
+#load scan results
+
+```{r}
+source(file="ggplot_theme.R")
+load(file="../Data/Lodscores_3traits.rda")
+
+str(obs.LL)
+
+
+#set value for theresholds 
+top<-10
+fdr<-5.5
+fwer<-7.3
+
+```
+
+#Making qtl plots using ggplot
+
+```{r}
+
+#make dataframe long
+obs.LM_long <-gather(obs.LL, key='Trait', value='LOD', LearnPowerTrans, Memory_Mean)
+
+
+#plot using ggplot
+line.ww <- 0.5
+
+p1 <- ggplot(obs.LM_long, aes(x=Gaxis, y=LOD, color=Trait)) +
+  geom_rect(xmin=66.3,ymin=-10,xmax=120.3,ymax=top+10,fill='aliceblue',color='aliceblue')+
+  geom_rect(xmin=174,ymin=-10,xmax=221,ymax=top+10,fill='aliceblue',color='aliceblue')+
+  geom_line(alpha=0.8, size=line.ww) +
+  
+    geom_segment(x=-50, xend=275,y=fdr,yend=fdr, color='black', size=line.ww) +
+  geom_text(label= "FDR", x=295, y=fdr, color='black',size=3.5) +
+  geom_text(label= "FWER", x=302, y=fwer, color='black',size=3.5) +
+  geom_segment(x=-50, xend=275,y=fwer,yend=fwer, color='black', size=line.ww, lty=3) +
+  scale_x_continuous(breaks=c(0,66.3,120,174,221,277,33.15,98.3,145,205,249), 
+                     labels=c(0,"66  0",54,"108  0",47,103,'\nX','\n2L','\n2R','\n3L','\n3R'),limits = c(0,max(obs.LM_long$Gaxis)+25))+
+  
+  theme(axis.ticks.x=element_blank())+
+  ylab(expression("-log"[10]*"(P-value)"))+
+  xlab("Position (cM)") +
+  scale_color_discrete(name='Phenotype',breaks=c('LearnPowerTrans','Memory_Mean'), labels=c('Learning','Memory'))+
+  my_theme
+
+ggsave(p1, filename = "../Plots/L_M_QTL.pdf", height=3,width=6.5)
+
+```
+
+

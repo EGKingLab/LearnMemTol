@@ -318,16 +318,16 @@ $(document).ready(function () {
 <p>There are three files. The raw data for Thermal Tolerance, the raw data for Learning and Memory, and the Learning and Memory data processed through HeatCalc.</p>
 <pre class="r"><code>#raw learning and memory data
 #named LearnMem
-load(file=&quot;../Data/Learn_raw.rda&quot;)
+load(file=&quot;../ProcessedData/Learn_raw.rda&quot;)
 
 
 #learning and memory data processed through HeatCalc
-LM_proc &lt;- read.table(file=&quot;../Data/HeatProc_Learn.txt&quot;, sep=&quot;\t&quot;, header=TRUE, stringsAsFactors = FALSE)
+LM_proc &lt;- read.table(file=&quot;../ProcessedData/HeatProc_Learn.txt&quot;, sep=&quot;\t&quot;, header=TRUE, stringsAsFactors = FALSE)
 
 
 #raw thermal tolerance data
 #Named ThermTol
-load(file=&quot;../Data/Incapacitation.rda&quot;)</code></pre>
+load(file=&quot;../ProcessedData/Incapacitation.rda&quot;)</code></pre>
 </div>
 <div id="assign-chamber-and-group-number-to-processed-data" class="section level2">
 <h2>Assign chamber and group number to processed data</h2>
@@ -744,9 +744,9 @@ for(rr in raw.proc.therm.rils)
 </div>
 <div id="write-out-final-files" class="section level2">
 <h2>Write out final files</h2>
-<pre class="r"><code>write.table(ThermTol.keep,file= &quot;../Data/ThermalTol_processed.txt&quot;,row.names=FALSE,sep=&quot;\t&quot;)
+<pre class="r"><code>write.table(ThermTol.keep,file= &quot;../ProcessedData/ThermalTol_processed.txt&quot;,row.names=FALSE,sep=&quot;\t&quot;)
 
-write.table(LL.set,file= &quot;../Data/LearnMem_processed.txt&quot;,row.names=FALSE,sep=&quot;\t&quot;)</code></pre>
+write.table(LL.set,file= &quot;../ProcessedData/LearnMem_processed.txt&quot;,row.names=FALSE,sep=&quot;\t&quot;)</code></pre>
 </div>
 
 

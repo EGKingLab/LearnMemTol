@@ -10,14 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(cowplot)
 library(dplyr)
-source(file="../../Scripts/ggplot_theme.R")
+source(file="../../Functions/ggplot_theme.R")
 ```
 
 #read/ load in flies
 
 ```{r}
 #make individual plots
-rawdLM <- read.table("../ProcessedData/HeatProc_Learn.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+rawdLM <- read.table("../ProcessedData/LearnMem_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
 str(rawdLM)
 
 rawdTT <- read.table("../ProcessedData/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)

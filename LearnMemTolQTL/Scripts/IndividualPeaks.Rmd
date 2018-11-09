@@ -10,9 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 library(DSPRqtl)
 library(ggplot2)
 library(cowplot)
+library(tidyverse)
+library(gridExtra)
+
 
 #conversion table
-load(file = "/home/kingeg/Projects/DSPRgeneral/Convert5_6/DSPR_5_6_parsed.rda")
+load(file = "../ProcessedData/DSPR_5_6_parsed.rda")
 coord.table$R5pos<-as.numeric(coord.table$R5pos)
 coord.table$R6pos<-as.numeric(coord.table$R6pos)
 
@@ -42,7 +45,7 @@ load(file="../../Data/Lodscores_3traits.rda")
 load(file ="../../Data/Peaks_wCIs.rda")
 
 #DE genes
-#load(file="../Data/Learn_genes_under_peak.rda")
+load(file="../../Data/Learn_genes_under_peak.rda")
 
 #convert LOD data to long format
 #convert 5-6
@@ -60,22 +63,49 @@ obs.LM_long$pval <- getP(obs.LM_long$LOD,Nrils,7,Nrils-8)
 ```{r}
 fdr<-5.5
 fwer<-7.3
-#only do peaks with DEG in them
-pad.pos <- 50000
 
-set <- subset(obs.LM_long, chr=='2L' & Ppos < 6000000)
+pfdr <- getP(fdr,Nrils,7,Nrils-8)
+pfwer <- getP(fwer,Nrils,7,Nrils-8)
+
+#only do peaks with DEG in them
+pad.pos <- 2
+
+foc.peak <- ci.peak[[1]][1,]
+
+  
+
+set <- subset(obs.LM_long, chr==foc.peak$chr & 
+                Gpos < (foc.peak$Gpos + pad.pos) &
+                Gpos > (foc.peak$Gpos - pad.pos))
+
 line.ww <- 0.5
 
-p1 <- ggplot(set, aes(x=Ppos/1e6, y=LOD, color=Trait)) +
+if(max(set$pval) > pfwer)
+{
+  top <- max(set$pval)
+}else{
+  top <- pfwer
+}
+
+#peak.plot <- vector(mode="list", length=)
+
+p1 <- ggplot(set, aes(x=R6pos/1e6, y=pval, color=Trait)) +
     geom_line(alpha=0.8, size=line.ww) +
   
-  geom_segment(x=-10, xend=6,y=fdr,yend=fdr, color='black', size=line.ww) +
-  ylab("LOD")+
+  geom_segment(x= -10, xend=30,y=pfwer,yend=pfwer, color='black', size=line.ww) +
+  geom_segment(x=-10, xend=30,y=pfdr,yend=pfdr, color='black', size=line.ww, lty=3) +
+  ylim(c(0,top)) +
+  ylab("Pval")+
   xlab("Position (Mbp)") +
-  scale_color_discrete(name='Phenotype',breaks=c('LearnPowerTrans','Memory_Mean'), labels=c('Learning','Memory'))
+  theme(legend.position = "none") +
+  my_theme
+p1
+#ggsave(p1, file="../Plots/indpeak.pdf",width=4, height=2)
 
-ggsave(p1, file="../Plots/indpeak.pdf",width=4, height=2)
 
+
+
+#scale_color_discrete(name='Phenotype',breaks=c('LearnPowerTrans','Memory_Mean'), labels=c('Learning','Memory'))
 ```
 
 
