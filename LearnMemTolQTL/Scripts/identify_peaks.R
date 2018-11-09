@@ -100,7 +100,7 @@ load(file ="../ProcessedData/Peaks_wCIs.rda")
 str(ci.peak)
 
 #DE genes for Learning
-load(file = "../Data/LearnresSVOrder.Rda")
+load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/LearnresSVOrder.Rda")
 str(LearnresSVorder)
 LearnresSVorder$FBgn <- rownames(LearnresSVorder)
 colnames(LearnresSVorder)
@@ -110,7 +110,7 @@ Learn_sig_genes <- as.data.frame(LearnresSVorder)
 #colnames(LearnresSVorder)[which(names(LearnresSVorder) == "rownames")] <- "FBgn"
 
 #DE genes for Memory
-load(file = "../Data/MemresSVOrder.Rda")
+load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/MemresSVOrder.Rda")
 str(MemresSVorder)
 MemresSVorder$FBgn <- rownames(MemresSVorder)
 colnames(MemresSVorder)
@@ -120,7 +120,7 @@ Mem_sig_genes <- as.data.frame(MemresSVorder)
 #DE genes thermal Tolerance 
 
 #interaction
-load(file="../Data/TTlrt_inter.Rda")
+load(file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_inter.Rda")
 str(TTlrt_inter)
 TTlrt_inter$FBgn <- rownames(TTlrt_inter)
 colnames(TTlrt_inter)
@@ -128,7 +128,7 @@ colnames(TTlrt_inter)
 ThermTol_inter_sig_genes <- as.data.frame(TTlrt_inter)
 
 #condition
-load(file="../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_condition.Rda")
+load(file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_condition.Rda")
 str(TTlrt_condition)
 TTlrt_condition$FBgn <- rownames(TTlrt_condition)
 colnames(TTlrt_condition)
@@ -137,7 +137,7 @@ ThermTol_condition_sig_genes <- as.data.frame(TTlrt_condition)
 
 
 #pool
-load(file="../Data/TTlrt_pool.Rda")
+load(file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_pool.Rda")
 str(TTlrt_pool)
 TTlrt_pool$FBgn <- rownames(TTlrt_pool)
 colnames(TTlrt_pool)
@@ -147,7 +147,7 @@ ThermTol_pool_sig_genes <- as.data.frame(TTlrt_pool)
 
 #gene list from Fly Base
 
-gene_map_table <- read_lines(file = "../Data/gene_map_table_fb_2018_04.tsv",
+gene_map_table <- read_lines(file = "../ProcessedData/gene_map_table_fb_2018_04.tsv",
                 skip = 6) %>% 
   str_split(pattern = "\t", simplify = TRUE) %>% 
   as_tibble() %>% 

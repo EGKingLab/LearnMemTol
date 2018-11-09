@@ -191,29 +191,3 @@ save(TTlrt_inter, file = "../Data/TTlrt_inter.Rda")
 
 
 
-```{r}
-#Merge with normalized count data
-TTsv_res_dds_table <- merge(as.data.frame(TTsv_res_dds), 
-                       as.data.frame(counts(TTsv_dds_deseq, normalized=TRUE)), 
-                       by="row.names", sort=FALSE)
-names(TTsv_res_dds_table)[1] <- "Gene"
-
-
-write.csv(TTsv_res.dds_table, 
-          "../Data/TTDEseqSVA_resOrdered_padj.csv", row.names=TRUE)
-
-load("../Data/TTDEseqSVA_resOrdered_padj.Rda")
-
-# Examine plot of p-values
-hist(TTsv_res_dds$pvalue, breaks=50, col="grey")
-
-# Examine independent filtering
-metadata(TTsv_res_dds)$filterThreshold
-
-plot(metadata(TTsv_res_dds)$filterNumRej, type="b", xlab="quantiles of baseMean", ylab="number of rejections")
-```
-
-
-```
-
-

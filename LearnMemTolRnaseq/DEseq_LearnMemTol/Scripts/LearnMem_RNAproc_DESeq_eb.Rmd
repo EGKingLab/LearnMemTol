@@ -25,7 +25,7 @@ library(RColorBrewer)
 #load datset
 LMgenes <- read.csv("../Data/LearnMemBallgown/ballgown_eb/LMgene_count_matrix_eb.csv", row.names="gene_id")
 
-phenData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE)
+qaphenData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE)
 
 #Make an object with only LearnMem data and add id column 
 LMpheno <- phenData %>% filter(treatment %in% c("LL", "LH", "ML", "MH" ))
@@ -165,12 +165,4 @@ write.csv(Memsv_res_dds_table,
 
 
 
-# Examine plot of p-values
-hist(Learnsv_res_dds_table$pvalue, breaks=50, col="grey")
-
-# Examine independent filtering
-metadata(Learnsv_res_dds_table)$filterThreshold
-
-plot(metadata(Learnsv_res_dds_table)$filterNumRej, type="b", xlab="quantiles of baseMean", ylab="number of rejections")
-```
 
