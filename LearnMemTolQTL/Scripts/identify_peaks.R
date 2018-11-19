@@ -185,11 +185,11 @@ colnames(Learn_gene_list_merged)
 
 #select specific columns
 
-Learn_gene_list_sub <- Learn_gene_list_merged[c(1,3,6,7,13:15)]
+Learn_gene_list_sub <- Learn_gene_list_merged[c(1,3,6,7,9,13:15)]
 colnames(Learn_gene_list_sub)
 Learn_gene_list_sub <- subset(Learn_gene_list_sub, padj <=0.05)
 
-Mem_gene_list_sub <- Mem_gene_list_merged[c(1,3,6,7,13:15)]
+Mem_gene_list_sub <- Mem_gene_list_merged[c(1,3,6,7,9,13:15)]
 colnames(Mem_gene_list_sub)
 Mem_gene_list_sub <- subset(Mem_gene_list_sub, padj <=0.05)
 
@@ -228,9 +228,8 @@ for(row in 1:nrow(ci.peak$LearnPowerTrans))
   
  }
 
-save(Learn_genes_under_peak,file="../Data/Learn_genes_under_peak.rda")
+save(learn.list,file="../ProcessedData/Learn_genes_under_peak.rda")
 
-load(file="../Data/Learn_genes_under_peak.rda")
 
 #Memory 
 
@@ -248,7 +247,7 @@ for(row in 1:nrow(ci.peak$Memory_Mean))
                  ((Mem_gene_list_sub$startp <= foc.peak$upR6 & Mem_gene_list_sub$stopp >= foc.peak$lpR6))))  
   
  
-  Mem_Mem_genes_under_peak<-Mem_gene_list_sub[mw,]
+  Mem_genes_under_peak <- Mem_gene_list_sub[mw,]
   
   Mem.list[[row]] <-Mem_genes_under_peak
   
@@ -257,34 +256,6 @@ for(row in 1:nrow(ci.peak$Memory_Mean))
 
 Mem_genes_under_peak
 
-<<<<<<< HEAD
-save(Mem_genes_under_peak,file="../ProcessedData/Mem_genes_under_peak.rda")
 
-=======
-save(Mem_genes_under_peak,file="../Data/Mem_genes_under_peak.rda")
-load(file="../Data/Mem_genes_under_peak.rda")
->>>>>>> ed58235f5ca649444fbcc46c7ccf96621ab6de54
-
-#Learning (for a single peak)
-foc.peak <- ci.peak[['LearnPowerTrans']][1,]
-
-lw <- (which(Learn_gene_list_sub$chr==foc.peak$chr & 
-               ((Learn_gene_list_sub$startp <= foc.peak$upR6 & Learn_gene_list_sub$stopp >= foc.peak$lpR6))))  
-
-Learn_gene_list_sub[lw,]
-
-
-foc.peak <- ci.peak[[3]][3,]
-
-lw <- (which(ThermTol_conditiion_gene_list_sub$chr==foc.peak$chr & 
-               ((ThermTol_conditiion_gene_list_sub$startp <= foc.peak$upR6 & ThermTol_conditiion_gene_list_sub$stopp >= foc.peak$lpR6))))  
-
-ThermTol_inter_gene_list_sub[lw,]
-
-lw <- (which(ThermTol_inter_gene_list_sub$chr==foc.peak$chr & 
-               ((ThermTol_inter_gene_list_sub$startp <= foc.peak$upR6 & ThermTol_inter_gene_list_sub$stopp >= foc.peak$lpR6))))  
-
-ThermTol_inter_gene_list_sub[lw,]
-
-#make a plot showing locations & pvalues?
+save(Mem.list,file="../ProcessedData/Mem_genes_under_peak.rda")
 

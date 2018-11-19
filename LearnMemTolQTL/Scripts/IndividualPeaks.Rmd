@@ -19,8 +19,8 @@ load(file = "../ProcessedData/DSPR_5_6_parsed.rda")
 coord.table$R5pos<-as.numeric(coord.table$R5pos)
 coord.table$R6pos<-as.numeric(coord.table$R6pos)
 
-source("../../Scripts/mappingfunctions.R")
-source("../../Scripts/ggplot_theme.R")
+source("../../Functions/mappingfunctions.R")
+source("../../Functions/ggplot_theme.R")
 
 
 ```
@@ -34,18 +34,19 @@ source("../../Scripts/ggplot_theme.R")
 ## Load data
 ```{r}
 #phenotype data
-load(file="../../Data/myGenos.rda")
+load(file="../../LearnMemTolQTL/ProcessedData/myGenos.rda")
 Nrils <- nrow(myGenos$phenotype)
 rm(myGenos)
 
 #LOD scores 
-load(file="../../Data/Lodscores_3traits.rda")
+load(file="../../LearnMemTolQTL/ProcessedData/Lodscores_3traits.rda")
 
 #Peak data
-load(file ="../../Data/Peaks_wCIs.rda")
+load(file ="../../LearnMemTolQTL/ProcessedData/Peaks_wCIs.rda")
 
 #DE genes
-load(file="../../Data/Learn_genes_under_peak.rda")
+load(file="../../LearnMemTolQTL/ProcessedData/Learn_genes_under_peak.rda")
+load(file="../../LearnMemTolQTL/ProcessedData/Mem_genes_under_peak.rda")
 
 #convert LOD data to long format
 #convert 5-6
@@ -55,6 +56,10 @@ obs.LM_long <-gather(obs.LL, key='Trait', value='LOD', LearnPowerTrans, Memory_M
 obs.LM_long <- merge(obs.LM_long, coord.table, by.x=c('chr','Ppos'), by.y=c('R5chr','R5pos'),sort=FALSE)
 
 obs.LM_long$pval <- getP(obs.LM_long$LOD,Nrils,7,Nrils-8)
+obs.LM_long$R6pos <- as.numeric(obs.LM_long$R6pos)
+
+lapply(learn.list, nrow)
+lapply(Mem.list, nrow)
 
 ```
 
@@ -70,7 +75,7 @@ pfwer <- getP(fwer,Nrils,7,Nrils-8)
 #only do peaks with DEG in them
 pad.pos <- 2
 
-foc.peak <- ci.peak[[1]][1,]
+foc.peak <- ci.peak[[1]][5,]
 
   
 
