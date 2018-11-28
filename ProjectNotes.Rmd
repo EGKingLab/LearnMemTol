@@ -135,6 +135,12 @@ N.B. All output scripts were copied to Lewis where the RNAseq analysis was proce
 
 A record of notes in the style of a lab notebook
 
+###Nov. 27 2018
+-Created script to find gene (under significant qtls) summaries on fly base. Script is stored under MyGitHub/LearnMemTol/LearnMemTolQTL/Scripts/IndividualPeaks.Rmd, section Genes Summary
+-Downloaded automated_gene_summaries file here
+ftp://ftp.flybase.net/releases/FB2018_05/precomputed_files/genes/automated_gene_summaries.tsv.gz
+
+
 ### Nov 9 2018 
 
 Reorganized Pheno and QTL folders. PWS will do same for DEseq

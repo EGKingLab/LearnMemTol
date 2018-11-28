@@ -113,7 +113,42 @@ p1
 #scale_color_discrete(name='Phenotype',breaks=c('LearnPowerTrans','Memory_Mean'), labels=c('Learning','Memory'))
 ```
 
+##Gene summaries 
 
+
+```{r}
+
+#load fly base summary
+gsum <- read_lines(file = "../ProcessedData/automated_gene_summaries.tsv.gz",
+                   skip = 1)%>%
+  str_split(pattern = "\t", simplify = TRUE) %>% 
+  as_tibble() 
+gsum <- gsum[,c(1,2)]
+colnames(gsum) <- c('FBgn', 'summary')
+
+
+#load gene list
+
+
+
+
+
+
+
+ahcy <- grep("Ahcy", gsum$summary)
+gsum[ahcy[1],'summary']
+pull(gsum[ahcy[1],'summary'])
+
+CG40486 <- grep("CG40486", gsum$summary)
+gsum[CG40486[1],'summary']
+pull(gsum[CG40486[1],'summary'])
+
+Cda4 <- grep("Cda4", gsum$summary)
+gsum[Cda4[1],'summary']
+pull(gsum[Cda4[1],'summary'])
+
+
+```
 
 
 
