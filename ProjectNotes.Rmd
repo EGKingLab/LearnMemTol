@@ -35,10 +35,11 @@ output: html_document
 ### QTL mapping is in LearnMemTolQTL
 
 1. mapping_perms performs the QTL mapping and permutations and calculation of FDR and FWER
-2. identify_peaks finds each QTL peak and saves it in a list.It also looks at the DE genes from RNAseq (see below) to see which DE genes are under each peak
-3. visualize_genome_scan.Rmd plots the genome scan
-4. individualpeaks.Rmd plots each peak separately
-5. identify_founder_additive.Rmd identifies the haplotypes at each peak that the low and high cohorts have
+2. identify_peaks finds each QTL peak and saves it in a list.
+3. genes_under_peaks.R  looks at the DE genes from RNAseq (see below) to see which DE genes are under each peak
+4. visualize_genome_scan.Rmd plots the genome scan
+5. individualpeaks.Rmd plots each peak separately
+6. identify_founder_additive.Rmd identifies the haplotypes at each peak that the low and high cohorts have
 
 ### Scripts to process the RNAseq data was first created on Nivalis (lab server).
 1.Set_up_commands_masterpipeline.R is the master script that outputs 8 separate scripts for processing RNAseq data. both he mastr scripts and the outputs are saved under home/DSPR/Scripts/rna-seq_processing_data. 
@@ -140,6 +141,9 @@ A record of notes in the style of a lab notebook
 -Downloaded automated_gene_summaries file here
 ftp://ftp.flybase.net/releases/FB2018_05/precomputed_files/genes/automated_gene_summaries.tsv.gz
 
+### Nov 20th 2018
+
+EGK - updated identify peaks to add haplotype estimates at each peak. Split section finding DE genes under peaks.
 
 ### Nov 9 2018 
 
