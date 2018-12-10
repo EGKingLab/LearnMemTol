@@ -9,18 +9,112 @@ output: html_document
 library(DSPRqtlDataA)
 library(DSPRqtl)
 library(tidyverse)
-library(dplyr)
 ```
+
+For each peak:
+ - identify haplotype means
+ - identify eQTL under peaks
+ - identify eQTL that show means like haploype means
+ - identify eQTL that mirror effect of DEgenes
+ - idenitfy DE groups by haplotype
+
+# Get expression data and check for highly correlated genes
+
+```{r}
+
+load(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/NewRMA/QTLmapping/Final_EXPR_MAT.rda")
+
+load(file="../../LearnMemTolPheno/ProcessedData/L_MDATA.rda")
+ww<- which(L_MDATA$patRIL %in% rownames(qn.mat))
+wwe<- which(rownames(qn.mat) %in% L_MDATA$patRIL)
+
+L.sub <- L_MDATA[ww,]
+qn.mat <- qn.mat[wwe,]
+
+all.equal(as.numeric(row.names(qn.mat)), L.sub$patRIL)
+
+ccs.l <- cor(L.sub$Learning_Mean, qn.mat)
+ccs.m <- cor(L.sub$Memory_Mean, qn.mat)
+
+cors.lm <- data.frame('ID' = colnames(qn.mat), 'rLearn' = as.numeric(ccs.l), 'rMem' = as.numeric(ccs.m), stringsAsFactors=FALSE)
+
+
+cgn<-read.table(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/NewRMA/QTLmapping/fbgn_fbtr_fbpp_fb_2012_02.tsv",header=FALSE,stringsAsFactors=FALSE,sep="\t",fill=TRUE)
+load(file='/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/probes/CDS/completeCDS.rda')
+ss<-merge(cgn,bl, by.x="V2",by.y="FBtr")
+ww.t <- which(ss$CGid %in% colnames(qn.mat))
+ww.g <- which(ss$CGgn %in% colnames(qn.mat))
+decode.n <- ss[,c('V1','CGid','CGgn')]
+decode.n$ID <- NA
+decode.n$ID[ww.t]<- ss$CGid[ww.t]
+decode.n$ID[ww.g]<- ss$CGgn[ww.g]
+decode.n <- decode.n[,c('V1','ID')]
+decode.n <- unique(decode.n, MARGIN=1)
+colnames(decode.n) <- c("FBgn","ID")
+
+cors.lm <- merge(cors.lm, decode.n,by='ID',sort=FALSE, all.x=TRUE)
+
+```
+
+
+# For each peak, get means and compare to eQTL means. Also compare to genes in intervals from cohort expression expt.
+
+```{r}
+data("positionlist_wgenetic")
+load(file ="../ProcessedData/Peaks_wCIs.rda")
+
+#files from old proj
+load(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/NewRMA/QTLmapping/goodpeaksinfo_matrix.rda")
+load(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/NewRMA/QTLmapping/means_wcorrected.rda")
+
+effects <- merge(effects, decode.n, by='ID',sort=FALSE, all.x=TRUE)
+
+load(file="../ProcessedData/Learn_genes_under_peak.rda")
+
+for(jj in 1:length(learn.list))
+{
+
+ll.foc <- learn.list[[jj]]
+pp.foc <- ci.peak[[1]][jj,]
+
+mw <- (which(pinfo$chr==pp.foc$chr & 
+                 ((pinfo$peaklpB <= pp.foc$up & pinfo$peakupB >= pp.foc$lp))))  
+  
+ee <- effects[effects$ID %in% pinfo$ID[mw],]
+
+f.high <- which(apply(rbind(as.numeric(pp.foc[,35:42]), as.matrix(ee[,34:41])),2, min) > 4)
+
+qtl.e <- pp.foc[,19:26]
+eqtl.e <- ee[,2:9]
+
+qtl.e <- qtl.e[,f.high]
+eqtl.e <- eqtl.e[,f.high]
+
+cors.effs <- data.frame('FBgn'= ee$FBgn, 'corEff'= apply(eqtl.e, 1, function(x) cor(x,as.numeric(qtl.e))), stringsAsFactors = FALSE)
+
+ll.all <- merge(ll.foc, cors.effs, by='FBgn', all=TRUE)
+
+ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
+learn.list[[jj]] <- ll.all
+}
+
+
+
+```
+
+#look at haps of pools - add to list
+
+
 
 #load in data (see DSPR tutorial) 
 
 ```{r}
 #founder haplotype data for a single position 
-data(A_2L_3160000)
+data(A_2L_7590000)
 
 
 #just additive at a specific position 
-pop_A <- A_2L_3160000[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
+pop_A <- A_2L_7590000[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
 
 
 #filter RILs from top and bottom cohorts (common RILs appear once)
