@@ -131,6 +131,9 @@ colnames(gsum) <- c('FBgn', 'summary')
 learn.list
 Mem.list
 
+#to view a specific column
+result = lapply(learn.list, "[", , c("gname"))
+
 #to find the summary for all the genes under a single peak
 
 #learning
@@ -165,6 +168,8 @@ lff14 <- merge(Learnfocal.peak14, gsum, by='FBgn')
 #to view
 lff1[1,]
 
+length(lff12)
+
 #memory 
 Memfocal.peak3 <- Mem.list[[3]]
 Memfocal.peak4 <- Mem.list[[4]]
@@ -175,6 +180,8 @@ mff3 <- merge(Memfocal.peak3, gsum, by='FBgn')
 mff4 <- merge(Memfocal.peak4, gsum, by='FBgn')
 mff5 <- merge(Memfocal.peak5, gsum, by='FBgn')
 mff7 <- merge(Memfocal.peak7, gsum, by='FBgn')
+
+mff7[1,]
 
 
 #to look at specific genes 
