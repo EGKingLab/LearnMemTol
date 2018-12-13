@@ -75,12 +75,12 @@ LMcc_c <- rowSums(LMdat_sva)
 LMdat_sva <- LMdat_sva[which(LMcc_c>0),]
 
 #check dataset to see if there are any NAs
-length(which(is.na(Memgene_list$log2FoldChange)))
-length(which(is.na(Memgene_list$padj)))
+#length(which(is.na(Memgene_list$log2FoldChange)))
+#length(which(is.na(Memgene_list$padj)))
 
 #look at specific columns
-testm <- Memgene_list[which(is.na(Memgene_list$padj)),]
-testm[1:5,]
+#testm <- Memgene_list[which(is.na(Memgene_list$padj)),]
+#testm[1:5,]
 
 
 
@@ -131,12 +131,15 @@ LM_dds_ttSS <- DESeqDataSetFromMatrix(countData = LMgenes,
 LMsv_dds_deseq <- DESeq(LM_dds_ttSS) 
 
 #pairwise comparison
-LearnresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "LH", "LL"))
-MemresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "MH", "ML"))
+#LearnresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "LH", "LL"))
+#MemresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "MH", "ML"))
+
+LearnresSV <- lfcShrink(dds=LMsv_dds_deseq, contrast =c("treatment", "LH", "LL"))
+MemresSV <- lfcShrink(dds=LMsv_dds_deseq, contrast =c("treatment", "MH", "ML"))
 
 
-(LearnresSVorder <- LearnresSV [order(LearnresSV$padj), ])
-(MemresSVorder <- MemresSV[order(MemresSV$padj), ])
+LearnresSVorder <- LearnresSV [order(LearnresSV$padj), ]
+MemresSVorder <- MemresSV[order(MemresSV$padj), ]
 
 save(LearnresSVorder, file = "../Data/LearnresSVOrder.Rda")
 save(MemresSVorder, file = "../Data/MemresSVOrder.Rda")
