@@ -132,7 +132,9 @@ learn.list
 Mem.list
 
 #to view a specific column
-result = lapply(learn.list, "[", , c("gname"))
+result1 = lapply(learn.list, "[", , c("gname"))
+result2 = lapply(Mem.list, "[" , c("gname"))
+
 
 #to find the summary for all the genes under a single peak
 
