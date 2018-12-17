@@ -36,7 +36,7 @@ RIL_rna <- data.frame("Pool"= rep(c('LH','LL','MH','ML','TH','TL'),each=7),
                                   12069,12062,11024,11023,11067,11163,11043,
                                   12047,12290,12042,11106,12060,11042,11132),
                       stringsAsFactors = FALSE)
-
+write.table(RIL_rna, file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/RILs_in_pools.txt",sep="\t",row.names=FALSE)
 ```
 
 
