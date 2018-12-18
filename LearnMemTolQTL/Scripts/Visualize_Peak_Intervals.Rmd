@@ -1,0 +1,216 @@
+---
+title: "Visualize_Peak_Intervals"
+author: "EGK & PW-S"
+date: "12/17/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(cowplot)
+source(file="../../Functions/ggplot_theme.R")
+```
+
+## Figure out candidate genes
+
+```{r}
+
+load(file ="../ProcessedData/Peaks_wCIs.rda")
+
+load(file="../ProcessedData/Learn_genes_under_peak.rda")
+load(file="../ProcessedData/Mem_genes_under_peak.rda")
+
+learncol <- 'steelblue'
+memcol <- 'indianred'
+txsize <-4
+ylims <- c(-1.7,2.2)
+
+ll.set <- c(12,13,14,3,4,6,9,10,11)
+                
+ll.plot.list <- vector(mode='list', length=length(ll.set))              
+
+sm.tx <- c(1,2,7)
+
+counter <- 1
+for(zz in ll.set){
+
+  if(counter %in% sm.tx)
+  {
+    txsize <- 3
+  }else{
+    txsize <- 4
+  }
+pp.set <- learn.list[[zz]]
+pp.set[which.max(abs(pp.set$log2FoldChange)),]
+pp.set[which.min(pp.set$padj),]
+pp.set[which.max(abs(pp.set$corEff)),]
+
+pp.set[which(is.na(pp.set$log2FoldChange)==FALSE & is.na(pp.set$corEff)==FALSE),]
+
+ci.peak.set <- ci.peak[[1]][zz,]
+
+pp.set.s <- pp.set[is.na(pp.set$log2FoldChange)==FALSE,]
+pp.set.s$cisyn <- 'Y'
+pp.set.s$cisyn[is.na(pp.set.s$corEff)] <- 'N'
+pp.set.s <- unique(pp.set.s[,c(1,2,4,5,6,7,8,13)], MARGIN=1)
+pp.set.s$sig <- 'N'
+pp.set.s$sig[pp.set.s$padj<=0.05]<-'Y'
+pp.set.s$midM <- (pp.set.s$startp + (pp.set.s$stopp - pp.set.s$startp)/2)/1e6
+
+pbuffer <- 0.04
+  
+pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=gname, shape=cisyn))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
+  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
+  geom_point(color=learncol, alpha=1/6, size=2)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=2.5, color=learncol)+
+  geom_hline(yintercept = 0, lty=1, color='grey80')+
+  geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=learncol) +
+  geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=learncol) +
+  geom_text_repel(data = pp.set.s[pp.set.s$sig=='Y',], show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
+  xlab("Position (Mbp)")+
+  ylab(expression("-log"[2]*"(Fold Change)")) +
+  ylim(ylims)+
+  scale_shape_discrete(name="cis eQTL") +
+  my_theme
+  
+ll.plot.list[[counter]] <- pgene
+counter <- counter+1
+
+}
+
+mm.set <- c(3,7)
+                
+mm.plot.list <- vector(mode='list', length=length(mm.set))              
+
+counter <- 1
+for(zz in mm.set){
+
+pp.set <- Mem.list[[zz]]
+pp.set[which.max(abs(pp.set$log2FoldChange)),]
+pp.set[which.min(pp.set$padj),]
+pp.set[which.max(abs(pp.set$corEff)),]
+
+pp.set[which(is.na(pp.set$log2FoldChange)==FALSE & is.na(pp.set$corEff)==FALSE),]
+
+ci.peak.set <- ci.peak[[2]][zz,]
+
+pp.set.s <- pp.set[is.na(pp.set$log2FoldChange)==FALSE,]
+pp.set.s$cisyn <- 'Y'
+pp.set.s$cisyn[is.na(pp.set.s$corEff)] <- 'N'
+pp.set.s <- unique(pp.set.s[,c(1,2,4,5,6,7,8,13)], MARGIN=1)
+pp.set.s$sig <- 'N'
+pp.set.s$sig[pp.set.s$padj<=0.05]<-'Y'
+pp.set.s$midM <- (pp.set.s$startp + (pp.set.s$stopp - pp.set.s$startp)/2)/1e6
+
+pbuffer <- 0.04
+  
+pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=gname, shape=cisyn))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
+  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
+  geom_point(color=memcol, alpha=1/6, size=2)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=2.5, color=memcol)+
+  geom_hline(yintercept = 0, lty=1, color='grey80')+
+  geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=memcol) +
+  geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=memcol) +
+geom_text_repel(data = pp.set.s[pp.set.s$sig=='Y',], show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
+  xlab("Position (Mbp)")+
+  ylab(expression("-log"[2]*"(Fold Change)")) +
+  ylim(ylims)+
+  scale_shape_discrete(name="cis eQTL") +
+  my_theme
+  
+mm.plot.list[[counter]] <- pgene
+counter <- counter+1
+
+}
+
+```
+
+## shared peaks
+
+```{r}
+
+share.set <- cbind(c(1,2,5,7),c(1,2,4,5))
+#8,6
+
+pgene.list <- vector(mode='list', length=nrow(share.set))
+  
+for(zz in 1:nrow(share.set))
+{
+
+ci.peak.set <- rbind(ci.peak[[1]][share.set[zz,1],], ci.peak[[2]][share.set[zz,2],])
+
+#make one dataset with 2 foldchange & sig
+pp.set <- learn.list[[share.set[zz,1]]]
+
+pp.set.s <- pp.set[is.na(pp.set$log2FoldChange)==FALSE,]
+pp.set.s$cisyn <- 'Y'
+pp.set.s$cisyn[is.na(pp.set.s$corEff)] <- 'N'
+pp.set.s <- unique(pp.set.s[,c(1,2,4,5,6,7,8,13)], MARGIN=1)
+pp.set.s$sig <- 'N'
+pp.set.s$sig[pp.set.s$padj<=0.05]<-'Y'
+pp.set.s$midM <- (pp.set.s$startp + (pp.set.s$stopp - pp.set.s$startp)/2)/1e6
+pp.set.s$Phenotype <- "Learning" 
+pp.set.sL<- pp.set.s
+
+pp.set <- Mem.list[[share.set[zz,2]]]
+
+pp.set.s <- pp.set[is.na(pp.set$log2FoldChange)==FALSE,]
+pp.set.s$cisyn <- 'Y'
+pp.set.s$cisyn[is.na(pp.set.s$corEff)] <- 'N'
+pp.set.s <- unique(pp.set.s[,c(1,2,4,5,6,7,8,13)], MARGIN=1)
+pp.set.s$sig <- 'N'
+pp.set.s$sig[pp.set.s$padj<=0.05]<-'Y'
+pp.set.s$midM <- (pp.set.s$startp + (pp.set.s$stopp - pp.set.s$startp)/2)/1e6
+pp.set.s$Phenotype <- "Memory" 
+pp.set.sM <- pp.set.s
+
+pp.set.sM$labelsig <- pp.set.sM$sig
+pp.set.sM$labelsig[which((pp.set.sM$FBgn %in% pp.set.sL$FBgn[pp.set.sL$sig=='Y']))]<-'Y'
+
+pp.set.sM$labelsig2 <-'N'
+pp.set.sM$labelsig2[which(pp.set.sM$FBgn %in% pp.set.sL$FBgn[pp.set.sL$sig=='Y'])]<-'Y'
+
+pp.set.sL$labelsig <- pp.set.sL$sig
+pp.set.sL$labelsig[which((pp.set.sL$FBgn %in% pp.set.sM$FBgn[pp.set.sM$sig=='Y']))]<-'Y'
+pp.set.sM$labelsig2[which((pp.set.sM$FBgn %in% pp.set.sL$FBgn) & pp.set.sM$sig=='Y')]<-'Y'
+
+pp.set.sL$labelsig2 <-'N'
+pp.set.sL$labelsig2[which(pp.set.sL$FBgn %in% pp.set.sM$FBgn[pp.set.sM$sig=='Y'])]<-'Y'
+pp.set.sL$labelsig2[which((pp.set.sL$FBgn %in% pp.set.sM$FBgn) & pp.set.sL$sig=='Y')]<-'Y'
+
+pp.set.s<- rbind(pp.set.sL, pp.set.sM)
+
+pbuffer <- 0.04
+  
+pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=gname, shape=cisyn, color=Phenotype))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
+  
+    geom_hline(yintercept = 0, lty=1, color='grey80')+
+  geom_vline(xintercept = ci.peak.set$lpR6[1]/1e6, lty=3, color=learncol) +
+  geom_vline(xintercept = ci.peak.set$upR6[1]/1e6, lty=3, color=learncol) +
+  geom_vline(xintercept = ci.peak.set$lpR6[2]/1e6, lty=3, color=memcol) +
+  geom_vline(xintercept = ci.peak.set$upR6[2]/1e6, lty=3, color=memcol) +
+  
+  xlim(c(min(ci.peak.set$lpR6)/1e6 - pbuffer, max(ci.peak.set$upR6)/1e6 + pbuffer)) +
+  geom_point(alpha=1/6, size=2)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=2.5)+
+  geom_text_repel(data = pp.set.s[pp.set.s$labelsig2=='Y',], show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
+  xlab("Position (Mbp)")+
+  ylab(expression("-log"[2]*"(Fold Change)")) +
+  ylim(ylims)+
+  scale_shape_discrete(name="cis eQTL") +
+  scale_color_manual(values=c(learncol,memcol))+
+  my_theme
+  
+pgene.list[[zz]] <- pgene
+
+}
+```
+
+
+add chr & qtl id?
+
+

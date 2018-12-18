@@ -1,5 +1,5 @@
 ---
-title: "Finding Haplotype Positions"
+title: "Identifying Genes Under Peaks"
 author: "Patricka Williams-Simon"
 date: "10/24/2018"
 output: html_document
@@ -9,8 +9,7 @@ output: html_document
 library(DSPRqtlDataA)
 library(DSPRqtl)
 library(tidyverse)
-library(cowplot)
-source(file="../../Functions/ggplot_theme.R")
+library(DESeq2)
 
 ```
 
@@ -66,6 +65,11 @@ load(file ="../ProcessedData/Peaks_wCIs.rda")
 
 rrs <- read.table(file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/RILs_in_pools.txt", sep="\t", stringsAsFactors = FALSE, header=TRUE)
 
+rrcode <- c('LH','LL',
+  'MH','ML',
+  'TH','TL')
+cc <- 1
+
 for(kk in 1:3)
 {
 
@@ -73,7 +77,6 @@ list.peak <- ci.peak[[kk]]
 list.peak[,43:58]<-NA
 colnames(list.peak)[43:58] <- c("L1","L2","L3","L4","L5","L6","L7","L8",
                               "H1","H2","H3","H4","H5","H6","H7","H8")
-
 for(jj in 1:nrow(list.peak))
 {
   ppeak <- list.peak[jj,]
@@ -82,16 +85,105 @@ for(jj in 1:nrow(list.peak))
   data(list=objname)
   geno <- get(objname)
   geno <- geno[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
-  lowset <- geno %>% filter(ril %in% rrs[rrs$Pool=='LL','patRIL'])
-  highset <- geno %>% filter(ril %in% rrs[rrs$Pool=='LH','patRIL'])
+  lowset <- geno %>% filter(ril %in% rrs[rrs$Pool==rrcode[(cc+1)],'patRIL'])
+  highset <- geno %>% filter(ril %in% rrs[rrs$Pool==rrcode[cc],'patRIL'])
   ppeak[,43:50]<-round(colSums(lowset[,2:9]))
   ppeak[,51:58]<-round(colSums(highset[,2:9]))
   list.peak[jj,]<-ppeak
 }
+cc<-cc+1
 ci.peak[[kk]]<-list.peak
 }
 
+save(ci.peak, file ="../ProcessedData/Peaks_wCIs.rda")
+
 ```
+
+# Get list of genes under peaks
+
+```{r}
+load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/LearnresSVOrder.Rda")
+str(LearnresSVorder)
+LearnresSVorder$FBgn <- rownames(LearnresSVorder)
+Learn_sig_genes <- as.data.frame(LearnresSVorder)
+
+load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/MemresSVOrder.Rda")
+str(MemresSVorder)
+MemresSVorder$FBgn <- rownames(MemresSVorder)
+colnames(MemresSVorder)
+
+Mem_sig_genes <- as.data.frame(MemresSVorder)
+
+gene_map_table <- read_lines(file = "../ProcessedData/gene_map_table_fb_2018_04.tsv",
+                skip = 6) %>% 
+  str_split(pattern = "\t", simplify = TRUE) %>% 
+  as_tibble() %>% 
+  filter(V1 == "Dmel")
+
+colnames(gene_map_table) <- c('spp','gname','FBgn','v3','cyt','pos')
+
+
+
+gene_map_table$chr <- str_split(gene_map_table$pos, ":",simplify=TRUE)[,1]
+temp.s1 <- str_split(gene_map_table$pos, ":",simplify=TRUE)[,2] %>% 
+  str_split(fixed(".."),simplify=TRUE)
+gene_map_table$startp <- as.numeric(temp.s1[,1])
+
+gene_map_table$stopp <- as.numeric(str_split(temp.s1[,2],fixed("("),simplify = TRUE)[,1])
+
+Learn_gene_list_merged <- merge(Learn_sig_genes, gene_map_table, by="FBgn")
+Mem_gene_list_merged <- merge(Mem_sig_genes, gene_map_table, by="FBgn")
+
+Learn_gene_list_sub <- Learn_gene_list_merged[c(1,3,6,7,9,13:15)]
+colnames(Learn_gene_list_sub)
+
+Mem_gene_list_sub <- Mem_gene_list_merged[c(1,3,6,7,9,13:15)]
+colnames(Mem_gene_list_sub)
+
+#Learning
+foc.peak <- ci.peak[[1]][1,]
+
+learn.list <-vector(mode='list', length=nrow(ci.peak$LearnPowerTrans))
+
+Learn_totdf<-data.frame(NULL)
+for(row in 1:nrow(ci.peak$LearnPowerTrans)) 
+  
+  {
+  
+  foc.peak<-ci.peak[['LearnPowerTrans']][row,]
+  lw <- (which(Learn_gene_list_sub$chr==foc.peak$chr & 
+                 ((Learn_gene_list_sub$startp <= foc.peak$upR6 & Learn_gene_list_sub$stopp >= foc.peak$lpR6))))  
+  
+  Learn_genes_under_peak<-Learn_gene_list_sub[lw,]
+  learn.list[[row]] <-Learn_genes_under_peak
+  
+ }
+
+
+#Memory 
+
+Mem_foc_peak <- ci.peak[["Memory_Mean"]][1,]
+
+Mem.list <-vector(mode='list', length=nrow(ci.peak$Memory_Mean))
+
+Mem_totdf<-data.frame(NULL)
+for(row in 1:nrow(ci.peak$Memory_Mean)) 
+  
+  {
+  
+  foc.peak<-ci.peak[['Memory_Mean']][row,]
+  mw <- (which(Mem_gene_list_sub$chr==foc.peak$chr & 
+                 ((Mem_gene_list_sub$startp <= foc.peak$upR6 & Mem_gene_list_sub$stopp >= foc.peak$lpR6))))  
+  
+ 
+  Mem_genes_under_peak <- Mem_gene_list_sub[mw,]
+  
+  Mem.list[[row]] <-Mem_genes_under_peak
+  
+}
+
+```
+
 
 
 # For each peak, get means and compare to eQTL means. Also compare to genes in intervals from cohort expression expt.
@@ -104,8 +196,6 @@ load(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/
 load(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/NewRMA/QTLmapping/means_wcorrected.rda")
 
 effects <- merge(effects, decode.n, by='ID',sort=FALSE, all.x=TRUE)
-
-load(file="../ProcessedData/Learn_genes_under_peak.rda")
 
 for(jj in 1:length(learn.list))
 {
@@ -134,8 +224,7 @@ ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
 learn.list[[jj]] <- ll.all
 }
 
-
-load(file="../ProcessedData/Mem_genes_under_peak.rda")
+save(learn.list,file="../ProcessedData/Learn_genes_under_peak.rda")
 
 for(jj in 1:length(Mem.list))
 {
@@ -164,56 +253,7 @@ ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
 Mem.list[[jj]] <- ll.all
 }
 
-```
-
-## Figure out candidate genes
-
-```{r}
-zz<-10
-
-pp.set <- learn.list[[zz]]
-pp.set[which.max(abs(pp.set$log2FoldChange)),]
-pp.set[which.min(pp.set$padj),]
-pp.set[which.max(abs(pp.set$corEff)),]
-
-pp.set[which(is.na(pp.set$log2FoldChange)==FALSE & is.na(pp.set$corEff)==FALSE),]
-
-ci.peak.set <- ci.peak[[1]][zz,]
-
-pp.set.s <- pp.set[is.na(pp.set$log2FoldChange)==FALSE,]
-pp.set.s$cisyn <- 'Y'
-pp.set.s$cisyn[is.na(pp.set.s$corEff)] <- 'N'
-pp.set.s <- unique(pp.set.s[,c(1,2,4,5,6,7,8,13)], MARGIN=1)
-pp.set.s$Mstartp <- pp.set.s$startp/1e6
-
-pbuffer <- 0.04
-  
-pgene <- ggplot(pp.set.s, aes(Mstartp, log2FoldChange, color=cisyn, label=gname))+
-  geom_point()+
-  geom_text_repel(show.legend = FALSE) +
-  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
-  xlab("Position (Mbp)")+
-  ylab(expression("-log"[2]*"(Fold Change)")) +
-  scale_color_manual(values=c('black','red2'), name="cis eQTL") +
-  my_theme
-  
-
-pgene
+save(Mem.list,file="../ProcessedData/Mem_genes_under_peak.rda")
 
 ```
-
-show all genes
-revamp peak info
-pay attention to r5 or r6
-
-
-Location
-Fold Change
-P value
-
-Low High pools
-
-effects
-
-
 
