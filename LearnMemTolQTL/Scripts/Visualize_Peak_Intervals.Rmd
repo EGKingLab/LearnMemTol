@@ -57,10 +57,12 @@ pp.set.s <- unique(pp.set.s[,c(1,2,4,5,6,7,8,13)], MARGIN=1)
 pp.set.s$sig <- 'N'
 pp.set.s$sig[pp.set.s$padj<=0.05]<-'Y'
 pp.set.s$midM <- (pp.set.s$startp + (pp.set.s$stopp - pp.set.s$startp)/2)/1e6
+pp.set.s$labelrep <- pp.set.s$gname
+pp.set.s$labelrep[pp.set.s$sig=='N']<-""
 
 pbuffer <- 0.04
   
-pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=gname, shape=cisyn))+
+pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
   geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
   xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
   geom_point(color=learncol, alpha=1/6, size=2)+
@@ -68,8 +70,8 @@ pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=gn
   geom_hline(yintercept = 0, lty=1, color='grey80')+
   geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=learncol) +
   geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=learncol) +
-  geom_text_repel(data = pp.set.s[pp.set.s$sig=='Y',], show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
-  xlab("Position (Mbp)")+
+  geom_text_repel(data = pp.set.s, show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
+  xlab(paste("Chr ",ci.peak.set$chr," Position (Mbp)", sep=""))+
   ylab(expression("-log"[2]*"(Fold Change)")) +
   ylim(ylims)+
   scale_shape_discrete(name="cis eQTL") +
@@ -104,9 +106,12 @@ pp.set.s$sig <- 'N'
 pp.set.s$sig[pp.set.s$padj<=0.05]<-'Y'
 pp.set.s$midM <- (pp.set.s$startp + (pp.set.s$stopp - pp.set.s$startp)/2)/1e6
 
+pp.set.s$labelrep <- pp.set.s$gname
+pp.set.s$labelrep[pp.set.s$sig=='N']<-""
+
 pbuffer <- 0.04
   
-pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=gname, shape=cisyn))+
+pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
   geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
   xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
   geom_point(color=memcol, alpha=1/6, size=2)+
@@ -114,8 +119,8 @@ pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=gn
   geom_hline(yintercept = 0, lty=1, color='grey80')+
   geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=memcol) +
   geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=memcol) +
-geom_text_repel(data = pp.set.s[pp.set.s$sig=='Y',], show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
-  xlab("Position (Mbp)")+
+geom_text_repel(data = pp.set.s, show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
+  xlab(paste("Chr ",ci.peak.set$chr," Position (Mbp)", sep=""))+
   ylab(expression("-log"[2]*"(Fold Change)")) +
   ylim(ylims)+
   scale_shape_discrete(name="cis eQTL") +
@@ -183,9 +188,12 @@ pp.set.sL$labelsig2[which((pp.set.sL$FBgn %in% pp.set.sM$FBgn) & pp.set.sL$sig==
 
 pp.set.s<- rbind(pp.set.sL, pp.set.sM)
 
+pp.set.s$labelrep <- pp.set.s$gname
+pp.set.s$labelrep[pp.set.s$labelsig2=='N']<-""
+  
 pbuffer <- 0.04
   
-pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=gname, shape=cisyn, color=Phenotype))+
+pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn, color=Phenotype))+
   geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
   
     geom_hline(yintercept = 0, lty=1, color='grey80')+
@@ -197,8 +205,8 @@ pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=gn
   xlim(c(min(ci.peak.set$lpR6)/1e6 - pbuffer, max(ci.peak.set$upR6)/1e6 + pbuffer)) +
   geom_point(alpha=1/6, size=2)+
   geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=2.5)+
-  geom_text_repel(data = pp.set.s[pp.set.s$labelsig2=='Y',], show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
-  xlab("Position (Mbp)")+
+  geom_text_repel(data = pp.set.s, show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
+  xlab(paste("Chr ",ci.peak.set$chr[1]," Position (Mbp)", sep=""))+
   ylab(expression("-log"[2]*"(Fold Change)")) +
   ylim(ylims)+
   scale_shape_discrete(name="cis eQTL") +
@@ -210,7 +218,31 @@ pgene.list[[zz]] <- pgene
 }
 ```
 
+```{r}
+master.list <- vector(mode='list', length=15)
+counter <- 1
+for(ii in 1:length(ll.plot.list))
+{
+  master.list[[counter]]<-ll.plot.list[[ii]]
+  counter<- counter+1
+}
+for(ii in 1:length(mm.plot.list))
+{
+  master.list[[counter]]<-mm.plot.list[[ii]]
+  counter<- counter+1
+}
+for(ii in 1:length(pgene.list))
+{
+  master.list[[counter]]<-pgene.list[[ii]]
+  counter<- counter+1
+}
+  
 
+pall <- plot_grid(plotlist=master.list, nrow=5, ncol=3)
+
+ggsave(pall, file="../Plots/All_ind_peaks.pdf", width=16.5, height=15)
+
+```
 add chr & qtl id?
 
 
