@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(cowplot)
+library(ggrepel)
 source(file="../../Functions/ggplot_theme.R")
 ```
 

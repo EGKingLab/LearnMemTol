@@ -42,8 +42,8 @@ LearnresSVorder <- LearnresSVorder[order(-LearnresSVorder$padj, na.last=FALSE),]
 LearnMAplot <- ggplot(as.data.frame(LearnresSVorder[is.na(LearnresSVorder$sig),]), aes(baseMean, log2FoldChange)) +
   geom_point(color='pink')+
   geom_point(data=as.data.frame(LearnresSVorder[is.na(LearnresSVorder$sig)==FALSE,]), aes(baseMean, log2FoldChange,color=sig))+
-  xlab("mean expression")+
-  ylab(expression("log"[2]*"(fold change)"))+
+  xlab("Mean Expression")+
+  ylab(expression("Log"[2]*"(Fold Change)"))+
   scale_x_log10() +
   ylim(c(-4.5,4)) +
   scale_color_gradient2(low = "steelblue", mid = "grey",
@@ -63,8 +63,8 @@ MemresSVorder <- MemresSVorder[order(-MemresSVorder$padj, na.last=FALSE),]
 MemMAplot <- ggplot(as.data.frame(MemresSVorder[is.na(MemresSVorder$sig),]), aes(baseMean, log2FoldChange)) +
   geom_point(color='pink')+
   geom_point(data=as.data.frame(MemresSVorder[is.na(MemresSVorder$sig)==FALSE,]), aes(baseMean, log2FoldChange,color=sig))+
-  xlab("normalized mean expression")+
-  ylab(expression("log"[2]*"(fold change)"))+
+  xlab("Normalized Mean Expression")+
+  ylab(expression("Log"[2]*"(Fold Change)"))+
   ylim(c(-4.5,4)) +
   scale_x_log10()+
 scale_color_gradient2(name = expression("P"[adj]*""), low = "steelblue", mid = "grey",
@@ -118,8 +118,8 @@ Learn_Volcanoplot <- ggplot(na.omit(Learngene_list), aes(y=-log10(padj), x=log2F
   geom_vline(xintercept= -1, color='grey70')+
   geom_vline(xintercept= 1, color='grey70')+
   geom_point(size=1.3) +
-  ylab(expression("-log"[10]*"(P"[adj]*")")) +
-  xlab(expression("log"[2]*"(fold change)"))+
+  ylab(expression("-Log"[10]*"(P"[adj]*")")) +
+  xlab(expression("Log"[2]*"(Fold Change)"))+
   xlim(c(-4.5,4)) +
   ylim(c(0,75)) +
   my_theme +
@@ -136,12 +136,12 @@ Mem_Volcanoplot <- ggplot(na.omit(Memgene_list), aes(y=-log10(padj), x=log2FoldC
   geom_vline(xintercept= -1, color='grey70')+
   geom_vline(xintercept= 1, color='grey70')+
   geom_point(size=1.3) +
-  ylab(expression("-log"[10]*"(P"[adj]*")")) +
-  xlab(expression("log"[2]*"(fold change)"))+
+  ylab(expression("-Log"[10]*"(P"[adj]*")")) +
+  xlab(expression("Log"[2]*"(Fold Change)"))+
   xlim(c(-4.5,4.5)) +
   ylim(c(0,75)) +
    my_theme +
-  scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "mean\nexpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
+  scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\nExpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
   theme(axis.title.y=element_blank())
                     
 Mem_Volcanoplot
@@ -150,7 +150,7 @@ ggsave(Learn_Volcanoplot, filename="../Plots/Learn_Volcanoplot.pdf", width=6.5, 
 ggsave(Mem_Volcanoplot, filename="../Plots/Mem_Volcanoplot.pdf", width=6.5, height=3)
 
 
-allplot <- plot_grid(LearnMAplot,MemMAplot, Learn_Volcanoplot, Mem_Volcanoplot,nrow=2,labels = c('a.', 'b.', 'c.','d.'), rel_widths = c(1,1.3,1,1.3))
+allplot <- plot_grid(LearnMAplot,MemMAplot, Learn_Volcanoplot, Mem_Volcanoplot,nrow=2,labels = c('a.', 'b.', 'c.','d.'), rel_widths = c(1,1.3,1,1.3), label_size = 10)
 #allplot
 
 ggsave(allplot, file="../Plots/ExprPatterns_all.pdf",width=6.5,height=5)
