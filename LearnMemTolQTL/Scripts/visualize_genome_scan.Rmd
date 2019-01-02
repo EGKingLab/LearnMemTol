@@ -17,16 +17,26 @@ library(cowplot)
 #load scan results
 
 ```{r}
-source(file="ggplot_theme.R")
-load(file="../Data/Lodscores_3traits.rda")
+source(file="../../Functions/ggplot_theme.R")
+source(file="../../Functions/mappingfunctions.R")
 
-str(obs.LL)
+load(file="../ProcessedData/Lodscores_3traits.rda")
+load(file= "../ProcessedData/sig_ths.rda")
 
+load(file="../../LearnMemTolQTL/ProcessedData/myGenos.rda")
+Nrils <- nrow(myGenos$phenotype)
+rm(myGenos)
 
 #set value for theresholds 
-top<-10
-fdr<-5.5
-fwer<-7.3
+fdr <- min(fdr.out$fdr$threshold[fdr.out$fdr$fdr<=0.05])
+fwer <- fdr.out$fwer
+
+pfdr <- getP(fdr,Nrils,7,Nrils-8)
+pfwer <- getP(fwer,Nrils,7,Nrils-8)
+
+#get peaks
+load(file ="../ProcessedData/Peaks_wCIs.rda")
+
 
 ```
 
@@ -36,22 +46,22 @@ fwer<-7.3
 
 #make dataframe long
 obs.LM_long <-gather(obs.LL, key='Trait', value='LOD', LearnPowerTrans, Memory_Mean)
-
+obs.LM_long$Pval <- getP(obs.LM_long$LOD,Nrils,7,Nrils-8)
+top <- max(obs.LM_long$Pval)
 
 #plot using ggplot
 line.ww <- 0.5
 
-p1 <- ggplot(obs.LM_long, aes(x=Gaxis, y=LOD, color=Trait)) +
+p1 <- ggplot(obs.LM_long, aes(x=Gaxis, y=Pval, color=Trait)) +
   geom_rect(xmin=66.3,ymin=-10,xmax=120.3,ymax=top+10,fill='aliceblue',color='aliceblue')+
   geom_rect(xmin=174,ymin=-10,xmax=221,ymax=top+10,fill='aliceblue',color='aliceblue')+
+    geom_segment(x=-50, xend=275,y=pfdr,yend=pfdr, color='black', size=line.ww) +
+  geom_text(label= "FDR", x=295, y=pfdr, color='black',size=3.5) +
+  geom_text(label= "FWER", x=302, y=pfwer, color='black',size=3.5) +
+  geom_segment(x=-50, xend=275,y=pfwer,yend=pfwer, color='black', size=line.ww, lty=3) +
   geom_line(alpha=0.8, size=line.ww) +
-  
-    geom_segment(x=-50, xend=275,y=fdr,yend=fdr, color='black', size=line.ww) +
-  geom_text(label= "FDR", x=295, y=fdr, color='black',size=3.5) +
-  geom_text(label= "FWER", x=302, y=fwer, color='black',size=3.5) +
-  geom_segment(x=-50, xend=275,y=fwer,yend=fwer, color='black', size=line.ww, lty=3) +
   scale_x_continuous(breaks=c(0,66.3,120,174,221,277,33.15,98.3,145,205,249), 
-                     labels=c(0,"66  0",54,"108  0",47,103,'\nX','\n2L','\n2R','\n3L','\n3R'),limits = c(0,max(obs.LM_long$Gaxis)+25))+
+                     labels=c(0,"66  0",54,"108  0",47,103,'\nX','\n2L','\n2R','\n3L','\n3R'),limits = c(-0.01,max(obs.LM_long$Gaxis)+25))+
   
   theme(axis.ticks.x=element_blank())+
   ylab(expression("-log"[10]*"(P-value)"))+
