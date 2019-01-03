@@ -28,10 +28,21 @@ txsize <-4
 ylims <- c(-1.7,2.2)
 
 ll.set <- c(12,13,14,3,4,6,9,10,11)
-                
+mm.set <- c(3,7)
+share.set <- cbind(c(1,2,5,7),c(1,2,4,5))
+
+
+qns <- paste(rep("Q",16),seq(1,16), sep="")
+ps <- c("L","L","L","S","S","M","L","L","S","L","S","S","L","L","M","L")
+q.mat <- data.frame("QTL" = qns, "Pheno"=ps, stringsAsFactors = FALSE)
+
+q.mat <- q.mat[q.mat$QTL != "Q12",]
+
 ll.plot.list <- vector(mode='list', length=length(ll.set))              
 
 sm.tx <- c(1,2,7)
+
+q.sub <- subset(q.mat, Pheno=="L")
 
 counter <- 1
 for(zz in ll.set){
@@ -61,7 +72,8 @@ pp.set.s$midM <- (pp.set.s$startp + (pp.set.s$stopp - pp.set.s$startp)/2)/1e6
 pp.set.s$labelrep <- pp.set.s$gname
 pp.set.s$labelrep[pp.set.s$sig=='N']<-""
 
-pbuffer <- 0.04
+pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
+
   
 pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
   geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
@@ -72,6 +84,7 @@ pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=la
   geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=learncol) +
   geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=learncol) +
   geom_text_repel(data = pp.set.s, show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
+  annotate("label", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=4) +
   xlab(paste("Chr ",ci.peak.set$chr," Position (Mbp)", sep=""))+
   ylab(expression("-log"[2]*"(Fold Change)")) +
   ylim(ylims)+
@@ -83,9 +96,9 @@ counter <- counter+1
 
 }
 
-mm.set <- c(3,7)
-                
+
 mm.plot.list <- vector(mode='list', length=length(mm.set))              
+q.sub <- subset(q.mat, Pheno=="M")
 
 counter <- 1
 for(zz in mm.set){
@@ -110,7 +123,7 @@ pp.set.s$midM <- (pp.set.s$startp + (pp.set.s$stopp - pp.set.s$startp)/2)/1e6
 pp.set.s$labelrep <- pp.set.s$gname
 pp.set.s$labelrep[pp.set.s$sig=='N']<-""
 
-pbuffer <- 0.04
+pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
   
 pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
   geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
@@ -121,6 +134,7 @@ pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=la
   geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=memcol) +
   geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=memcol) +
 geom_text_repel(data = pp.set.s, show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
+  annotate("label", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85 , y=max(ylims)-0.01, size=4) +
   xlab(paste("Chr ",ci.peak.set$chr," Position (Mbp)", sep=""))+
   ylab(expression("-log"[2]*"(Fold Change)")) +
   ylim(ylims)+
@@ -138,10 +152,9 @@ counter <- counter+1
 
 ```{r}
 
-share.set <- cbind(c(1,2,5,7),c(1,2,4,5))
-#8,6
 
 pgene.list <- vector(mode='list', length=nrow(share.set))
+q.sub <- subset(q.mat, Pheno=="S")
   
 for(zz in 1:nrow(share.set))
 {
@@ -192,7 +205,7 @@ pp.set.s<- rbind(pp.set.sL, pp.set.sM)
 pp.set.s$labelrep <- pp.set.s$gname
 pp.set.s$labelrep[pp.set.s$labelsig2=='N']<-""
   
-pbuffer <- 0.04
+pbuffer <- ((max(ci.peak.set$upR6) - min(ci.peak.set$lpR6))/1e6)*0.1
   
 pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn, color=Phenotype))+
   geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
@@ -207,6 +220,7 @@ pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=la
   geom_point(alpha=1/6, size=2)+
   geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=2.5)+
   geom_text_repel(data = pp.set.s, show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
+  annotate("label", label=q.sub[zz,'QTL'], x= max(ci.peak.set$upR6)/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=4) +
   xlab(paste("Chr ",ci.peak.set$chr[1]," Position (Mbp)", sep=""))+
   ylab(expression("-log"[2]*"(Fold Change)")) +
   ylim(ylims)+
@@ -215,7 +229,7 @@ pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=la
   my_theme
   
 pgene.list[[zz]] <- pgene
-
+cat(zz,"\n")
 }
 ```
 

@@ -862,7 +862,7 @@ pheno Learn: `r max(abs(subset(ll.sub, gname=="Octbeta1R")$rLearn))`
 
 Nrx-1 is on Patricka's list but does not have a cis eQTL.
 
-### Q15
+### Q16
 
 ```{r}
 
@@ -959,7 +959,7 @@ pheno Learn: `r max(abs(subset(ll.sub, gname=="CAP")$rLearn))`
 
 Hdc is another candidate from Flybase & Patricka. It does not have a cis eQTL.
 
-### Q16
+### Q15
 
 ```{r}
 
