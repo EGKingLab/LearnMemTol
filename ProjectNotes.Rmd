@@ -136,6 +136,20 @@ N.B. All output scripts were copied to Lewis where the RNAseq analysis was proce
 
 A record of notes in the style of a lab notebook
 
+###Dec. 12, 2018
+-Compared the significantly defferentially expressed genes that we identified from the DEseq analysis to the gene summary on flybase. From all the genes identified, we needed to look at specific genes that may influence learning and memory based on thier known functions. I took note of all the genes that were listed to play a role behavior, neurotransmitter transportation and trafficking. I also listed a few genes that are shown to interact with to a genes that was listed. Below are the list oe genes: 
+Learning: 
+  2L: Mad, chm, Nlg2, Pvf3, Myo281
+  2R: Fkbpl2, Mctp, Jheh2,DptA/B, Jabba, 5-HT1B 
+  3L: MsR2, Fife, Mp
+  3R: Gluclalpha, KaiR1D, Ktl, Grik, SlFaR, Nrx-1,Octbeta1R
+  X: Shmt, Ca-alpha1T, Shi,Lcch3, HDAC6, CG8916
+    Nlg2, Fife, Ort, Rh3
+
+Memory:
+CG1698 and Hdc
+
+
 ###Nov. 27 2018
 -Created script to find gene (under significant qtls) summaries on fly base. Script is stored under MyGitHub/LearnMemTol/LearnMemTolQTL/Scripts/IndividualPeaks.Rmd, section Genes Summary
 -Downloaded automated_gene_summaries file here

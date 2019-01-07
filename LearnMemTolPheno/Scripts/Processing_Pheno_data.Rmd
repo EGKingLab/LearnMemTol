@@ -132,7 +132,7 @@ ThermTolDATA_sort <- T_TDATA[order(T_TDATA$Incapacitation_Mean),]
 
 #Identify RILs in the low cohort
 LearnDATA_sort[11:20,]
-MemDATA_sort[11:20,]
+MemDATA_sort[1:10,]
 ThermTolDATA_sort[1:20,]
 
 
