@@ -38,8 +38,10 @@ output: html_document
 2. identify_peaks finds each QTL peak and saves it in a list.
 3. genes_under_peaks.R  looks at the DE genes from RNAseq (see below) to see which DE genes are under each peak
 4. visualize_genome_scan.Rmd plots the genome scan
-5. individualpeaks.Rmd plots each peak separately
-6. identify_founder_additive.Rmd identifies the haplotypes at each peak that the low and high cohorts have
+5. GeneSums.Rmd looks at FlyBase summaries for the genes in each interval
+6. individualpeaks.Rmd plots each peak separately
+7. Visualize_Peak_Intervals.Rmd plots each peak interval with the DE genes
+
 
 ### Scripts to process the RNAseq data was first created on Nivalis (lab server).
 1.Set_up_commands_masterpipeline.R is the master script that outputs 8 separate scripts for processing RNAseq data. both he mastr scripts and the outputs are saved under home/DSPR/Scripts/rna-seq_processing_data. 

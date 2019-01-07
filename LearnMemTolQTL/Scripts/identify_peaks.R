@@ -8,8 +8,10 @@ source("../../Functions/mappingfunctions.R")
 load(file="../ProcessedData/sig_ths.rda")#fdr.out
 load(file="../ProcessedData/Lodscores_3traits.rda")#obs.LL
 
+
+
 #th.2 <- fdr.out$fwer
-th.l <- fdr.out$fdr$th[min(which(fdr.out$fdr$fdr<=0.05))]
+th.l <- fdr.out$fdr$threshold[min(which(fdr.out$fdr$fdr<=0.05))]
 
 
 
@@ -83,7 +85,6 @@ for(pp in 1:nrow(pp.set))
   }
 }
 #(Learn_gene_list_sub$startp <= foc.peak$upR6 & Learn_gene_list_sub$stopp >= foc.peak$lpR6)))
-
 ci.peak[[kk]]<-pp.set.final
 }
 
