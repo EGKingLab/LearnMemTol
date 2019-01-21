@@ -60,7 +60,7 @@ save(LMpheno, file="../Data/LMRNAproc_data_eb.rda")
 # Control for batch effects
 
 ```{r}
-#fit model
+#estimating batch effects
 LMdds <- DESeqDataSetFromMatrix(countData = LMgenes,
                               colData = LMpheno, 
                               design = ~ treatment)
