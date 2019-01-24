@@ -131,11 +131,13 @@ LM_dds_ttSS <- DESeqDataSetFromMatrix(countData = LMgenes,
 LMsv_dds_deseq <- DESeq(LM_dds_ttSS) 
 
 #pairwise comparison
-#LearnresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "LH", "LL"))
-#MemresSV <- results(LMsv_dds_deseq, contrast =c("treatment", "MH", "ML"))
+LearnresSV.default <- results(LMsv_dds_deseq, contrast =c("treatment", "LH", "LL"))
+MemresSV.default <- results(LMsv_dds_deseq, contrast =c("treatment", "MH", "ML"))
 
 LearnresSV <- lfcShrink(dds=LMsv_dds_deseq, contrast =c("treatment", "LH", "LL"))
 MemresSV <- lfcShrink(dds=LMsv_dds_deseq, contrast =c("treatment", "MH", "ML"))
+
+all.equal(LearnresSV$pvalue, LearnresSV.default$pvalue)
 
 
 LearnresSVorder <- LearnresSV [order(LearnresSV$padj), ]
