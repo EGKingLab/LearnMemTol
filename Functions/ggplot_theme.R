@@ -5,3 +5,7 @@ my_theme <- theme(
   legend.text = element_text(size = font_size),
   legend.title=element_text(size = font_size),
   plot.title = element_text(size = font_size + 1))
+
+library(scales)
+show_col(hue_pal()(2))
+LM_cols <- hue_pal()(2)

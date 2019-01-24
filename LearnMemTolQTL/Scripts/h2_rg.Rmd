@@ -1,0 +1,50 @@
+---
+title: "h2_rg"
+author: "EGK & PW-S"
+date: "1/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(nlme)
+source("../../Functions/h2_functs.R")
+
+```
+
+
+## Phenotypic data
+
+```{r}
+
+rawdLM <- read.table("../../LearnMemTolPheno/ProcessedData/LearnMem_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+str(rawdLM)
+
+rawdTT <- read.table("../../LearnMemTolPheno/ProcessedData/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+str(rawdTT)
+
+h2.lme(geno=as.factor(rawdLM$patRIL), pheno=quant.norm(rawdLM$Learning))
+#h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$Learning)
+
+h2.lme(geno=as.factor(rawdLM$patRIL), pheno=quant.norm(rawdLM$Memory))
+#h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$Memory)
+
+learn.jk <- jk.h2.lme(geno=as.factor(rawdLM$patRIL), pheno=quant.norm(rawdLM$Learning))
+mean(learn.jk, na.rm=TRUE)
+sd(learn.jk, na.rm=TRUE)
+length(learn.jk[is.na(learn.jk)])
+
+mem.jk <- jk.h2.lme(geno=as.factor(rawdLM$patRIL), pheno=quant.norm(rawdLM$Memory))
+mean(mem.jk, na.rm=TRUE)
+sd(mem.jk, na.rm=TRUE)
+length(mem.jk[is.na(mem.jk)])
+
+```
+
+
+## Broad sense heritability
+
+## Genetic correlation
+
+## Narrow sense?
