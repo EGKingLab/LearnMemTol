@@ -14,7 +14,7 @@ library(ggrepel)
 source(file="../../Functions/ggplot_theme.R")
 ```
 
-#read/ load in flies
+#read or load in flies
 
 ```{r}
 #make individual plots
@@ -211,6 +211,14 @@ ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_plot.pdf", width=10, h
 
 ```
 
+```{r}
 
+cts <- rawdLM %>% group_by(patRIL) %>% tally()
+mean(cts$n)
+
+ggplot(cts, aes(x=n)) +
+  geom_histogram()
+
+```
 
 
