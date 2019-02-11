@@ -36,6 +36,14 @@ pfwer <- getP(fwer,Nrils,7,Nrils-8)
 #get peaks
 load(file ="../ProcessedData/Peaks_wCIs.rda")
 
+Learn.peak <- ci.peak[[1]]
+Learn.peak$pval <- getP(Learn.peak$LL,Nrils, 7, Nrils-8)
+
+Memory.peak <- ci.peak[[2]]
+Memory.peak$pval <- getP(Memory.peak$LL,Nrils, 7, Nrils-8)
+
+
+
 ll.set <- c(12,13,14,3,4,6,9,10,11)
 mm.set <- c(3,7)
 share.set <- cbind(c(1,2,5,7,8),c(1,2,4,5,6))
