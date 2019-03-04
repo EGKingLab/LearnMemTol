@@ -35,41 +35,52 @@ rawdLM <- rawdLM %>% mutate(LearnNorm = quant.norm(Learning),
 
 
 ```{r}
-h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$LearnNorm)
+
+learn.h2 <- h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$LearnNorm)
 #h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$Learning)
 
 geno <- as.factor(rawdLM$patRIL)
 pheno <- rawdLM$LearnNorm
-afit<-lme(pheno ~ 1 , random= ~1 | geno)
+
+afit<-lme(pheno ~ 1 , random= ~1 | geno, method="ML")
 afit.n <- lm(pheno ~ 1)
 anova.lme(afit.n, afit)
-x2val <- -2*logLik(afit.n, REML=TRUE) + 2* logLik(afit, REML=TRUE)
-pchisq(x2val, df=1, lower.tail=F, log.p=TRUE)
+#check
+x2val <- -2*logLik(afit.n, REML=FALSE) + 2* logLik(afit, REML=FALSE)
+pchisq(x2val, df=1, lower.tail=F, log.p = TRUE)
 
 
 #MEMORY
-h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$MemoryNorm)
+mem.h2 <- h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$MemoryNorm)
 #h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$Memory)
 
 geno <- as.factor(rawdLM$patRIL)
 pheno <- rawdLM$MemoryNorm
-afit<-lme(pheno ~ 1 , random= ~1 | geno)
+afit<-lme(pheno ~ 1 , random= ~1 | geno, method='ML')
 afit.n <- lm(pheno ~ 1)
 anova.lme(afit.n, afit)
 
-x2val <- -2*logLik(afit.n, REML=TRUE) + 2* logLik(afit, REML=TRUE)
+x2val <- -2*logLik(afit.n, REML=FALSE) + 2* logLik(afit, REML=FALSE)
 
 pchisq(x2val, df=1, lower.tail=F, log.p=TRUE)
 
 learn.jk <- jk.h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$LearnNorm)
 mean(learn.jk, na.rm=TRUE)
 sd(learn.jk, na.rm=TRUE)
-length(learn.jk[is.na(learn.jk)])
+nn <- length(learn.jk[is.na(learn.jk)==FALSE])
+tval <- qt(0.025, nn-1, lower.tail=FALSE)
+mean(learn.jk, na.rm=TRUE) + tval*sd(learn.jk, na.rm=TRUE)/sqrt(nn)
+mean(learn.jk, na.rm=TRUE) - tval*sd(learn.jk, na.rm=TRUE)/sqrt(nn)
+
 
 mem.jk <- jk.h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$MemoryNorm)
 mean(mem.jk, na.rm=TRUE)
 sd(mem.jk, na.rm=TRUE)
 length(mem.jk[is.na(mem.jk)])
+nn <- length(mem.jk[is.na(mem.jk)==FALSE])
+tval <- qt(0.025, nn-1, lower.tail=FALSE)
+mean(mem.jk, na.rm=TRUE) + tval*sd(mem.jk, na.rm=TRUE)/sqrt(nn)
+mean(mem.jk, na.rm=TRUE) - tval*sd(mem.jk, na.rm=TRUE)/sqrt(nn)
 
 ```
 
@@ -83,10 +94,13 @@ rg.lme(phenoval=phen.l$value, phenotype=phen.l$phenotype, geno=phen.l$patRIL)
 
 psrg <- jk.rg.lme(phenoval=phen.l$value, phenotype=phen.l$phenotype, geno=phen.l$patRIL)
 
-mean(mem.jk, na.rm=TRUE)
-length(mem.jk[is.na(mem.jk)])
+mean(psrg,na.rm=TRUE)
+nn <- length(psrg[is.na(psrg)==FALSE])
+tval <- qt(0.025, nn-1, lower.tail=FALSE)
+mean(psrg, na.rm=TRUE) + tval*sd(psrg, na.rm=TRUE)/sqrt(nn)
+mean(psrg, na.rm=TRUE) - tval*sd(psrg, na.rm=TRUE)/sqrt(nn)
 
+length(psrg[is.na(psrg)])
 ```
 
 
-## Narrow sense?

@@ -92,6 +92,8 @@ save(all.LL, file="../ProcessedData/Perm_LODS_FDR.rda")
 
 
 #### Get FDR for different thresholds
+load(file="../ProcessedData/Perm_LODS_FDR.rda")
+load(file="../ProcessedData/Lodscores_3traits.rda")
 
 th.set<-seq(3,7, by=0.25)
 
@@ -131,3 +133,32 @@ tt<-seq(1, 3000,by=3)
 tt.m<-apply(all.LL[,tt], 2,max)
 ppp<-getP(tt.m,741,7,733)
 quantile(ppp, 0.95)
+
+#### ONLY LEARNING & MEM
+for(tt in 1:length(th.set))
+{
+  N.positives[tt]<-sum(apply(obs.LL[,1:2],2,function(x) pfind(x,cM=positions[,c('chr','Gpos')] ,th=th.set[tt], tol.dist=5)))
+}
+
+
+N.pos.mat<-matrix(NA,1000,length(th.set))
+Max.L<-numeric(1000)
+
+cc<-1
+for(ii in 1:1000)
+{
+  for(tt in 1:length(th.set))
+  {
+    N.pos.mat[ii,tt]<-sum(apply(all.LL[,cc:(cc+1)],2,function(x) pfind(x,cM=positions[,c('chr','Gpos')] ,th=th.set[tt], tol.dist=5)))
+  }
+  Max.L[ii]<-max(all.LL[,cc:(cc+1)])
+  cc<-cc+3
+  
+}
+
+fp<-colMeans(N.pos.mat)
+fp/N.positives
+
+quantile(Max.L,0.95)
+
+fdr.out <- data.frame('threshold'=th.set, 'fp'=fp, 'tp'= N.positives,'fdr'=fp/N.positives)

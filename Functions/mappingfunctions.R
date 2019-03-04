@@ -103,3 +103,9 @@ Conv_5_6<-function(ccc,ppp,coord.table)
   return(coord.table[which(coord.table$R5chr==ccc & coord.table$R5pos==ppp),c('R6chr','R6pos')])
 }
 
+
+LOD_R2<-function(LOD,n)
+{
+  return(1-(10^((-2/n)*LOD)))
+  
+}

@@ -25,6 +25,33 @@ options(scipen=10)
 load("../Data/LearnresSVOrder.Rda")
 load("../Data/MemresSVOrder.Rda")
 
+ww <-which(LearnresSVorder$padj < 0.05)
+length(ww)
+sig.Lgenes <- LearnresSVorder[ww,]
+nrow(sig.Lgenes[sig.Lgenes$log2FoldChange>0,])
+nrow(sig.Lgenes[sig.Lgenes$log2FoldChange<0,])
+
+ww <-which(MemresSVorder$padj < 0.05)
+length(ww)
+sig.Mgenes <- MemresSVorder[ww,]
+nrow(sig.Mgenes[sig.Mgenes$log2FoldChange>0,])
+nrow(sig.Mgenes[sig.Mgenes$log2FoldChange<0,])
+
+share.wl <- which(rownames(sig.Lgenes) %in% rownames(sig.Mgenes))
+share.wm <- which(rownames(sig.Mgenes) %in% rownames(sig.Lgenes))
+
+LearnresSVorder$gname <- rownames(LearnresSVorder)
+MemresSVorder$gname <- rownames(MemresSVorder)
+
+all.expr <- merge(as.data.frame(LearnresSVorder[share.wl,]), as.data.frame(MemresSVorder[share.wm,]), by="gname")
+
+plot(all.expr$log2FoldChange.x, all.expr$log2FoldChange.y)
+
+length(which(all.expr$log2FoldChange.x > 0 & all.expr$log2FoldChange.y > 0))
+length(which(all.expr$log2FoldChange.x < 0 & all.expr$log2FoldChange.y < 0))
+
+# add known labels to volcanos.
+
 # Could do with built-in DESeq2 function:
 # EGK looked at source code. Plot is x = log(baseMean), y = log fold change
 #LearnMAplot <- DESeq2::plotMA(LearnresSVorder, ylim=c(-4.5,4))
