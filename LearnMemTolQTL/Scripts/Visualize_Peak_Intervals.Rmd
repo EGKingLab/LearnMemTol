@@ -91,7 +91,7 @@ if(counter == 8){
   annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85, y=max(ylims)-0.2, size=labsize, fontface=2) +
   ylim(ylims)+
         ylab(expression("-log"[2]*"(Fold Change)")) +
-    xlab(paste("Chr ",ci.peak.set$chr," Position (Mbp)", sep="")) +
+    xlab(paste("Position (Mbp)", sep="")) +
   theme(legend.position="none")+
   my_theme_sm
 
@@ -108,7 +108,7 @@ if(counter == 8){
   geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize.l, segment.size=txseg.size, min.segment.length = 0) +
   annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
   ylim(ylims)+
-      xlab(paste("Chr ",ci.peak.set$chr," Position (Mbp)", sep=""))+
+      xlab(paste("Position (Mbp)", sep=""))+
   theme(legend.position="none", axis.title.y=element_blank())+
   my_theme_sm
   }else{
@@ -194,7 +194,7 @@ if(counter==2){
   geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=memcol) +
 geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
   annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85 , y=max(ylims)-0.01, size=labsize, fontface=2) +
-  xlab(paste("Chr ",ci.peak.set$chr," Position (Mbp)", sep=""))+
+  xlab(paste("Position (Mbp)", sep=""))+
   ylim(ylims)+
   theme(legend.position="none", axis.title.y = element_blank())+
   my_theme_sm
@@ -339,7 +339,7 @@ pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=la
   geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize+0.5)+
   geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
   annotate("text", label=q.sub[zz,'QTL'], x= max(ci.peak.set$upR6)/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
-  xlab(paste("Chr ",ci.peak.set$chr[1]," Position (Mbp)", sep=""))+
+  xlab(paste("Position (Mbp)", sep=""))+
   ylab(expression("-log"[2]*"(Fold Change)")) +
   ylim(ylims)+
   scale_shape_discrete(name="cis eQTL") +
