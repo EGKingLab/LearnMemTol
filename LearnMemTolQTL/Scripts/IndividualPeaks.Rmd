@@ -382,6 +382,7 @@ Other candidates (from FlyBase & Patricka) are `r L.cands` but those are not in 
 ### Q9
 
 ```{r}
+
 ll <- 5
 mm <- 4 
 

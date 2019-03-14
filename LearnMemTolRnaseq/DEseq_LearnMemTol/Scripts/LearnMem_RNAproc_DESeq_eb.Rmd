@@ -130,6 +130,12 @@ LM_dds_ttSS <- DESeqDataSetFromMatrix(countData = LMgenes,
 
 LMsv_dds_deseq <- DESeq(LM_dds_ttSS) 
 
+#look at one gene
+d <- plotCounts(LMsv_dds_deseq, gene="FBgn0000479", intgroup=c("treatment"), 
+                returnData=TRUE)
+ggplot(d, aes(x=treatment, y=count))+
+  geom_point()
+
 #pairwise comparison
 LearnresSV.default <- results(LMsv_dds_deseq, contrast =c("treatment", "LH", "LL"))
 MemresSV.default <- results(LMsv_dds_deseq, contrast =c("treatment", "MH", "ML"))

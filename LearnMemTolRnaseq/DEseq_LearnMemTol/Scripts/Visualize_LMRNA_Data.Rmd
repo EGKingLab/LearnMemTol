@@ -14,6 +14,8 @@ library(sva)
 library(ggplot2)
 library(cowplot)
 library(colorspace)
+library(ggrepel)
+
 source(file="../../../Functions/ggplot_theme.R")
 
 options(scipen=10)
@@ -69,7 +71,7 @@ LearnresSVorder <- LearnresSVorder[order(-LearnresSVorder$padj, na.last=FALSE),]
 LearnMAplot <- ggplot(as.data.frame(LearnresSVorder[is.na(LearnresSVorder$sig),]), aes(baseMean, log2FoldChange)) +
   geom_point(color='pink')+
   geom_point(data=as.data.frame(LearnresSVorder[is.na(LearnresSVorder$sig)==FALSE,]), aes(baseMean, log2FoldChange,color=sig))+
-  xlab("Mean Expression")+
+  xlab("Normalized Mean Expression")+
   ylab(expression("Log"[2]*"(Fold Change)"))+
   scale_x_log10() +
   ylim(c(-4.5,4)) +
@@ -106,10 +108,6 @@ MemMAplot
 ggsave(LearnMAplot, file="../Plots/LearnMAplot.pdf", width=10, height=4)
 ggsave(MemMAplot, file="../Plots/MemMAplot.pdf", width=10, height=4)
 
-# see all results available
-resultsNames(LearnresSVorder)
-resultsNames(MemresSVorder)
-
 
 ```
 
@@ -123,15 +121,33 @@ load("../Data/MemresSVOrder.Rda")
 
 str(LearnresSVorder)
 
+LearnresSVorder$FBgn <- rownames(LearnresSVorder)
+Learn_sig_genes <- as.data.frame(LearnresSVorder)
 
-Learngene_list <- as.data.frame(LearnresSVorder)
-Memgene_list <- as.data.frame(MemresSVorder)
+MemresSVorder$FBgn <- rownames(MemresSVorder)
+colnames(MemresSVorder)
+
+Mem_sig_genes <- as.data.frame(MemresSVorder)
+
+gene_map_table <- read_lines(file = "../../../LearnMemTolQTL/ProcessedData/gene_map_table_fb_2018_04.tsv",
+                skip = 6) %>% 
+  str_split(pattern = "\t", simplify = TRUE) %>% 
+  as_tibble() %>% 
+  filter(V1 == "Dmel")
+
+colnames(gene_map_table) <- c('spp','gname','FBgn','v3','cyt','pos')
 
 
+gene_map_table$chr <- str_split(gene_map_table$pos, ":",simplify=TRUE)[,1]
+temp.s1 <- str_split(gene_map_table$pos, ":",simplify=TRUE)[,2] %>% 
+  str_split(fixed(".."),simplify=TRUE)
+gene_map_table$startp <- as.numeric(temp.s1[,1])
 
-#Learngene_list <-Learngene_list %>% mutate(Learn_Genes = ifelse(log2FoldChange >= 2, "A", #ifelse(log2FoldChange <=-2, "B", "C")))
+gene_map_table$stopp <- as.numeric(str_split(temp.s1[,2],fixed("("),simplify = TRUE)[,1])
 
-#Memgene_list <-Memgene_list %>% mutate(Mem_Genes = ifelse(log2FoldChange >= 2, "A", #ifelse(log2FoldChange <=-2, "B", "C")))
+Learngene_list <- merge(Learn_sig_genes, gene_map_table, by="FBgn")
+Memgene_list <- merge(Mem_sig_genes, gene_map_table, by="FBgn")
+
 
 Learngene_list <-Learngene_list %>% mutate(Learn_Genes = ifelse(padj <= 0.05, "A",ifelse(is.na(padj) , "B", "B")))
 
@@ -139,18 +155,28 @@ Learngene_list <-Learngene_list %>% mutate(Learn_Genes = ifelse(padj <= 0.05, "A
 str(Learngene_list)
 str(Memgene_list)
 
+place.g<- c("FBgn0000479",
+            "FBgn0086782",
+            "FBgn0003996",
+            "FBgn0265597",
+            "FBgn0003301",
+            "FBgn0029095",
+            "FBgn0028978")
 
-Learn_Volcanoplot <- ggplot(na.omit(Learngene_list), aes(y=-log10(padj), x=log2FoldChange, color=log10(baseMean))) +
+
+Learn_Volcanoplot <- ggplot(na.omit(Learngene_list), aes(y=-log10(padj), x=log2FoldChange, color=log10(baseMean), label=gname)) +
   geom_hline(yintercept=-log10(0.05), color='grey70')+
   geom_vline(xintercept= -1, color='grey70')+
   geom_vline(xintercept= 1, color='grey70')+
   geom_point(size=1.3) +
+  geom_text_repel(data = Learngene_list[Learngene_list$FBgn %in% place.g,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
+  
   ylab(expression("-Log"[10]*"(P"[adj]*")")) +
   xlab(expression("Log"[2]*"(Fold Change)"))+
   xlim(c(-4.5,4)) +
   ylim(c(0,75)) +
   my_theme +
-  scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "mean\nexpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
+  scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\nExpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
   theme(legend.position="none")
 
  
@@ -158,11 +184,13 @@ Learn_Volcanoplot
 
 
 
-Mem_Volcanoplot <- ggplot(na.omit(Memgene_list), aes(y=-log10(padj), x=log2FoldChange, color=log10(baseMean))) +
+Mem_Volcanoplot <- ggplot(na.omit(Memgene_list), aes(y=-log10(padj), x=log2FoldChange, color=log10(baseMean), label=gname)) +
   geom_hline(yintercept=-log10(0.05), color='grey70')+
   geom_vline(xintercept= -1, color='grey70')+
   geom_vline(xintercept= 1, color='grey70')+
   geom_point(size=1.3) +
+  geom_text_repel(data = Memgene_list[Learngene_list$FBgn %in% place.g,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=35, size =3, force = 3) +
+  
   ylab(expression("-Log"[10]*"(P"[adj]*")")) +
   xlab(expression("Log"[2]*"(Fold Change)"))+
   xlim(c(-4.5,4.5)) +
@@ -181,6 +209,10 @@ allplot <- plot_grid(LearnMAplot,MemMAplot, Learn_Volcanoplot, Mem_Volcanoplot,n
 #allplot
 
 ggsave(allplot, file="../Plots/ExprPatterns_all.pdf",width=6.5,height=5)
+
+
+Learngene_list[Learngene_list$FBgn %in% place.g,]
+Memgene_list[Learngene_list$FBgn %in% place.g,]
 
 ```
 
