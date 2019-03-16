@@ -90,7 +90,7 @@ if(counter == 8){
   geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize.l, segment.size=txseg.size, min.segment.length = 0) +
   annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85, y=max(ylims)-0.2, size=labsize, fontface=2) +
   ylim(ylims)+
-        ylab(expression("-log"[2]*"(Fold Change)")) +
+        ylab(expression("log"[2]*"(FC)")) +
     xlab(paste("Position (Mbp)", sep="")) +
   theme(legend.position="none")+
   my_theme_sm
@@ -125,7 +125,7 @@ if(counter == 8){
   geom_text_repel(data = pp.set.s, show.legend = FALSE, fontface='italic', size=txsize.l, segment.size=txseg.size, min.segment.length = 0) +
   annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
   ylim(ylims)+
-        ylab(expression("-log"[2]*"(Fold Change)")) +
+        ylab(expression("log"[2]*"(FC)")) +
   theme(legend.position="none", axis.title.x=element_blank())+
   my_theme_sm
       
@@ -294,7 +294,7 @@ if(zz %in% c(2,3)){
   geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize + 0.5)+
   geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
   annotate("text", label=q.sub[zz,'QTL'], x= max(ci.peak.set$upR6)/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
-  ylab(expression("-log"[2]*"(Fold Change)")) +
+  ylab(expression("log"[2]*"(FC)")) +
   ylim(ylims)+
   scale_color_manual(values=c(learncol,memcol))+
   theme(legend.position="none", axis.title.x = element_blank())+
@@ -340,7 +340,7 @@ pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=la
   geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
   annotate("text", label=q.sub[zz,'QTL'], x= max(ci.peak.set$upR6)/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
   xlab(paste("Position (Mbp)", sep=""))+
-  ylab(expression("-log"[2]*"(Fold Change)")) +
+  ylab(expression("log"[2]*"(FC)")) +
   ylim(ylims)+
   scale_shape_discrete(name="cis eQTL") +
   scale_color_manual(values=c(learncol,memcol)) +

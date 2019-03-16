@@ -1,5 +1,5 @@
 ---
-title: "Visualizing_TTRNA_Data"
+title: "Visualizing_LMRNA_Data"
 author: "Patricka Williams-Simon"
 date: "8/20/2018"
 output: html_document
@@ -72,7 +72,7 @@ LearnMAplot <- ggplot(as.data.frame(LearnresSVorder[is.na(LearnresSVorder$sig),]
   geom_point(color='pink')+
   geom_point(data=as.data.frame(LearnresSVorder[is.na(LearnresSVorder$sig)==FALSE,]), aes(baseMean, log2FoldChange,color=sig))+
   xlab("Normalized Mean Expression")+
-  ylab(expression("Log"[2]*"(Fold Change)"))+
+  ylab(expression("log"[2]*"(FC)"))+
   scale_x_log10() +
   ylim(c(-4.5,4)) +
   scale_color_gradient2(low = "steelblue", mid = "grey",
@@ -93,7 +93,7 @@ MemMAplot <- ggplot(as.data.frame(MemresSVorder[is.na(MemresSVorder$sig),]), aes
   geom_point(color='pink')+
   geom_point(data=as.data.frame(MemresSVorder[is.na(MemresSVorder$sig)==FALSE,]), aes(baseMean, log2FoldChange,color=sig))+
   xlab("Normalized Mean Expression")+
-  ylab(expression("Log"[2]*"(Fold Change)"))+
+  ylab(expression("log"[2]*"(FC)"))+
   ylim(c(-4.5,4)) +
   scale_x_log10()+
 scale_color_gradient2(name = expression("P"[adj]*""), low = "steelblue", mid = "grey",
@@ -171,8 +171,8 @@ Learn_Volcanoplot <- ggplot(na.omit(Learngene_list), aes(y=-log10(padj), x=log2F
   geom_point(size=1.3) +
   geom_text_repel(data = Learngene_list[Learngene_list$FBgn %in% place.g,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
   
-  ylab(expression("-Log"[10]*"(P"[adj]*")")) +
-  xlab(expression("Log"[2]*"(Fold Change)"))+
+  ylab(expression("-log"[10]*"(P"[adj]*")")) +
+  xlab(expression("log"[2]*"(FC)"))+
   xlim(c(-4.5,4)) +
   ylim(c(0,75)) +
   my_theme +
@@ -191,8 +191,8 @@ Mem_Volcanoplot <- ggplot(na.omit(Memgene_list), aes(y=-log10(padj), x=log2FoldC
   geom_point(size=1.3) +
   geom_text_repel(data = Memgene_list[Learngene_list$FBgn %in% place.g,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=35, size =3, force = 3) +
   
-  ylab(expression("-Log"[10]*"(P"[adj]*")")) +
-  xlab(expression("Log"[2]*"(Fold Change)"))+
+  ylab(expression("-log"[10]*"(P"[adj]*")")) +
+  xlab(expression("log"[2]*"(FC)"))+
   xlim(c(-4.5,4.5)) +
   ylim(c(0,75)) +
    my_theme +
