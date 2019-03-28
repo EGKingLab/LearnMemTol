@@ -153,7 +153,7 @@ ThermTolDATA_sort[721:730,]
 
 ```{r}
 #Learning Low
-LearnRNAseqLow <- L_MDATA %>% filter(patRIL %in% c("12044", "12285", "12138", "11189", "12022", "12084", "12324"))
+LearnRNAseqLow <- L_MDATA %>% filter(patRIL %in% c("12044", "12285", "12138", "11189", "12022", "12084", "12324"))z
 
 #save(LearnRNAseqLow, file="../ProcessedData/LearnRNAseqLow.rda")
 

@@ -81,6 +81,7 @@ TTpheno$batch[TTpheno$treatment=='TH_Incu_control'] <- "2"
 
 TTpheno <- TTpheno[order (row.names(TTpheno)),]
 
+
 # Check all sample IDs in colData are also in genecount and match their orders
 
 all(rownames(TTpheno) %in% colnames(TTgenes))
@@ -91,12 +92,9 @@ all(rownames(TTpheno) == colnames(TTgenes))
 #colData <- pData(phenDat)[,c("treatment","tissue")]
 TTpheno <- as.matrix(TTpheno)
 
-
 save(TTpheno, file="../Data/ThermRNAproc_data.rda")
 
-
 ```
-
 
 # Control for batch effects
 
@@ -170,7 +168,6 @@ TT_dds_02 <- DESeqDataSetFromMatrix(countData = TTgenes,
                                    design = ~ SV1 + SV2 + batch + pool*condition)
 
 #perform DEseq
-
 TTlrt_condition <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + pool)
 TTlrt_condition <- results(TTlrt_condition)
 

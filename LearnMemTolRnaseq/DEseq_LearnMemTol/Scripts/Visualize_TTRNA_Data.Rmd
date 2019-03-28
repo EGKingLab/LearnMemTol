@@ -4,7 +4,7 @@ author: "Patricka Williams-Simon"
 date: "8/20/2018"
 output: html_document
 ---
-
+https://rpubs.com/kapeelc12/Ballgown
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(DESeq2)
@@ -19,6 +19,8 @@ library(ggplot2)
 
 ```{r}
 load("../Data/TTDEseqSVA_resOrdered_padj.Rda")
+
+load("../Data/TTlrt_inter.Rda")
 
 # Could do with built-in DESeq2 function:
 DESeq2::plotMA(TTsv_res.dds_table, ylim=c(-10,6))
@@ -94,9 +96,13 @@ library(gplots)
 
 load(file="../Data/TTDEseqSVA_resOrdered_padj.Rda")
 
+load("../Data/TTlrt_inter.Rda")
+
 #use a DESeq()-ready data object
-Select <- order(rowMeans(counts(TTsv_res.dds_table, normalized=TRUE)), 
+
+Select <- order(rowMeans(counts(TTlrt_inter, normalized=TRUE)), 
                 decreasing=TRUE)[1:30]
+
 hmcol <- colorRampPalette(brewer.pal(9, "GnBu"))(100)
 
 heatmap.2(counts(dds_deseq, normalized=TRUE)[Select,], col = hmcol,
