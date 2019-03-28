@@ -22,9 +22,13 @@ load(file ="../ProcessedData/Peaks_wCIs.rda")
 load(file="../ProcessedData/Learn_genes_under_peak.rda")
 load(file="../ProcessedData/Mem_genes_under_peak.rda")
 
-learncol <- 'steelblue'
-memcol <- 'indianred'
-txsize <-4
+learncol <- LM_cols[1]
+memcol <- LM_cols[2]
+txsize <-2
+ptsize <- 0.8
+segsize <- 1
+txseg.size <- 0.25
+labsize <- 2
 ylims <- c(-1.7,2.2)
 
 ll.set <- c(12,13,14,3,4,6,9,10,11)
@@ -49,9 +53,9 @@ for(zz in ll.set){
 
   if(counter %in% sm.tx)
   {
-    txsize <- 3
+    txsize.l <- txsize/2
   }else{
-    txsize <- 4
+    txsize.l <- txsize
   }
 pp.set <- learn.list[[zz]]
 pp.set[which.max(abs(pp.set$log2FoldChange)),]
@@ -74,22 +78,75 @@ pp.set.s$labelrep[pp.set.s$sig=='N']<-""
 
 pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
 
-  
-pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
-  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
+if(counter == 8){
+  pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
   xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
-  geom_point(color=learncol, alpha=1/6, size=2)+
-  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=2.5, color=learncol)+
+  geom_point(color=learncol, alpha=1/6, size=ptsize)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize + 0.5, color=learncol)+
   geom_hline(yintercept = 0, lty=1, color='grey80')+
   geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=learncol) +
   geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=learncol) +
-  geom_text_repel(data = pp.set.s, show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
-  annotate("label", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=4) +
-  xlab(paste("Chr ",ci.peak.set$chr," Position (Mbp)", sep=""))+
-  ylab(expression("-log"[2]*"(Fold Change)")) +
+  geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize.l, segment.size=txseg.size, min.segment.length = 0) +
+  annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85, y=max(ylims)-0.2, size=labsize, fontface=2) +
   ylim(ylims)+
-  scale_shape_discrete(name="cis eQTL") +
-  my_theme
+        ylab(expression("log"[2]*"(FC)")) +
+    xlab(paste("Position (Mbp)", sep="")) +
+  theme(legend.position="none")+
+  my_theme_sm
+
+}else{
+  if(counter == 9){
+    pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
+  geom_point(color=learncol, alpha=1/6, size=ptsize)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize + 0.5, color=learncol)+
+  geom_hline(yintercept = 0, lty=1, color='grey80')+
+  geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=learncol) +
+  geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=learncol) +
+  geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize.l, segment.size=txseg.size, min.segment.length = 0) +
+  annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
+  ylim(ylims)+
+      xlab(paste("Position (Mbp)", sep=""))+
+  theme(legend.position="none", axis.title.y=element_blank())+
+  my_theme_sm
+  }else{
+    if(counter == 1){
+      
+      pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
+  geom_point(color=learncol, alpha=1/6, size=ptsize)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize + 0.5, color=learncol)+
+  geom_hline(yintercept = 0, lty=1, color='grey80')+
+  geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=learncol) +
+  geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=learncol) +
+  geom_text_repel(data = pp.set.s, show.legend = FALSE, fontface='italic', size=txsize.l, segment.size=txseg.size, min.segment.length = 0) +
+  annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
+  ylim(ylims)+
+        ylab(expression("log"[2]*"(FC)")) +
+  theme(legend.position="none", axis.title.x=element_blank())+
+  my_theme_sm
+      
+    }else{
+      pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
+  geom_point(color=learncol, alpha=1/6, size=ptsize)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize + 0.5, color=learncol)+
+  geom_hline(yintercept = 0, lty=1, color='grey80')+
+  geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=learncol) +
+  geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=learncol) +
+  geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize.l, segment.size=txseg.size, min.segment.length = 0) +
+  annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
+  ylim(ylims)+
+  theme(legend.position="none", axis.title.x=element_blank(), axis.title.y=element_blank())+
+  my_theme_sm
+    }
+  }
+}
+
   
 ll.plot.list[[counter]] <- pgene
 counter <- counter+1
@@ -97,6 +154,7 @@ counter <- counter+1
 }
 
 
+  
 mm.plot.list <- vector(mode='list', length=length(mm.set))              
 q.sub <- subset(q.mat, Pheno=="M")
 
@@ -124,23 +182,37 @@ pp.set.s$labelrep <- pp.set.s$gname
 pp.set.s$labelrep[pp.set.s$sig=='N']<-""
 
 pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
-  
-pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
-  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
+
+if(counter==2){
+  pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
   xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
-  geom_point(color=memcol, alpha=1/6, size=2)+
-  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=2.5, color=memcol)+
+  geom_point(color=memcol, alpha=1/6, size=ptsize)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize + 0.5, color=memcol)+
   geom_hline(yintercept = 0, lty=1, color='grey80')+
   geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=memcol) +
   geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=memcol) +
-geom_text_repel(data = pp.set.s, show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
-  annotate("label", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85 , y=max(ylims)-0.01, size=4) +
-  xlab(paste("Chr ",ci.peak.set$chr," Position (Mbp)", sep=""))+
-  ylab(expression("-log"[2]*"(Fold Change)")) +
+geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
+  annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85 , y=max(ylims)-0.01, size=labsize, fontface=2) +
+  xlab(paste("Position (Mbp)", sep=""))+
   ylim(ylims)+
-  scale_shape_discrete(name="cis eQTL") +
-  my_theme
-  
+  theme(legend.position="none", axis.title.y = element_blank())+
+  my_theme_sm
+}else{  
+pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
+  geom_point(color=memcol, alpha=1/6, size=ptsize)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize + 0.5, color=memcol)+
+  geom_hline(yintercept = 0, lty=1, color='grey80')+
+  geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color=memcol) +
+  geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color=memcol) +
+geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
+  annotate("text", label=q.sub[counter,'QTL'], x= ci.peak.set$upR6/1e6 + pbuffer*0.85 , y=max(ylims)-0.01, size=labsize, fontface=2) +
+  ylim(ylims)+
+  theme(legend.position="none", axis.title.x = element_blank(), axis.title.y = element_blank())+
+  my_theme_sm
+}
 mm.plot.list[[counter]] <- pgene
 counter <- counter+1
 
@@ -206,9 +278,10 @@ pp.set.s$labelrep <- pp.set.s$gname
 pp.set.s$labelrep[pp.set.s$labelsig2=='N']<-""
   
 pbuffer <- ((max(ci.peak.set$upR6) - min(ci.peak.set$lpR6))/1e6)*0.1
-  
-pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn, color=Phenotype))+
-  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=2)+
+
+if(zz %in% c(2,3)){
+  pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn, color=Phenotype))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
   
     geom_hline(yintercept = 0, lty=1, color='grey80')+
   geom_vline(xintercept = ci.peak.set$lpR6[1]/1e6, lty=3, color=learncol) +
@@ -217,47 +290,90 @@ pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=la
   geom_vline(xintercept = ci.peak.set$upR6[2]/1e6, lty=3, color=memcol) +
   
   xlim(c(min(ci.peak.set$lpR6)/1e6 - pbuffer, max(ci.peak.set$upR6)/1e6 + pbuffer)) +
-  geom_point(alpha=1/6, size=2)+
-  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=2.5)+
-  geom_text_repel(data = pp.set.s, show.legend = FALSE, box.padding = 1, fontface='italic', size=txsize) +
-  annotate("label", label=q.sub[zz,'QTL'], x= max(ci.peak.set$upR6)/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=4) +
-  xlab(paste("Chr ",ci.peak.set$chr[1]," Position (Mbp)", sep=""))+
-  ylab(expression("-log"[2]*"(Fold Change)")) +
+  geom_point(alpha=1/6, size=ptsize)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize + 0.5)+
+  geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
+  annotate("text", label=q.sub[zz,'QTL'], x= max(ci.peak.set$upR6)/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
+  ylab(expression("log"[2]*"(FC)")) +
   ylim(ylims)+
-  scale_shape_discrete(name="cis eQTL") +
   scale_color_manual(values=c(learncol,memcol))+
-  my_theme
+  theme(legend.position="none", axis.title.x = element_blank())+
+  my_theme_sm
+}else{
+  pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn, color=Phenotype))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+  
+    geom_hline(yintercept = 0, lty=1, color='grey80')+
+  geom_vline(xintercept = ci.peak.set$lpR6[1]/1e6, lty=3, color=learncol) +
+  geom_vline(xintercept = ci.peak.set$upR6[1]/1e6, lty=3, color=learncol) +
+  geom_vline(xintercept = ci.peak.set$lpR6[2]/1e6, lty=3, color=memcol) +
+  geom_vline(xintercept = ci.peak.set$upR6[2]/1e6, lty=3, color=memcol) +
+  
+  xlim(c(min(ci.peak.set$lpR6)/1e6 - pbuffer, max(ci.peak.set$upR6)/1e6 + pbuffer)) +
+  geom_point(alpha=1/6, size=ptsize)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize + 0.5)+
+  geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
+  annotate("text", label=q.sub[zz,'QTL'], x= max(ci.peak.set$upR6)/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
+  ylim(ylims)+
+  scale_color_manual(values=c(learncol,memcol))+
+  theme(legend.position="none", axis.title.x = element_blank(), axis.title.y = element_blank())+
+  my_theme_sm
+}
+
   
 pgene.list[[zz]] <- pgene
 cat(zz,"\n")
 }
+
+pgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn, color=Phenotype))+
+  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+  
+    geom_hline(yintercept = 0, lty=1, color='grey80')+
+  geom_vline(xintercept = ci.peak.set$lpR6[1]/1e6, lty=3, color=learncol) +
+  geom_vline(xintercept = ci.peak.set$upR6[1]/1e6, lty=3, color=learncol) +
+  geom_vline(xintercept = ci.peak.set$lpR6[2]/1e6, lty=3, color=memcol) +
+  geom_vline(xintercept = ci.peak.set$upR6[2]/1e6, lty=3, color=memcol) +
+  
+  xlim(c(min(ci.peak.set$lpR6)/1e6 - pbuffer, max(ci.peak.set$upR6)/1e6 + pbuffer)) +
+  geom_point(alpha=1/6, size=ptsize)+
+  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange, shape=cisyn), size=ptsize+0.5)+
+  geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
+  annotate("text", label=q.sub[zz,'QTL'], x= max(ci.peak.set$upR6)/1e6 + pbuffer*0.85, y=max(ylims)-0.1, size=labsize, fontface=2) +
+  xlab(paste("Position (Mbp)", sep=""))+
+  ylab(expression("log"[2]*"(FC)")) +
+  ylim(ylims)+
+  scale_shape_discrete(name="cis eQTL") +
+  scale_color_manual(values=c(learncol,memcol)) +
+  my_theme_sm + 
+  theme(legend.margin=margin(t=0,r=0,b=0,l=1, unit = 'cm'))
+
+leg.set <- g_legend(pgene)
 ```
 
 ```{r}
-master.list <- vector(mode='list', length=15)
-counter <- 1
-for(ii in 1:length(ll.plot.list))
-{
-  master.list[[counter]]<-ll.plot.list[[ii]]
-  counter<- counter+1
-}
-for(ii in 1:length(mm.plot.list))
-{
-  master.list[[counter]]<-mm.plot.list[[ii]]
-  counter<- counter+1
-}
-for(ii in 1:length(pgene.list))
-{
-  master.list[[counter]]<-pgene.list[[ii]]
-  counter<- counter+1
-}
-  
+master.list <- list(
+  ll.plot.list[[1]],
+  ll.plot.list[[2]],
+  ll.plot.list[[3]],
+  pgene.list[[1]],
+  pgene.list[[2]],
+  mm.plot.list[[1]],
+  ll.plot.list[[4]],
+  ll.plot.list[[5]],
+  pgene.list[[3]],
+  ll.plot.list[[6]],
+  pgene.list[[4]],
+  ll.plot.list[[7]],
+  ll.plot.list[[8]],
+  mm.plot.list[[2]],
+  ll.plot.list[[9]],
+  leg.set
+)
+pall <- plot_grid(plotlist=master.list, nrow=4, ncol=4,labels = c("a.","b.","c.","d.","e.","f.","g.","h.","i.","j.","k.","l.","m.","n.","o."), align="hv", axis="tl", rel_widths=c(1,0.9,0.9,0.9), rel_heights = c(0.9,0.9,0.9,1), label_size=10, hjust= c(rep(c(0,rep(-2,3)),3),0,-2,-2))
 
-pall <- plot_grid(plotlist=master.list, nrow=5, ncol=3)
-
-ggsave(pall, file="../Plots/All_ind_peaks.pdf", width=16.5, height=15)
+ggsave(pall, file="../Plots/All_ind_peaks.pdf", width=8, height=6)
 
 ```
-add chr & qtl id?
+
 
 

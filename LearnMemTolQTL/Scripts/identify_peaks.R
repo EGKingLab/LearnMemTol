@@ -119,4 +119,23 @@ ci.peak <- ci.peak.new
 save(ci.peak,file="../ProcessedData/Peaks_wCIs.rda")
 
 
+load(file="../ProcessedData/Peaks_wCIs.rda")
+learn.dist <- ci.peak[[1]]$upR6-ci.peak[[1]]$lpR6
+learn.dist <- learn.dist[-8]
+mem.dist <- ci.peak[[2]]$upR6-ci.peak[[2]]$lpR6
+mean(c(learn.dist, mem.dist))
+
+learn.dist <- ci.peak[[1]]$ug-ci.peak[[1]]$lg
+learn.dist <- learn.dist[-8]
+mem.dist <- ci.peak[[2]]$ug-ci.peak[[2]]$lg
+mean(c(learn.dist, mem.dist))
+
+load(file="../../LearnMemTolPheno/ProcessedData/L_MDATA.rda")
+NN <- nrow(L_MDATA)
+
+r2.learn <- LOD_R2(ci.peak[[1]]$LL, NN)
+r2.mem <- LOD_R2(ci.peak[[2]]$LL, NN)
+mean(c(r2.learn,r2.mem))
+max(c(r2.learn,r2.mem))
+min(c(r2.learn,r2.mem))
 

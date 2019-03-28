@@ -382,6 +382,7 @@ Other candidates (from FlyBase & Patricka) are `r L.cands` but those are not in 
 ### Q9
 
 ```{r}
+
 ll <- 5
 mm <- 4 
 
@@ -683,7 +684,10 @@ unique(ll.sub[which(ll.sub$padj <= 0.05 & is.na(ll.sub$corEff)==FALSE),]$gname)
 
 There are several DE genes in the interval, 4 with cis eQTL. 
 
-Mes4 also has the highest effect correlation. Though p-value is moderate, not strong. wdp is more significant and has a moderate effect correlation. wdp is related to synaptic target recognition among other things. Mes4 is involved in histone acetylation.
+Mes4 also has the highest effect correlation. Though p-value is moderate, not strong. wdp is more significant and has a moderate effect correlation. wdp is related to synaptic target recognition among other things. Mes4 is expressed in the nervous system and is a target of a transcription factor.
+
+Liprin-gamma is involved in synapse formation.
+
 
 Mes4
 FC: `r subset(ll.sub, gname=="Mes4")$log2FoldChange[1]`
