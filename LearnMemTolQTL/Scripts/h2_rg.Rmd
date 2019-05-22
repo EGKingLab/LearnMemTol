@@ -82,6 +82,7 @@ tval <- qt(0.025, nn-1, lower.tail=FALSE)
 mean(mem.jk, na.rm=TRUE) + tval*sd(mem.jk, na.rm=TRUE)/sqrt(nn)
 mean(mem.jk, na.rm=TRUE) - tval*sd(mem.jk, na.rm=TRUE)/sqrt(nn)
 
+
 ```
 
 ## Genetic correlation
