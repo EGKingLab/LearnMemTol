@@ -61,6 +61,7 @@ rawdTT[rawdTT$patRIL==11459,'incapacitation']
 #Identify maximum mean
 T_TDATA[which.max(T_TDATA$Incapacitation_Mean),]
 
+
 #Sort and save from decreasing to increasing means 
 ThermTolDATA_sort <- T_TDATA[order(T_TDATA$Incapacitation_Mean),]
 

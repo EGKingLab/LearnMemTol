@@ -12,32 +12,34 @@ library(dplyr)
 library(stringr)
 library(sva)
 library(ggplot2)
+library(cowplot)
+library(tidyverse)
+
 ```
 
 # MA plot
 
 
 ```{r}
-load("../Data/TTDEseqSVA_resOrdered_padj.Rda")
-
+#load("../Data/TTDEseqSVA_resOrdered_padj.Rda")
 load("../Data/TTlrt_inter.Rda")
+load("../Data/TTlrt_pool.Rda")
+load("../Data/TTlrt_condition.Rda")
 
 # Could do with built-in DESeq2 function:
-DESeq2::plotMA(TTsv_res.dds_table, ylim=c(-10,6))
+DESeq2::plotMA(TTlrt_condition, ylim=c(-15,10))
 
 # see all results available
-resultsNames(TTsv_dds_deseq)
+resultsNames(TTlrt_condition)
 
 
-results(TTsv_dds_deseq, contrast=c("pool","condition"))
+results(TTlrt_condition, contrast=c("pool","condition"))
 
 ```
 
 #Volcano Plot
 
 ```{r}
-
-load("../Data/ThermTol_Noint_resOrdered_padj.Rda")
 
 par(mar=c(5,5,5,5), cex=1.0, cex.main=1.4, cex.axis=1.4, cex.lab=1.4)
 
@@ -94,7 +96,7 @@ ggsave(ThermTol_Volcanoplot, filename="../Plots/ThermTol_Volcanoplot.pdf", width
 # Heatmap of count table
 library(gplots)
 
-load(file="../Data/TTDEseqSVA_resOrdered_padj.Rda")
+load(file="../Data/.Rda")
 
 load("../Data/TTlrt_inter.Rda")
 
@@ -142,6 +144,7 @@ rlogtransTTdds_deseq <- rlogTransformation(TTdds_deseq, blind=TRUE) #time intens
 vstransTTdds_deseq <- varianceStabilizingTransformation(TTdds_deseq, blind = TRUE)
 
 dev.off()
+
 print(plotPCA(rlogtransTTdds_deseq, intgroup=c("pool", "condition")))
 plotPCA(rlogtransTTdds_deseq, intgroup=c("pool"), returnData=FALSE)
 
@@ -170,6 +173,42 @@ resFiltByVar <- results(dds_deseq, filter = rv)
 table(rowMean=(res.dds$padj < 0.1), rowVar=(resFiltByVar$padj < 0.1))
 ```
 
+#Reacrion Norm
+
+```{r}
+
+set.seed(45786)
+
+n <- 500
+
+tb <- tibble(
+  Gene = paste0("Gene_", 1:n),
+  Tx1 = runif(n, 0, 10),
+  Tx2 = runif(n, 10, 20),
+  d = as.numeric(scale(Tx2 - Tx1)),
+  DE = case_when(
+    d > 2 ~ "high",
+    d < -2 ~ "low",
+    TRUE ~ "NC"
+  )
+) %>% 
+  mutate(DE = factor(DE),
+         DE = fct_relevel(DE, "NC", after = 1L))
+
+tbl <- tb %>% 
+  dplyr::select(-d) %>% 
+  gather(key = "Tx", value = "Exp", -Gene, -DE)
+
+tbl_star <- tbl %>% filter(DE != "NC")
+
+ggplot() +
+  geom_line(data = tbl, aes(x = Tx, y = Exp, group = Gene, color = DE),
+            alpha = 0.05) +
+  geom_line(data = tbl_star,
+            aes(x = Tx, y = Exp, group = Gene, color = DE),
+            lwd = 0.5) +
+  scale_color_manual(values = c("red", "black", "blue"))
 
 ```
+
 

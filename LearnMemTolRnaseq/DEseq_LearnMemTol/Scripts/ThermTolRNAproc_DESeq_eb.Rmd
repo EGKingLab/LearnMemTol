@@ -151,9 +151,7 @@ all(rownames(TTpheno) == colnames(TTgenes))
 
 ```
 
-
 #Model with surrogate variables, batch, pool, and condition
-
 
 ```{r}
 # DESeqDataSet for all variables,
