@@ -30,20 +30,34 @@ load(file="../../LearnMemTolPheno/ProcessedData/L_MDATA.rda")
 ww<- which(L_MDATA$patRIL %in% rownames(qn.mat))
 wwe<- which(rownames(qn.mat) %in% L_MDATA$patRIL)
 
+load(file="../../LearnMemTolPheno/ProcessedData/T_TDATA.rda")
+tww<- which(T_TDATA$patRIL %in% rownames(qn.mat))
+twwe<- which(rownames(qn.mat) %in% T_TDATA$patRIL)
+
 L.sub <- L_MDATA[ww,]
 qn.mat <- qn.mat[wwe,]
 
+TT.sub <- T_TDATA[tww,]
+TTqn.mat <- qn.mat[twwe,]
+
 all.equal(as.numeric(row.names(qn.mat)), L.sub$patRIL)
+
+all.equal(as.numeric(row.names(TTqn.mat)), TT.sub$patRIL)
 
 ccs.l <- cor(L.sub$Learning_Mean, qn.mat)
 ccs.m <- cor(L.sub$Memory_Mean, qn.mat)
+ccs.t <- cor(TT.sub$Incapacitation_Mean, TTqn.mat)
+
 
 cors.lm <- data.frame('ID' = colnames(qn.mat), 'rLearn' = as.numeric(ccs.l), 'rMem' = as.numeric(ccs.m), stringsAsFactors=FALSE)
+
+cors.tt <- data.frame('ID' = colnames(TTqn.mat), 'rThermTol' = as.numeric(ccs.t), stringsAsFactors=FALSE)
 
 
 cgn<-read.table(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/NewRMA/QTLmapping/fbgn_fbtr_fbpp_fb_2012_02.tsv",header=FALSE,stringsAsFactors=FALSE,sep="\t",fill=TRUE)
 load(file='/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/probes/CDS/completeCDS.rda')
 ss<-merge(cgn,bl, by.x="V2",by.y="FBtr")
+
 ww.t <- which(ss$CGid %in% colnames(qn.mat))
 ww.g <- which(ss$CGgn %in% colnames(qn.mat))
 decode.n <- ss[,c('V1','CGid','CGgn')]
@@ -54,15 +68,32 @@ decode.n <- decode.n[,c('V1','ID')]
 decode.n <- unique(decode.n, MARGIN=1)
 colnames(decode.n) <- c("FBgn","ID")
 
+ww.tt <- which(ss$CGid %in% colnames(TTqn.mat))
+ww.tg <- which(ss$CGgn %in% colnames(TTqn.mat))
+decode.tn <- ss[,c('V1','CGid','CGgn')]
+decode.tn$ID <- NA
+decode.tn$ID[ww.tt]<- ss$CGid[ww.tt]
+decode.tn$ID[ww.tg]<- ss$CGgn[ww.tg]
+decode.tn <- decode.tn[,c('V1','ID')]
+decode.tn <- unique(decode.tn, MARGIN=1)
+colnames(decode.tn) <- c("FBgn","ID")
+
 cors.lm <- merge(cors.lm, decode.n,by='ID',sort=FALSE, all.x=TRUE)
+cors.tt <- merge(cors.tt, decode.tn,by='ID',sort=FALSE, all.x=TRUE)
 
 cors.nas <- cors.lm[is.na(cors.lm$FBgn),]
 cors.lm <- cors.lm[is.na(cors.lm$FBgn)==FALSE,]
+cors.tnas <- cors.tt[is.na(cors.tt$FBgn),]
+cors.tt <- cors.tt[is.na(cors.tt$FBgn)==FALSE,]
 
 
 cors.nas[which.max(abs(cors.nas$rLearn)),]
 cors.nas[which.max(abs(cors.nas$rMem)),]
 cors.nas[which(abs(cors.nas$rLearn) >0.1),]
+
+cors.tnas[which.max(abs(cors.tnas$rThermTol)),]
+cors.tnas[which(abs(cors.tnas$rThermTol) >0.1),]
+
 
 ```
 
@@ -121,8 +152,22 @@ load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/MemresSVOrder.Rda")
 str(MemresSVorder)
 MemresSVorder$FBgn <- rownames(MemresSVorder)
 colnames(MemresSVorder)
-
 Mem_sig_genes <- as.data.frame(MemresSVorder)
+
+load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_condition.Rda")
+str(TTlrt_condition)
+TTlrt_condition$FBgn <- rownames(TTlrt_condition)
+TTcon_sig_genes <- as.data.frame(TTlrt_condition)
+
+load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_pool.Rda")
+str(TTlrt_pool)
+TTlrt_pool$FBgn <- rownames(TTlrt_pool)
+TTpool_sig_genes <- as.data.frame(TTlrt_pool)
+
+#load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_inter.Rda")
+#str(TTlrt_inter)
+#TTlrt_inter$FBgn <- rownames(TTlrt_inter)
+#ThermTol_inter_sig_genes <- as.data.frame(TTlrt_inter)
 
 gene_map_table <- read_lines(file = "../ProcessedData/gene_map_table_fb_2018_04.tsv",
                 skip = 6) %>% 
@@ -131,7 +176,6 @@ gene_map_table <- read_lines(file = "../ProcessedData/gene_map_table_fb_2018_04.
   filter(V1 == "Dmel")
 
 colnames(gene_map_table) <- c('spp','gname','FBgn','v3','cyt','pos')
-
 
 
 gene_map_table$chr <- str_split(gene_map_table$pos, ":",simplify=TRUE)[,1]
@@ -143,12 +187,21 @@ gene_map_table$stopp <- as.numeric(str_split(temp.s1[,2],fixed("("),simplify = T
 
 Learn_gene_list_merged <- merge(Learn_sig_genes, gene_map_table, by="FBgn")
 Mem_gene_list_merged <- merge(Mem_sig_genes, gene_map_table, by="FBgn")
+TTcon_gene_list_merged <- merge(TTcon_sig_genes, gene_map_table, by="FBgn")
+TTpool_gene_list_merged <- merge(TTpool_sig_genes, gene_map_table, by="FBgn")
+
 
 Learn_gene_list_sub <- Learn_gene_list_merged[c(1,3,6,7,9,13:15)]
 colnames(Learn_gene_list_sub)
 
 Mem_gene_list_sub <- Mem_gene_list_merged[c(1,3,6,7,9,13:15)]
 colnames(Mem_gene_list_sub)
+
+TTcon_gene_list_sub <- TTcon_gene_list_merged[c(1,3,6,7,9,13:15)]
+colnames(TTcon_gene_list_sub)
+
+TTpool_gene_list_sub <- TTpool_gene_list_merged[c(1,3,6,7,9,13:15)]
+colnames(TTpool_gene_list_sub)
 
 #Learning
 foc.peak <- ci.peak[[1]][1,]
@@ -193,6 +246,58 @@ for(rowN in 1:nrow(ci.peak$Memory_Mean))
   
 }
 
+
+#Thermal Tolerance condition
+
+TTcon_foc.peak <- ci.peak[[3]][1,]
+
+ThermTolcon.list <-vector(mode='list', length=nrow(ci.peak$Tolsqrtvariable))
+
+ThermTol_totdf<-data.frame(NULL)
+
+for(rowN in 1:nrow(ci.peak$Tolsqrtvariable)) 
+  
+  
+  {
+  
+  TTcon_foc.peak<-ci.peak[['Tolsqrtvariable']][rowN,]
+  tcon <- (which(TTcon_gene_list_sub$chr==TTcon_foc.peak$chr & 
+                 ((TTcon_gene_list_sub$startp <= foc.peak$upR6 & TTcon_gene_list_sub$stopp >= foc.peak$lpR6))))  
+  
+  TTcon_genes_under_peak<-TTcon_gene_list_sub[tcon,]
+  ThermTolcon.list[[rowN]] <-TTcon_genes_under_peak
+  
+}
+
+save(ThermTolcon.list,file="../ProcessedData/TTcon_genes_under_peak.rda")
+
+
+
+#Thermal Tolerance pool
+
+TTpool_foc.peak <- ci.peak[[3]][1,]
+
+ThermTolpool.list <-vector(mode='list', length=nrow(ci.peak$Tolsqrtvariable))
+
+ThermTol_totdf<-data.frame(NULL)
+
+for(rowN in 1:nrow(ci.peak$Tolsqrtvariable)) 
+  
+  
+  {
+  
+  TTpool_foc.peak<-ci.peak[['Tolsqrtvariable']][rowN,]
+  tpool <- (which(TTpool_gene_list_sub$chr==TTpool_foc.peak$chr & 
+                 ((TTpool_gene_list_sub$startp <= TTpool_foc.peak$upR6 & TTpool_gene_list_sub$stopp >= TTpool_foc.peak$lpR6))))  
+  
+  TTpool_genes_under_peak<-TTpool_gene_list_sub[tpool,]
+  ThermTolpool.list[[rowN]] <-TTpool_genes_under_peak
+  
+}
+
+save(ThermTolpool.list,file="../ProcessedData/TTpool_genes_under_peak.rda")
+
+
 ```
 
 
@@ -211,7 +316,9 @@ effects <- effects[pinfo$cis==TRUE,]
 pinfo <- pinfo[pinfo$cis==TRUE,]
 
 effects <- merge(effects, decode.n, by='ID',sort=FALSE, all.x=TRUE)
+tt_effects <- merge(effects, decode.tn, by='ID',sort=FALSE, all.x=TRUE)
 
+#learning
 for(jj in 1:length(learn.list))
 {
 
@@ -241,6 +348,8 @@ learn.list[[jj]] <- ll.all
 
 save(learn.list,file="../ProcessedData/Learn_genes_under_peak.rda")
 
+
+#memory
 for(jj in 1:length(Mem.list))
 {
 
@@ -269,6 +378,38 @@ Mem.list[[jj]] <- ll.all
 }
 
 save(Mem.list,file="../ProcessedData/Mem_genes_under_peak.rda")
+
+
+#Thermal Tolerence 
+for(jj in 1:length(ThermTol.list))
+{
+
+ll.foc <- ThermTol.list[[jj]]
+pp.foc <- ci.peak[[3]][jj,]
+
+tw <- (which(pinfo$chr==pp.foc$chr & 
+                 ((pinfo$peaklpB <= pp.foc$up & pinfo$peakupB >= pp.foc$lp))))  
+  
+ee <- effects[effects$ID %in% pinfo$ID[tw],]
+
+f.high <- which(apply(rbind(as.numeric(pp.foc[,35:42]), as.matrix(ee[,34:41])),2, min) > 4)
+
+qtl.e <- pp.foc[,19:26]
+eqtl.e <- ee[,2:9]
+
+qtl.e <- qtl.e[,f.high]
+eqtl.e <- eqtl.e[,f.high]
+
+cors.effs <- data.frame('FBgn'= ee$FBgn, 'corEff'= apply(eqtl.e, 1, function(x) cor(x,as.numeric(qtl.e))), stringsAsFactors = FALSE)
+
+ll.all <- merge(ll.foc, cors.effs, by='FBgn', all=TRUE)
+
+ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
+Mem.list[[jj]] <- ll.all
+}
+
+save(Mem.list,file="../ProcessedData/Mem_genes_under_peak.rda")
+
 
 ```
 

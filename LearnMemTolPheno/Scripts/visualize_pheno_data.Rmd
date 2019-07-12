@@ -53,7 +53,10 @@ levels(rawdLM$Lname) <- c(levels(rawdLM$Lname),'axhold1','axhold2')
 rawdLM$Mname <- with(rawdLM, reorder(patRIL, Memory, function(x) mean(x)))
 levels(rawdLM$Mname) <- c(levels(rawdLM$Mname),'axhold1','axhold2')
 rawdTT$Tname <- with(rawdTT, reorder(patRIL, incapacitation, function(x) mean(x)))
+levels(rawdTT$Tname) <- c(levels(rawdTT$Tname),'axhold1','axhold2')
 
+
+#LM
 rr.temp <- rawdLM[1,]
 rr.temp[,1:6] <- NA
 rr.temp[,7:8] <- 'axhold1'
@@ -65,6 +68,29 @@ rr.temp[,1:6] <- NA
 rr.temp[,7:8] <- 'axhold2'
 
 rawdLM <- rbind(rawdLM, rr.temp)
+
+
+#TT
+rr.temp <- rawdTT[1,]
+rr.temp[,1:6] <- NA
+rr.temp[,7:8] <- 'axhold1'
+
+rawdTT <- rbind(rawdTT, rr.temp)
+
+rr.temp <- rawdTT[1,]
+rr.temp[,1:6] <- NA
+rr.temp[,7:8] <- 'axhold2'
+
+rawdTT <- rbind(rawdTT, rr.temp)
+
+
+rawdTT[which.min(rawdTT$incapacitation),]
+rawdTT[rawdTT$patRIL==11097,'incapacitation']
+rawdTT[which.max(rawdTT$incapacitation),]
+rawdTT[rawdTT$patRIL==11002,'incapacitation']
+
+
+
 
 ```
 
@@ -185,33 +211,87 @@ ggsave(c_plot, file="../Plots/Pheno_pattern_LM.pdf", width=3.5, height=7.5)
 
 ```
 
+#Visulaizing Thermal Tolerance phenotypic data 
 
 ```{r}
-#thermal tolerance scatter plot
 
 ThermTol_indi_points <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
-  geom_point(stat = "identity",
-             position = position_dodge(width = 0.5),
-             size = 1,
-             alpha = 1/5) +
+  geom_point(size = 0.01, alpha = 1/8) +
   stat_summary(fun.y = mean,
                position = position_dodge(width = 0.5),
                geom = "point",
                color = "red",
-               size = 1) +
-  stat_summary(fun.data = mean_se, geom = "errorbar", color = 'red') +
-  theme(legend.position = "none") +
-  xlab("741 RILs") +
-  ylab("Incapacitation Time")
-  ylim(c(-1,1))+
-  theme(axis.text.x = element_blank())
+               size = 0.01, alpha = 1/2) +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'red', width=0, size=0.3, alpha=1/2) +
+  theme(legend.position = "none",axis.ticks.x=element_blank()) +
+  xlab("RILs") +
+  ylab("Thermo Tolerance PI") +
+  ylim(c( -0.5, 601))+
+  theme(axis.text.x = element_blank()) +
+  my_theme
 
-#view plot
+#to view graph
 ThermTol_indi_points
 
+#to save plot
+ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points.pdf", width=10, height=4)
 
-#to save graph
-ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_plot.pdf", width=10, height=4)
+```
+
+
+
+
+#Visualizing Thermal Tolerance phenotypic data with RNAseq RILs Highlighted
+
+```{r}
+TL.rna <- subset(RIL_rna, Pool %in% c('TL')) 
+TH.rna <- subset(RIL_rna, Pool %in% c('TH')) 
+TL.rna <- rawdTT[rawdTT$patRIL %in% TL.rna$patRIL,c('Tname','patRIL')]
+TL.rna <- unique(TL.rna, MARGIN=1)
+TH.rna <- rawdTT[rawdTT$patRIL %in% TH.rna$patRIL,c('Tname','patRIL')]
+TH.rna <- unique(TH.rna, MARGIN=1)
+
+rawdTT <- rawdTT[-which(rawdTT$incapacitation<=0),]
+
+ThermTol_indi_points_2 <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
+  geom_point(size = 0.01, alpha = 1/8) +
+  stat_summary(fun.y = mean,
+               position = position_dodge(width = 0.5),
+               geom = "point",
+               color = "red",
+               size = 0.01, alpha = 1/2) +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'red', width=0, size=0.3, alpha=1/2) +
+  geom_point(data=TL.rna, 
+             aes(x=Tname, y=-10), 
+             pch=17, alpha = 0.6, color='darkcyan', size = 1) +
+  geom_text_repel(data=TL.rna, 
+             aes(x=Tname, y= -10, label=patRIL), 
+            size = 3 , direction="x", nudge_y = -100,
+            angle = 270, color='darkcyan', segment.size = 0.2, box.padding=0.25) +
+  
+  geom_point(data=TH.rna, 
+             mapping=aes(x=Tname, y=-10), 
+             pch=17, alpha= 0.6, color='darkorchid', size = 1) +
+  geom_text_repel(data=TH.rna, 
+             aes(x=Tname, y= -10, label=patRIL), 
+            size = 3, direction="x", nudge_y = -150 ,vjust = 0, 
+            angle = 270, color='darkorchid', segment.size = 0.2,box.padding = 0.25) +
+  theme(legend.position = "none",axis.ticks.x=element_blank()) +
+  xlab("RILs") +
+  ylab("Thermo Tolerance PI") +
+  ylim(c( -200.00, 601))+
+  theme(axis.text.x = element_blank()) +
+  my_theme
+
+#to view plot
+ ThermTol_indi_points_2
+
+#to save plot
+ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points_2.pdf", width=10, height=4)
 
 ```
 

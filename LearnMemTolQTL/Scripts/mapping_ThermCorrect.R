@@ -12,12 +12,11 @@ load(file= "../ProcessedData/sig_ths.rda")
 
 line.ww <- 0.75
 
-rawdLM <- read.table("../../LearnMemTolPheno/ProcessedData/LearnMem_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+rawdTT <- read.table("../../LearnMemTolPheno/ProcessedData/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
 rawdLM$patRILF <- as.factor(rawdLM$patRIL)
   
-rawdLM <- rawdLM %>% mutate(LearnNorm = quant.norm(Learning),
-                            MemoryNorm = quant.norm(Memory),
-                            ActNorm = quant.norm(Activity_score))
+rawdTT <- rawdTT %>% mutate(TTNorm = quant.norm(incapacitation))
+                            
 
 #mod <- lme(Learning ~ incapacitation, random = ~1|patRILF, data=rawdLM)
 mod <- lm(Learning ~ incapacitation, data=rawdLM)
