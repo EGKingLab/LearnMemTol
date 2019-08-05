@@ -89,6 +89,7 @@ rawdTT[rawdTT$patRIL==11097,'incapacitation']
 rawdTT[which.max(rawdTT$incapacitation),]
 rawdTT[rawdTT$patRIL==11002,'incapacitation']
 
+rawdTT[rawdTT$incapacitation=="600", 'patRIL']
 
 
 

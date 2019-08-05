@@ -383,76 +383,116 @@ ggsave(pall, file="../Plots/All_ind_peaks.pdf", width=8, height=6)
 #pool
 
 load(file="../ProcessedData/TTpool_genes_under_peak.rda")
-zz=6
+pp=6
 
-pp.set <- ThermTolpool.list[[zz]]
-pp.set[which.max(abs(pp.set$log2FoldChange)),]
-pp.set[which.min(pp.set$padj),]
+pool.set <- ThermTolpool.list[[pp]]
+pool.set[which.max(abs(pool.set$log2FoldChange)),]
+pool.set[which.min(pool.set$padj),]
 
-ci.peak.set <- ci.peak[[3]][zz,]
+ci.peak.set <- ci.peak[[3]][pp,]
 
-pp.set.s <- pp.set[is.na(pp.set$log2FoldChange)==FALSE,]
-pp.set.s$sig <- 'N'
-pp.set.s$sig[pp.set.s$padj<=0.05]<-'Y'
-pp.set.s$midM <- (pp.set.s$startp + (pp.set.s$stopp - pp.set.s$startp)/2)/1e6
-pp.set.s$labelrep <- pp.set.s$gname
-pp.set.s$labelrep[pp.set.s$sig=='N']<-""
+pool.set.s <- pool.set[is.na(pool.set$log2FoldChange)==FALSE,]
+pool.set.s$sig <- 'N'
+pool.set.s$sig[pool.set.s$padj<=0.05]<-'Y'
+pool.set.s$midM <- (pool.set.s$startp + (pool.set.s$stopp - pool.set.s$startp)/2)/1e6
+pool.set.s$labelrep <- pool.set.s$gname
+pool.set.s$labelrep[pool.set.s$sig=='N']<-""
 
 pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
 
-poolgene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep))+
-  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+poolgeneQ6 <- ggplot(pool.set.s[pool.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep))+
+  geom_segment(data=pool.set.s[pool.set.s$sig=='Y',], x=pool.set.s[pool.set.s$sig=='Y','startp']/1e6, xend=pool.set.s[pool.set.s$sig=='Y','stopp']/1e6, y=pool.set.s[pool.set.s$sig=='Y','log2FoldChange'],yend=pool.set.s[pool.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
   xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
-  geom_point(color='red2', alpha=1/6, size=ptsize)+
-  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange), size=ptsize + 0.5, color='red2')+
+  geom_point(color='red2', alpha=1/6, size=2)+
+  geom_point(data=pool.set.s[pool.set.s$sig=='Y',], aes(midM, log2FoldChange), size=2 + 0.5, color='red2')+
   geom_hline(yintercept = 0, lty=1, color='grey80')+
   geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=5, color='grey80') +
   geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=5, color='grey80') +
-  geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
+  geom_text_repel(data = pool.set.s, show.legend = FALSE,  fontface='italic', size=5, segment.size=txseg.size, min.segment.length = 0) +
         ylab(expression("log"[2]*"(FC)")) +
     xlab(paste("Position (Mbp)", sep="")) +
   theme(legend.position="none")+
   ylim(c(-1,1))+
   my_theme
 
-poolgene
+poolgeneQ6
+
 
 #condition
 
 load(file="../ProcessedData/TTcon_genes_under_peak.rda")
-zz=6
+cc=6
 
-pp.set <- ThermTolcon.list[[zz]]
-pp.set[which.max(abs(pp.set$log2FoldChange)),]
-pp.set[which.min(pp.set$padj),]
+con.set <- ThermTolcon.list[[cc]]
+con.set[which.max(abs(con.set$log2FoldChange)),]
+con.set[which.min(con.set$padj),]
 
-ci.peak.set <- ci.peak[[3]][zz,]
+ci.peak.set <- ci.peak[[3]][cc,]
 
-pp.set.s <- pp.set[is.na(pp.set$log2FoldChange)==FALSE,]
-pp.set.s$sig <- 'N'
-pp.set.s$sig[pp.set.s$padj<=0.05]<-'Y'
-pp.set.s$midM <- (pp.set.s$startp + (pp.set.s$stopp - pp.set.s$startp)/2)/1e6
-pp.set.s$labelrep <- pp.set.s$gname
-pp.set.s$labelrep[pp.set.s$sig=='N']<-""
+con.set.s <- con.set[is.na(con.set$log2FoldChange)==FALSE,]
+con.set.s$sig <- 'N'
+con.set.s$sig[con.set.s$padj<=0.05]<-'Y'
+con.set.s$midM <- (con.set.s$startp + (con.set.s$stopp - con.set.s$startp)/2)/1e6
+con.set.s$labelrep <- con.set.s$gname
+con.set.s$labelrep[con.set.s$sig=='N']<-""
 
-pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
+cbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
 
-congene <- ggplot(pp.set.s[pp.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep))+
-  geom_segment(data=pp.set.s[pp.set.s$sig=='Y',], x=pp.set.s[pp.set.s$sig=='Y','startp']/1e6, xend=pp.set.s[pp.set.s$sig=='Y','stopp']/1e6, y=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'],yend=pp.set.s[pp.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
-  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
+congeneQ6 <- ggplot(con.set.s[con.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep))+
+  geom_segment(data=con.set.s[con.set.s$sig=='Y',], x=con.set.s[con.set.s$sig=='Y','startp']/1e6, xend=con.set.s[con.set.s$sig=='Y','stopp']/1e6, y=con.set.s[con.set.s$sig=='Y','log2FoldChange'],yend=con.set.s[con.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+  xlim(c(ci.peak.set$lpR6/1e6 - cbuffer, ci.peak.set$upR6/1e6 + cbuffer)) +
   geom_point(color='coral', alpha=1/6, size=ptsize)+
-  geom_point(data=pp.set.s[pp.set.s$sig=='Y',], aes(midM, log2FoldChange), size=ptsize + 0.5, color='coral')+
+  geom_point(data=con.set.s[con.set.s$sig=='Y',], aes(midM, log2FoldChange), size=ptsize + 0.5, color='coral')+
   geom_hline(yintercept = 0, lty=1, color='grey80')+
   geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color='grey80') +
   geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color='grey80') +
-  geom_text_repel(data = pp.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
+  geom_text_repel(data = con.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
         ylab(expression("log"[2]*"(FC)")) +
     xlab(paste("Position (Mbp)", sep="")) +
   theme(legend.position="none")+
-  #ylim(c(-1,1))+
+  ylim(c(-21,20))+
   my_theme
 
+congeneQ6
 
+
+#interaction
+
+
+load(file="../ProcessedData/TTinter_genes_under_peak.rda")
+ii=6
+
+int.set <- ThermTolint.list[[ii]]
+int.set[which.max(abs(int.set$log2FoldChange)),]
+int.set[which.min(int.set$padj),]
+
+ci.peak.set <- ci.peak[[3]][ii,]
+
+int.set.s <- int.set[is.na(int.set$log2FoldChange)==FALSE,]
+int.set.s$sig <- 'N'
+int.set.s$sig[int.set.s$padj<=0.05]<-'Y'
+int.set.s$midM <- (int.set.s$startp + (int.set.s$stopp - int.set.s$startp)/2)/1e6
+int.set.s$labelrep <- int.set.s$gname
+int.set.s$labelrep[int.set.s$sig=='N']<-""
+
+cbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
+
+intergeneQ6 <- ggplot(int.set.s[int.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep))+
+  geom_segment(data=int.set.s[int.set.s$sig=='Y',], x=int.set.s[int.set.s$sig=='Y','startp']/1e6, xend=int.set.s[int.set.s$sig=='Y','stopp']/1e6, y=int.set.s[int.set.s$sig=='Y','log2FoldChange'],yend=int.set.s[int.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+  xlim(c(ci.peak.set$lpR6/1e6 - cbuffer, ci.peak.set$upR6/1e6 + cbuffer)) +
+  geom_point(color='coral', alpha=1/6, size=ptsize)+
+  geom_point(data=int.set.s[int.set.s$sig=='Y',], aes(midM, log2FoldChange), size=ptsize + 0.5, color='coral')+
+  geom_hline(yintercept = 0, lty=1, color='grey80')+
+  geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=3, color='grey80') +
+  geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=3, color='grey80') +
+  geom_text_repel(data = int.set.s, show.legend = FALSE,  fontface='italic', size=txsize, segment.size=txseg.size, min.segment.length = 0) +
+        ylab(expression("log"[2]*"(FC)")) +
+    xlab(paste("Position (Mbp)", sep="")) +
+  theme(legend.position="none")+
+  ylim(c(-21,20))+
+  my_theme
+
+intergeneQ6
 
 
 
