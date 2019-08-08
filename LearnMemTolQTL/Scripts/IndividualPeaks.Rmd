@@ -33,12 +33,12 @@ wwe<- which(rownames(qn.mat) %in% L_MDATA$patRIL)
 load(file="../../LearnMemTolPheno/ProcessedData/T_TDATA.rda")
 tww<- which(T_TDATA$patRIL %in% rownames(qn.mat))
 twwe<- which(rownames(qn.mat) %in% T_TDATA$patRIL)
+TT.sub <- T_TDATA[tww,]
+TTqn.mat <- qn.mat[twwe,]
 
 L.sub <- L_MDATA[ww,]
 qn.mat <- qn.mat[wwe,]
 
-TT.sub <- T_TDATA[tww,]
-TTqn.mat <- qn.mat[twwe,]
 
 all.equal(as.numeric(row.names(qn.mat)), L.sub$patRIL)
 
@@ -253,83 +253,38 @@ for(rowN in 1:nrow(ci.peak$Memory_Mean))
   
 }
 
+all.equal(TTpool_gene_list_sub$FBgn, TTcon_gene_list_sub$FBgn)
+all.equal(TTinter_gene_list_sub$FBgn, TTcon_gene_list_sub$FBgn)
+all.equal(TTpool_gene_list_sub$FBgn, TTinter_gene_list_sub$FBgn)
 
-#Thermal Tolerance condition
+#Thermal Tolerance 
 
-TTcon_foc.peak <- ci.peak[[3]][1,]
-
-ThermTolcon.list <-vector(mode='list', length=nrow(ci.peak$Tolsqrtvariable))
-
-ThermTol_totdf<-data.frame(NULL)
+ThermTol.list <-vector(mode='list', length=nrow(ci.peak$Tolsqrtvariable))
 
 for(rowN in 1:nrow(ci.peak$Tolsqrtvariable)) 
-  
-  
   {
+  foc.peak<-ci.peak[['Tolsqrtvariable']][rowN,]
   
-  TTcon_foc.peak<-ci.peak[['Tolsqrtvariable']][rowN,]
-  tcon <- (which(TTcon_gene_list_sub$chr==TTcon_foc.peak$chr & 
+  #condition
+  tcon <- (which(TTcon_gene_list_sub$chr==foc.peak$chr & 
                  ((TTcon_gene_list_sub$startp <= foc.peak$upR6 & TTcon_gene_list_sub$stopp >= foc.peak$lpR6))))  
   
   TTcon_genes_under_peak<-TTcon_gene_list_sub[tcon,]
-  ThermTolcon.list[[rowN]] <-TTcon_genes_under_peak
+  TTcon_genes_under_peak <- TTcon_genes_under_peak[,c(1,5:8,2:4)]
+  colnames(TTcon_genes_under_peak)[6:8] <- c("l2F_con","pval_con","padj_con")
+  
+  TTcon_genes_under_peak$l2F_pool <- TTpool_gene_list_sub[tcon,"log2FoldChange"]
+  TTcon_genes_under_peak$pval_pool <- TTpool_gene_list_sub[tcon,"pvalue"]
+  TTcon_genes_under_peak$padj_pool <- TTpool_gene_list_sub[tcon,"padj"]
+  
+  TTcon_genes_under_peak$l2F_inter <- TTinter_gene_list_sub[tcon,"log2FoldChange"]
+  TTcon_genes_under_peak$pval_inter <- TTinter_gene_list_sub[tcon,"pvalue"]
+  TTcon_genes_under_peak$padj_inter <- TTinter_gene_list_sub[tcon,"padj"]
+  ThermTol.list[[rowN]] <-TTcon_genes_under_peak
   
 }
 
-save(ThermTolcon.list,file="../ProcessedData/TTcon_genes_under_peak.rda")
-
-
-
-#Thermal Tolerance pool
-
-TTpool_foc.peak <- ci.peak[[3]][1,]
-
-ThermTolpool.list <-vector(mode='list', length=nrow(ci.peak$Tolsqrtvariable))
-
-ThermTol_totdf<-data.frame(NULL)
-
-for(rowN in 1:nrow(ci.peak$Tolsqrtvariable)) 
-  
-  
-  {
-  
-  TTpool_foc.peak<-ci.peak[['Tolsqrtvariable']][rowN,]
-  tpool <- (which(TTpool_gene_list_sub$chr==TTpool_foc.peak$chr & 
-                 ((TTpool_gene_list_sub$startp <= TTpool_foc.peak$upR6 & TTpool_gene_list_sub$stopp >= TTpool_foc.peak$lpR6))))  
-  
-  TTpool_genes_under_peak<-TTpool_gene_list_sub[tpool,]
-  ThermTolpool.list[[rowN]] <-TTpool_genes_under_peak
-  
-}
-
-save(ThermTolpool.list,file="../ProcessedData/TTpool_genes_under_peak.rda")
-
-
-
-#Thermal Tolerance Intereaction 
-
-TTint_foc.peak <- ci.peak[[3]][1,]
-
-ThermTolint.list <-vector(mode='list', length=nrow(ci.peak$Tolsqrtvariable))
-
-ThermTol_totdf<-data.frame(NULL)
-
-for(rowN in 1:nrow(ci.peak$Tolsqrtvariable)) 
-  
-  
-  {
-  
-  TTint_foc.peak<-ci.peak[['Tolsqrtvariable']][rowN,]
-  tint <- (which(TTinter_gene_list_sub$chr==TTint_foc.peak$chr & 
-                 ((TTinter_gene_list_sub$startp <= TTint_foc.peak$upR6 & TTinter_gene_list_sub$stopp >= TTint_foc.peak$lpR6))))  
-  
-  TTinter_genes_under_peak<-TTinter_gene_list_sub[tint,]
-  ThermTolint.list[[rowN]] <-TTinter_genes_under_peak
-  
-}
-
-save(ThermTolint.list,file="../ProcessedData/TTinter_genes_under_peak.rda")
-
+save(ThermTol.list,file="../ProcessedData/TT_genes_under_peak.rda")
 
 ```
 
