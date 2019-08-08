@@ -383,13 +383,14 @@ ggsave(pall, file="../Plots/All_ind_peaks.pdf", width=8, height=6)
 #pool
 
 load(file="../ProcessedData/TTpool_genes_under_peak.rda")
-pp=6
 
-pool.set <- ThermTolpool.list[[pp]]
+oo=6
+
+pool.set <- ThermTolpool.list[[oo]]
 pool.set[which.max(abs(pool.set$log2FoldChange)),]
 pool.set[which.min(pool.set$padj),]
 
-ci.peak.set <- ci.peak[[3]][pp,]
+ci.peak.set <- ci.peak[[3]][oo,]
 
 pool.set.s <- pool.set[is.na(pool.set$log2FoldChange)==FALSE,]
 pool.set.s$sig <- 'N'
