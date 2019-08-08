@@ -68,12 +68,12 @@ TTpheno$condition[TTpheno$treatment=='TH'] <- "RT"
 TTpheno$condition[TTpheno$treatment=='TH_Incu'] <- "Incu"
 TTpheno$condition[TTpheno$treatment=='TH_Incu_control'] <- "RT"
 
-TTpheno$batch[TTpheno$treatment=='TL'] <- "1"
-TTpheno$batch[TTpheno$treatment=='TL_Incu'] <- "2"
-TTpheno$batch[TTpheno$treatment=='TL_Incu_control'] <- "2"
-TTpheno$batch[TTpheno$treatment=='TH'] <- "1"
-TTpheno$batch[TTpheno$treatment=='TH_Incu'] <- "2"
-TTpheno$batch[TTpheno$treatment=='TH_Incu_control'] <- "2"
+TTpheno$batch[TTpheno$treatment=='TL'] <- "A"
+TTpheno$batch[TTpheno$treatment=='TL_Incu'] <- "B"
+TTpheno$batch[TTpheno$treatment=='TL_Incu_control'] <- "B"
+TTpheno$batch[TTpheno$treatment=='TH'] <- "A"
+TTpheno$batch[TTpheno$treatment=='TH_Incu'] <- "B"
+TTpheno$batch[TTpheno$treatment=='TH_Incu_control'] <- "B"
 
 
 
