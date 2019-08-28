@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(cowplot)
+theme_set(theme_cowplot())
 library(dplyr)
 library(ggrepel)
 library(GGally)
@@ -148,6 +149,26 @@ Learn_indi_points <- ggplot(rawdLM, aes(x = Lname, y = Learning)) +
 #to save plot
 ggsave(Learn_indi_points, file="../Plots/Learn_indi_plot.pdf", width=3.5, height=2.5)
 
+#Without RNAseq labels
+
+Learn_indi_plain <- ggplot(rawdLM, aes(x = Lname, y = Learning)) +
+  geom_point(size = 0.01, alpha = 1/8) +
+  stat_summary(fun.y = mean,
+               position = position_dodge(width = 0.5),
+               geom = "point",
+               color = "red",
+               size = 0.01, alpha = 1/2) +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'red', width=0, size=0.3, alpha=1/2) +
+  theme(legend.position = "none",axis.ticks.x=element_blank()) +
+  xlab("RILs") +
+  ylab("Learning PI") +
+  theme(axis.text.x = element_blank()) 
+
+ggsave(Learn_indi_plain, file="../Plots/Learn_indi_plain.pdf", width=3.5, height=2.5)
+
+
 ```
 
 #Visualize memory phenotypic data
@@ -200,6 +221,30 @@ Mem_indi_points
 
 #to save plot
 ggsave(Mem_indi_points, file="../Plots/Mem_indi_plot.pdf", width=3.5, height=2.5)
+
+
+#without RNAseq RILs
+
+Mem_indi_plain <- ggplot(rawdLM, aes(x = Mname, y = Memory)) +
+  geom_point(size = 0.01, alpha = 1/8) +
+  stat_summary(fun.y = mean,
+               position = position_dodge(width = 0.5),
+               geom = "point",
+               color = "red",
+               size = 0.01, alpha = 0.5) +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'red', width=0, size=0.3, alpha = 0.5) +
+  theme(legend.position = "none",axis.ticks.x=element_blank()) +
+  xlab("RILs") +
+  ylab("Memory PI") +
+  theme(axis.text.x = element_blank())
+
+#to save plot
+ggsave(Mem_indi_plain, file="../Plots/Mem_indi_plain.pdf", width=3.5, height=2.5)
+
+
+
 
 #combine
 
