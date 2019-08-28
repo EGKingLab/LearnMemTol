@@ -4,7 +4,6 @@ author: "EGK & PW-S"
 date: "12/17/2018"
 output: html_document
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -387,18 +386,17 @@ str(ThermTol.list)
 
 
 #for 1 QTL
-zz=4
+zz=6
 
 tt.set <- ThermTol.list[[zz]]
 tt.set[which.max(abs(tt.set$l2F_pool)),]
-tt.set[which.min(tt.set$padj_con),]
+tt.set[which.min(tt.set$padj_pool),]
 
 ci.peak.set <- ci.peak[[3]][zz,]
 
-
-tt.set.s <- tt.set[is.na(tt.set$l2F_pool + tt.set$l2F_con + tt.set$l2F_pool)==FALSE,]
+tt.set.s <- tt.set[is.na(tt.set$l2F_pool)==FALSE,]
 tt.set.s$sig <- 'N'
-tt.set.s$sig[tt.set.s$padj_con + tt.set.s$padj_inter + tt.set.s$padj_pool<=0.05]<-'Y'
+tt.set.s$sig[tt.set.s$padj_pool<=0.05]<-'Y'
 tt.set.s$midM <- (tt.set.s$startp + (tt.set.s$stopp - tt.set.s$startp)/2)/1e6
 tt.set.s$labelrep <- tt.set.s$gname
 tt.set.s$labelrep[tt.set.s$sig=='N']<-""
@@ -406,7 +404,7 @@ tt.set.s$labelrep[tt.set.s$sig=='N']<-""
 pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
 
 Q6 <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
-  geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','log2FoldChange'],yend=tt.set.s[tt.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+  geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','l2F_pool'],yend=tt.set.s[tt.set.s$sig=='Y','l2F_pool'], color='grey50', size=segsize)+
   xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
   geom_point(color='red2', alpha=1/6, size=2)+
   geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, l2F_pool), size=2 + 0.5, color='red2')+
@@ -417,7 +415,8 @@ Q6 <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
         ylab(expression("log"[2]*"(FC)")) +
     xlab(paste("Position (Mbp)", sep="")) +
   theme(legend.position="none")+
-  ylim(c(-6,6))+
+  ylim(c(-4,3))+
+  theme_half_open() +
   my_theme
 
 Q6
@@ -427,26 +426,29 @@ Q6
 
 tt <- c(2,3,4,5,6,7,8)
 
+#pool
+ttpool.plot.list <- vector(mode='list', length=length(tt)) 
+
+
 for(zz in tt)
 {
   tt.set <- ThermTol.list[[zz]]
   tt.set[which.max(abs(tt.set$l2F_pool)),]
-  tt.set[which.min(tt.set$padj_con),]
+  tt.set[which.min(tt.set$padj_pool),]
   
   ci.peak.set <- ci.peak[[3]][zz,]
   
-  
-  tt.set.s <- tt.set[is.na(tt.set$l2F_pool + tt.set$l2F_con + tt.set$l2F_pool)==FALSE,]
+  tt.set.s <- tt.set[is.na(tt.set$pval_pool)==FALSE,]
   tt.set.s$sig <- 'N'
-  tt.set.s$sig[tt.set.s$padj_con + tt.set.s$padj_inter + tt.set.s$padj_pool<=0.05]<-'Y'
+  tt.set.s$sig[tt.set.s$padj_pool<=0.05]<-'Y'
   tt.set.s$midM <- (tt.set.s$startp + (tt.set.s$stopp - tt.set.s$startp)/2)/1e6
   tt.set.s$labelrep <- tt.set.s$gname
   tt.set.s$labelrep[tt.set.s$sig=='N']<-""
   
   pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
   
-  TT_peaks <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
-    geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','log2FoldChange'],yend=tt.set.s[tt.set.s$sig=='Y','log2FoldChange'], color='grey50', size=segsize)+
+  TTpool_peaks <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
+    geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','l2F_pool'],yend=tt.set.s[tt.set.s$sig=='Y','l2F_pool'], color='grey50', size=segsize)+
     xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
     geom_point(color='red2', alpha=1/6, size=2)+
     geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, l2F_pool), size=2 + 0.5, color='red2')+
@@ -457,10 +459,132 @@ for(zz in tt)
     ylab(expression("log"[2]*"(FC)")) +
     xlab(paste("Position (Mbp)", sep="")) +
     theme(legend.position="none")+
-    ylim(c(-6,6))+
+    ylim(c(-5,5))+
+    theme_half_open() +
     my_theme
+  
+  ttpool.plot.list[[(zz-1)]] <- TTpool_peaks
+  
 }
 
-TT_peaks
+ttpool.plot.list[[5]]
+
+
+#interaction 
+
+ttinter.plot.list <- vector(mode='list', length=length(tt)) 
+
+for(zz in tt.inter)
+{
+  tt.set <- ThermTol.list[[zz]]
+  tt.set[which.max(abs(tt.set$l2F_inter)),]
+  tt.set[which.min(tt.set$padj_inter),]
+  
+  ci.peak.set <- ci.peak[[3]][zz,]
+  
+  tt.set.s <- tt.set[is.na(tt.set$pval_inter)==FALSE,]
+  tt.set.s$sig <- 'N'
+  tt.set.s$sig[tt.set.s$padj_inter<=0.05]<-'Y'
+  tt.set.s$midM <- (tt.set.s$startp + (tt.set.s$stopp - tt.set.s$startp)/2)/1e6
+  tt.set.s$labelrep <- tt.set.s$gname
+  tt.set.s$labelrep[tt.set.s$sig=='N']<-""
+  
+  pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
+  
+  TTinter_peaks <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_inter, label=labelrep))+
+    geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','l2F_inter'],yend=tt.set.s[tt.set.s$sig=='Y','l2F_inter'], color='grey50', size=segsize)+
+    xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
+    geom_point(color='red2', alpha=1/6, size=2)+
+    geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, l2F_inter), size=2 + 0.5, color='red2')+
+    geom_hline(yintercept = 0, lty=1, color='grey80')+
+    geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=5, color='grey80') +
+    geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=5, color='grey80') +
+    geom_text_repel(data = tt.set.s, show.legend = FALSE,  fontface='italic', size=5, segment.size=txseg.size, min.segment.length = 0) +
+    ylab(expression("log"[2]*"(FC)")) +
+    xlab(paste("Position (Mbp)", sep="")) +
+    theme(legend.position="none")+
+    ylim(c(-6,6))+
+    theme_half_open() +
+    my_theme
+  
+  ttinter.plot.list[[(zz-1)]] <- TTinter_peaks
+  
+}
+
+ttinter.plot.list[[5]]
+
+
+#condition
+
+ttcon.plot.list <- vector(mode='list', length=length(tt)) 
+
+for(zz in tt)
+{
+  tt.set <- ThermTol.list[[zz]]
+  tt.set[which.max(abs(tt.set$l2F_con)),]
+  tt.set[which.min(tt.set$padj_con),]
+  
+  ci.peak.set <- ci.peak[[3]][zz,]
+  
+  tt.set.s <- tt.set[is.na(tt.set$pval_con)==FALSE,]
+  tt.set.s$sig <- 'N'
+  tt.set.s$sig[tt.set.s$padj_con<=0.05]<-'Y'
+  tt.set.s$midM <- (tt.set.s$startp + (tt.set.s$stopp - tt.set.s$startp)/2)/1e6
+  tt.set.s$labelrep <- tt.set.s$gname
+  tt.set.s$labelrep[tt.set.s$sig=='N']<-""
+  
+  pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
+  
+  TTcon_peaks <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
+    geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','l2F_con'],yend=tt.set.s[tt.set.s$sig=='Y','l2F_con'], color='grey50', size=segsize)+
+    xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
+    geom_point(color='red2', alpha=1/6, size=2)+
+    geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, l2F_con), size=2 + 0.5, color='red2')+
+    geom_hline(yintercept = 0, lty=1, color='grey80')+
+    geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=5, color='grey80') +
+    geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=5, color='grey80') +
+    geom_text_repel(data = tt.set.s, show.legend = FALSE,  fontface='italic', size=5, segment.size=txseg.size, min.segment.length = 0) +
+    ylab(expression("log"[2]*"(FC)")) +
+    xlab(paste("Position (Mbp)", sep="")) +
+    theme(legend.position="none")+
+    ylim(c(-5,5))+
+    theme_half_open() +
+    my_theme
+  
+  ttcon.plot.list[[(zz-1)]] <- TTcon_peaks
+  
+}
+
+
+ttcon.plot.list[[5]]
+
+
+ttmaster.list <- list(
+  ttcon.plot.list[[1]],
+  ttcon.plot.list[[2]],
+  ttcon.plot.list[[3]],
+  ttcon.plot.list[[4]],
+  ttcon.plot.list[[5]],
+  ttcon.plot.list[[6]],
+  ttcon.plot.list[[7]],
+  ttpool.plot.list[[1]],
+  ttpool.plot.list[[2]],
+  ttpool.plot.list[[3]],
+  ttpool.plot.list[[4]],
+  ttpool.plot.list[[5]],
+  ttpool.plot.list[[6]],
+  ttpool.plot.list[[7]],
+  ttinter.plot.list[[1]],
+  ttinter.plot.list[[2]],
+  ttinter.plot.list[[3]],
+  ttinter.plot.list[[4]],
+  ttinter.plot.list[[5]],
+  ttinter.plot.list[[6]],
+  ttinter.plot.list[[7]])
+
+ttplots <- plot_grid(ttcon.plot.list,ttpool.plot.list, ttinter.plot.list)
+
+ttallplots <- plot_grid(plotlist=ttmaster.list, nrow=4, ncol=4,labels = c("a.","b.","c.","d.","e.","f.","g.","h.","i.","j.","k.","l.","m.","n.","o.","p.","q.","r.","s.","t.","u."), align="hv", axis="tl", rel_widths=c(1,0.9,0.9,0.9), rel_heights = c(0.9,0.9,0.9,1), label_size=10, hjust= c(rep(c(0,rep(-2,3)),3),0,-2,-2))
+
 
 ```

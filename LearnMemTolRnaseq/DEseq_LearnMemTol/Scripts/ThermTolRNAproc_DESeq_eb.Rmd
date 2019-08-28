@@ -166,21 +166,26 @@ TT_dds_02 <- DESeqDataSetFromMatrix(countData = TTgenes,
                                    design = ~ SV1 + SV2 + batch + pool*condition)
 
 #perform DEseq
-TTlrt_condition <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + pool)
-TTlrt_condition <- results(TTlrt_condition)
+TTlrt_con_deseq <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + pool)
+TTlrt_conondition<- results(TTlrt_con_deseq)
 
-save(TTlrt_condition, file = "../Data/TTlrt_condition.Rda")
+TTcon <- lfcShrink(TTlrt_con_deseq, contrast =c("condition", "Incu","RT" ), type="normal")
+
+save(TTcon, file = "../Data/TTlrt_condition.Rda")
 
 
-TTlrt_pool <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + condition)
-TTlrt_pool <- results(TTlrt_pool)
+TTlrt_pool_deseq <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + condition)
+TTlrt_pool <- results(TTlrt_pool_deseq)
+TTpool <- lfcShrink(TTlrt_pool_deseq, contrast =c("pool", "H","L" ), type="normal")
 
-save(TTlrt_pool, file = "../Data/TTlrt_pool.Rda")
+save(TTpool, file = "../Data/TTlrt_pool.Rda")
 
-TTlrt_inter <- DESeq(TT_dds_02, test="LRT", reduced=~ SV1 + SV2 + batch + pool + condition)
-TTlrt_inter <- results(TTlrt_inter)
+TTlrt_inter_deseq <- DESeq(TT_dds_02, test="LRT", reduced=~ SV1 + SV2 + batch + pool + condition)
+TTlrt_inter <- results(TTlrt_inter_deseq)
 
-save(TTlrt_inter, file = "../Data/TTlrt_inter.Rda")
+#TTinter <- lfcShrink(TTlrt_inter_deseq, contrast =c("condition", "Incu","RT"))
+
+save(TTlrt_inter, file = "../Data/TTlrt_inter_deseq.Rda")
 
 ```
 
