@@ -11,6 +11,7 @@ library(DSPRqtlDataA)
 library(DSPRqtl)
 library(tidyverse)
 library(cowplot)
+theme_set(theme_cowplot())
 source(file="../../Functions/ggplot_theme.R")
 
 ```
@@ -107,6 +108,90 @@ ggsave(pall, file="../Plots/EffectPlots_shared.pdf", width=8, height=5)
 
 ```
 
+
+```{r}
+
+ii<- 1
+
+L.plot.s <- L.plot
+ll <- share.set[ii,1]
+mm <- share.set[ii,2]
+
+cc.ll <- ci.peak[[1]][ll,]
+cc.mm <- ci.peak[[2]][mm,]
+
+objname <- paste("A_",cc.ll$chr,"_",format(cc.ll$Ppos, sci=FALSE), sep="")
+data(list=objname)
+genos <- get(objname)
+genos <- genos[,1:9]
+hard <- tibble("patRIL" = genos$ril, "Haplotype" = paste("A",unlist(apply(genos[2:9], 1, which.max)),sep=""))
+hard$patRIL <- as.character(hard$patRIL)
+L.plot.s$patRIL <- as.character(L.plot.s$patRIL)
+L.plot.s <- inner_join(L.plot.s, hard)
+
+effs.dat <- tibble("Haplotype"= paste("A",seq(1:8),sep=""), 
+                    "eLearn" = as.numeric(cc.ll[1,19:26]),
+                   "LearnSE"= as.numeric(cc.ll[1,27:34]),
+                   "LearnN"=as.numeric(cc.ll[1,35:42]),
+                   "eMem" = as.numeric(cc.mm[1,19:26]),
+                   "MemSE"= as.numeric(cc.mm[1,27:34]),
+                   "MemN"=as.numeric(cc.mm[1,35:42]))
+
+effs.dat <- effs.dat[which(effs.dat$LearnN > 3 & effs.dat$MemN >3),]
+
+L.plot.s$pool <- rep("A", nrow(L.plot.s))
+L.plot.s$pool[which(L.plot.s$patRIL %in% rrs[rrs$Pool=="LH"| rrs$Pool=="MH","patRIL"])] <-"B"
+L.plot.s$pool[which(L.plot.s$patRIL %in% rrs[rrs$Pool=="LL"| rrs$Pool=="ML","patRIL"])] <- "C"
+
+L.plot.pool <- subset(L.plot.s, pool != "A")
+
+color.8 <- hue_pal()(8)
+
+pp <- ggplot(L.plot.s, aes(x=LearnPowerTrans,y=Memory_Mean, color=Haplotype)) +
+  geom_point(alpha = 1/3, size=1) +
+  geom_point(data = effs.dat, aes(x=eLearn,y=eMem,fill=Haplotype), size=3,pch=21, color="black") +
+  geom_segment(data = effs.dat, aes(x=eLearn-LearnSE, xend=eLearn + LearnSE, y=eMem, yend=eMem), color = 'black') +
+  geom_segment(data = effs.dat, aes(x=eLearn, xend=eLearn, y=eMem-MemSE, yend=eMem+MemSE), color = 'black') +
+  #geom_point(data= L.plot.s.pool, aes(x=LearnPowerTrans, y=Memory_Mean, fill=Haplotype, shape=pool), color="black")+
+  scale_shape_manual(values=c(24,25))+
+  scale_fill_manual(values=color.8[2:8])+
+  ylab("Memory") +
+  xlab(expression(Learning^3)) +
+  annotate("text", label=qnames[ii], x= 0.1, y=0.8, fontface=2) +
+  theme(legend.position="none") +
+  my_theme
+  
+
+ggsave(pp, file="../Plots/EffectPlot_Q4_tt.pdf", width=8/3, height=2.5)
+
+L.plot.s <- subset(L.plot.s, Haplotype %in% c("A2","A5"))
+effs.dat <- subset(effs.dat, Haplotype %in% c("A2","A5"))
+
+pp <- ggplot(L.plot.s, aes(x=LearnPowerTrans,y=Memory_Mean, color=Haplotype)) +
+  geom_point(alpha = 1/3, size=1) +
+  geom_point(data = effs.dat, aes(x=eLearn,y=eMem,fill=Haplotype), size=3,pch=21, color="black") +
+  geom_segment(data = effs.dat, aes(x=eLearn-LearnSE, xend=eLearn + LearnSE, y=eMem, yend=eMem), color = 'black') +
+  geom_segment(data = effs.dat, aes(x=eLearn, xend=eLearn, y=eMem-MemSE, yend=eMem+MemSE), color = 'black') +
+  #geom_point(data= L.plot.s.pool, aes(x=LearnPowerTrans, y=Memory_Mean, fill=Haplotype, shape=pool), color="black")+
+  scale_shape_manual(values=c(24,25))+
+  scale_fill_manual(values=color.8[c(2,5)])+
+  scale_color_manual(values=color.8[c(2,5)])+
+  ylab("Memory") +
+  xlab(expression(Learning^3)) +
+  xlim(c(0,0.82)) +
+  ylim(c(-0.02,0.88)) +
+  annotate("text", label=qnames[ii], x= 0.1, y=0.8, fontface=2) +
+  theme(legend.position="none") +
+  my_theme
+  
+
+ggsave(pp, file="../Plots/EffectPlot_Q4_tt_2.pdf", width=8/3, height=2.5)
+
+
+
+```
+
+
 ## Plot with previous expression data
 ```{r}
 load(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/NewRMA/QTLmapping/Final_EXPR_MAT.rda")
@@ -146,6 +231,8 @@ effects <- merge(effects, decode.n, by='ID',sort=FALSE, all.x=TRUE)
 
 
 ```
+
+
 
 ```{r}
 
