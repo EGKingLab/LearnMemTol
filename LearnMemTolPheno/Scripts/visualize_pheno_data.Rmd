@@ -46,7 +46,7 @@ write.table(RIL_rna, file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/RILs_i
 ```
 
 
-#re-order form min to max
+#re-order from min to max
 
 ```{r}
 rawdLM$Lname <- with(rawdLM, reorder(patRIL, Learning, function(x) mean(x)))
