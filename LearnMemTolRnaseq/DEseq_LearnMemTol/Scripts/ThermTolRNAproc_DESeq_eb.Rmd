@@ -148,6 +148,8 @@ geom_point(alpha=1/5, size=3)
 all(rownames(TTpheno) %in% colnames(TTgenes))
 countdata <- TTgenes[, rownames(TTpheno)]
 all(rownames(TTpheno) == colnames(TTgenes))
+TTpheno$pool_con<- paste(TTpheno$pool,"_",TTpheno$condition, sep="")
+TTpheno$pool_con <- as.factor(TTpheno$pool_con)
 
 ```
 
@@ -177,6 +179,21 @@ save(TTlrt_con, file = "../Data/TTlrt_condiiton.Rda")
 TTlrt_pool_deseq <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + condition)
 TTlrt_pool <- results(TTlrt_pool_deseq)
 save(TTlrt_pool, file = "../Data/TTlrt_pool.Rda")
+
+
+
+TT_dds_All <- DESeqDataSetFromMatrix(countData = TTgenes, 
+                                   colData = TTpheno, 
+                                   design = ~ SV1 + SV2 + batch + pool_con)
+
+#DESeq step-by-step
+TTlrt_All_deseq <- estimateSizeFactors(TT_dds_All)
+nc <- counts(TTlrt_All_deseq , normalized=TRUE)
+filter <- rowSums(nc >= 10) >= 2
+TTlrt_All_deseq  <- estimateDispersions(TTlrt_All_deseq, fitType = "local")
+TTlrt_All_deseq  <- nbinomWaldTest(TTlrt_All_deseq , maxit = 1000, useOptim = TRUE)
+TTlrt_All_deseq  <- results(TTlrt_All_deseq )
+save(TTlrt_All_deseq , file = "../Data/TTlrt_All.Rda")
 
 
 #fold change for pool and condition
