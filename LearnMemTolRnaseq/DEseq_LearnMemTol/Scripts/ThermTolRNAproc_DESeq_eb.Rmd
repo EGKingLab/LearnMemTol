@@ -192,8 +192,10 @@ nc <- counts(TTlrt_All_deseq , normalized=TRUE)
 filter <- rowSums(nc >= 10) >= 2
 TTlrt_All_deseq  <- estimateDispersions(TTlrt_All_deseq, fitType = "local")
 TTlrt_All_deseq  <- nbinomWaldTest(TTlrt_All_deseq , maxit = 1000, useOptim = TRUE)
-TTlrt_All_deseq  <- results(TTlrt_All_deseq )
-save(TTlrt_All_deseq , file = "../Data/TTlrt_All.Rda")
+TTlrt_All  <- results(TTlrt_All_deseq )
+
+
+resultsNames(TTlrt_All_deseq)
 
 
 #fold change for pool and condition
@@ -203,13 +205,24 @@ FCpool <- lfcShrink(TTlrt_pool_deseq, contrast =c("pool", "H","L" ), type="norma
 
 #fold change for each pair of combinations
 pool <- c('H','L')
-condition <- c('Incu','RT')
+
+condition <- 'RT'
+condition2 <- 'Incu'
+
 
 for (cc in condition)
 {
-  FC_THTL <- lfcShrink(TTlrt_pool_deseq, contrast=c("pool",paste("H_",cc,sep=""),paste("L_",cc,sep="")), type="normal")
+  
+  FC_HL <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con",paste("H_",cc,sep=""),paste("L_",cc,sep="")), type="normal")
+  
+  #FC_ <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con",paste("H_",cc,sep=""),paste("L_",cc,sep="")), type="normal")
  
-  colnames(FC_THTL) <- c('baseMean',
+#H_Incu vs L_Incu
+#H_RT vs L_RT
+#H_Incu vs H_RT
+#L_Incu vs L_RT
+  
+  colnames(FC_HL) <- c('baseMean',
                       paste("FC_H_",cc,sep=""),
                       paste("FCse_H_",cc,sep=""),
                       paste("stat_H_",cc,sep=""),
@@ -217,6 +230,9 @@ for (cc in condition)
                       paste("padj_H_",cc,sep=""))
 
 }
+
+
+
 
 #enoch
 organs <- c('B','H','O')
@@ -232,10 +248,7 @@ FC_HSC <- lfcShrink(dds, contrast=c("treat_tissue",paste("HS_",oo,sep=""),paste(
 FC_DRHS <- lfcShrink(dds, contrast=c("treat_tissue",paste("DR_",oo,sep=""),paste("HS_",oo,sep="")), type="normal")
 
 
-#H_Incu vs L_Incu
-#H_RT vs L_RT
-#H_Incu vs H_RT
-#L_Incu vs L_RT
+
 
 colnames(FC_DRC) <- c('baseMean',
                       paste("FC_DR_",oo,sep=""),
