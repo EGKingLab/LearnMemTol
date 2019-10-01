@@ -14,6 +14,7 @@ library(sva)
 library(ggplot2)
 library(cowplot)
 library(tidyverse)
+source(file="../../../Functions/ggplot_theme.R")
 
 ```
 
@@ -25,6 +26,8 @@ library(tidyverse)
 load("../Data/TTlrt_inter.Rda")
 load("../Data/TTlrt_pool.Rda")
 load("../Data/TTlrt_condition.Rda")
+
+load("../Data/FCpool.Rda")
 
 # Could do with built-in DESeq2 function:
 DESeq2::plotMA(TTlrt_condition, ylim=c(-15,10))
@@ -64,25 +67,27 @@ abline(h=-log10(max(TTtop$pvalue[TTtop$padj<0.05], na.rm=TRUE)), col="black", lt
 
 ```{r}
 
-load("../Data/TTlrt_inter.Rda")
+load("../Data/FCpool.Rda")
 
 
-TTgene_list <- as.data.frame(TTlrt_inter)
+TTgene_list <- as.data.frame(FCpool)
 
 
-TTgene_list <-TTgene_list %>% mutate(ThermTol_Genes = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))
+TTgene_list <-TTgene_list %>% mutate(FCpool = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))
 
 
 str(TTgene_list)
 
+TTgene_list <- drop_na(TTgene_list)
 
-ThermTol_Volcanoplot <- ggplot(TTgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
-  geom_point(aes(colour = ThermTol_Genes), size=2, alpha=1/2 ) +
+TTpool_Volcanoplot <- ggplot(TTgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
+  geom_point(size=2, alpha=1/2 ) +
   geom_hline(yintercept = 1.30) +
-  scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels'))
+  #scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
+  theme_half_open()
 
 
-ThermTol_Volcanoplot
+TTpool_Volcanoplot
 
 ggsave(ThermTol_Volcanoplot, filename="../Plots/ThermTol_Volcanoplot.pdf", width=6, height=4)
 

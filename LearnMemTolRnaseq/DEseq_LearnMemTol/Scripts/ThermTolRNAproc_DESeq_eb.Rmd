@@ -194,89 +194,29 @@ TTlrt_All_deseq  <- estimateDispersions(TTlrt_All_deseq, fitType = "local")
 TTlrt_All_deseq  <- nbinomWaldTest(TTlrt_All_deseq , maxit = 1000, useOptim = TRUE)
 TTlrt_All  <- results(TTlrt_All_deseq )
 
-
 resultsNames(TTlrt_All_deseq)
+
 
 
 #fold change for pool and condition
 FCcon <- lfcShrink(TTlrt_con_deseq, contrast =c("condition", "Incu","RT" ), type="normal")
 FCpool <- lfcShrink(TTlrt_pool_deseq, contrast =c("pool", "H","L" ), type="normal")
+save(FCpool, file = "../Data/FCpool.Rda")
 
+unique(TTpheno$pool_con)
 
-#fold change for each pair of combinations
-pool <- c('H','L')
+#pairwise FCs  
+FC_L <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","L_Incu","L_RT"), type="normal")
+FC_H <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_Incu","H_RT"), type="normal")
+FC_HLIncu <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_Incu","L_Incu"), type="normal")
+FC_HLRT <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_RT","H_RT"), type="normal")
 
-condition <- 'RT'
-condition2 <- 'Incu'
-
-
-for (cc in condition)
-{
-  
-  FC_HL <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con",paste("H_",cc,sep=""),paste("L_",cc,sep="")), type="normal")
-  
-  #FC_ <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con",paste("H_",cc,sep=""),paste("L_",cc,sep="")), type="normal")
- 
-#H_Incu vs L_Incu
-#H_RT vs L_RT
-#H_Incu vs H_RT
-#L_Incu vs L_RT
-  
-  colnames(FC_HL) <- c('baseMean',
-                      paste("FC_H_",cc,sep=""),
-                      paste("FCse_H_",cc,sep=""),
-                      paste("stat_H_",cc,sep=""),
-                      paste("p_H_",cc,sep=""),
-                      paste("padj_H_",cc,sep=""))
-
-}
+#FC_All <- cbind(FC_All, FC_L[,2:6],FC_H[,2:6],FC_HLIncu[,2:6], FC_HLRT[,2:6])
 
 
 
 
-#enoch
-organs <- c('B','H','O')
-treats <- c('DR','C','HS')
-
-for(oo in organs)
-{
-
-FC_DRC <- lfcShrink(dds, contrast=c("treat_tissue",paste("DR_",oo,sep=""),paste("C_",oo,sep="")), type="normal")
-
-FC_HSC <- lfcShrink(dds, contrast=c("treat_tissue",paste("HS_",oo,sep=""),paste("C_",oo,sep="")), type="normal")
-  
-FC_DRHS <- lfcShrink(dds, contrast=c("treat_tissue",paste("DR_",oo,sep=""),paste("HS_",oo,sep="")), type="normal")
-
-
-
-
-colnames(FC_DRC) <- c('baseMean',
-                      paste("FC_DR_",oo,sep=""),
-                      paste("FCse_DR_",oo,sep=""),
-                      paste("stat_DR_",oo,sep=""),
-                      paste("p_DR_",oo,sep=""),
-                      paste("padj_DR_",oo,sep=""))
-
-colnames(FC_HSC) <- c('baseMean',
-                      paste("FC_HS_",oo,sep=""),
-                      paste("FCse_HS_",oo,sep=""),
-                      paste("stat_HS_",oo,sep=""),
-                      paste("p_HS_",oo,sep=""),
-                      paste("padj_HS_",oo,sep=""))
-
-colnames(FC_DRHS) <- c('baseMean',
-                      paste("FC_DRHS_",oo,sep=""),
-                      paste("FCse_DRHS_",oo,sep=""),
-                      paste("stat_DRHS_",oo,sep=""),
-                      paste("p_DRHS_",oo,sep=""),
-                      paste("padj_DRHS_",oo,sep=""))
-
-all.fc.dat <- cbind(all.fc.dat, FC_DRC[,2:6],FC_HSC[,2:6],FC_DRHS[,2:6])
-
-
-}
-
-
+#save(all.fc.dat, file="../../processed/DESEQ/all_fc_dat.rda")
 
 ```
 
@@ -293,8 +233,6 @@ all.fc.dat <- cbind(all.fc.dat, FC_DRC[,2:6],FC_HSC[,2:6],FC_DRHS[,2:6])
 #need to set up contrasts with a combined variable pool_condition
 #then run DESeqDataSetFromMatrix with the combined variable INSTEAD of pool + condition (don't need to run interaction model)
 #use lfcShrink to get each fold change for each combo
-
-TTpool <- lfcShrink(TTlrt_pool_deseq, contrast =c("pool", "H","L" ), type="normal")
 #H_Incu vs L_Incu
 #H_RT vs L_RT
 #H_Incu vs H_RT

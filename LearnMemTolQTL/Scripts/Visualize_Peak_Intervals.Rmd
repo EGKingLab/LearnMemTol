@@ -587,4 +587,20 @@ ttplots <- plot_grid(ttcon.plot.list,ttpool.plot.list, ttinter.plot.list)
 ttallplots <- plot_grid(plotlist=ttmaster.list, nrow=4, ncol=4,labels = c("a.","b.","c.","d.","e.","f.","g.","h.","i.","j.","k.","l.","m.","n.","o.","p.","q.","r.","s.","t.","u."), align="hv", axis="tl", rel_widths=c(1,0.9,0.9,0.9), rel_heights = c(0.9,0.9,0.9,1), label_size=10, hjust= c(rep(c(0,rep(-2,3)),3),0,-2,-2))
 
 
+
+#only QTLs for Pool
+
+ttpool.list <- list(ttpool.plot.list[[1]],
+  ttpool.plot.list[[2]],
+  ttpool.plot.list[[3]],
+  ttpool.plot.list[[4]],
+  ttpool.plot.list[[5]],
+  ttpool.plot.list[[6]],
+  ttpool.plot.list[[7]])
+
+
+ttpool_plots <- plot_grid(ttpool.plot.list)
+
+ttpoolplots <- plot_grid(plotlist=ttpool.list, nrow=4, ncol=4,labels = c("a.","b.","c.","d.","e.","f.","g."), align="hv", axis="tl", rel_widths=c(3,1,1,1), rel_heights = c(1,1,1,2), label_size=10, hjust= c(rep(c(0,rep(-2,3)),3),0,-2,-2))
+
 ```
