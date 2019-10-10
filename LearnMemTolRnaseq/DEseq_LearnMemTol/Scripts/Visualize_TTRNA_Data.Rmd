@@ -23,11 +23,15 @@ source(file="../../../Functions/ggplot_theme.R")
 
 ```{r}
 #load("../Data/TTDEseqSVA_resOrdered_padj.Rda")
-load("../Data/TTlrt_inter.Rda")
-load("../Data/TTlrt_pool.Rda")
-load("../Data/TTlrt_condition.Rda")
+#load("../Data/TTlrt_inter.Rda")
+#load("../Data/TTlrt_pool.Rda")
+#load("../Data/TTlrt_condition.Rda")
 
 load("../Data/FCpool.Rda")
+load("../Data/FCcon.Rda")
+load("../Data/FoldChangeAll.Rda")
+
+FC_All
 
 # Could do with built-in DESeq2 function:
 DESeq2::plotMA(TTlrt_condition, ylim=c(-15,10))
@@ -63,37 +67,95 @@ abline(v=2, col="black", lty=4, lwd=2.0)
 abline(h=-log10(max(TTtop$pvalue[TTtop$padj<0.05], na.rm=TRUE)), col="black", lty=4, lwd=2.0)
 ```
 
-#Volcano Plot (ggplot2)
+#Volcano Plot (ggplot2), pool and condition
 
 ```{r}
 
-load("../Data/FCpool.Rda")
+#pool (H vs L)
+
+TTpoolgene_list <- as.data.frame(FCpool)
 
 
-TTgene_list <- as.data.frame(FCpool)
+TTpoolgene_list <-TTpoolgene_list %>% mutate(FCpool = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))
 
 
-TTgene_list <-TTgene_list %>% mutate(FCpool = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))
+str(TTpoolgene_list)
 
+TTpoolgene_list <- drop_na(TTpoolgene_list)
 
-str(TTgene_list)
-
-TTgene_list <- drop_na(TTgene_list)
-
-TTpool_Volcanoplot <- ggplot(TTgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
+TTpool_Vplot <- ggplot(TTpoolgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
   geom_point(size=2, alpha=1/2 ) +
   geom_hline(yintercept = 1.30) +
   #scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
   theme_half_open()
 
 
-TTpool_Volcanoplot
+TTpool_Vplot
 
-ggsave(ThermTol_Volcanoplot, filename="../Plots/ThermTol_Volcanoplot.pdf", width=6, height=4)
+#ggsave(TTpool_Vplot, filename="../Plots/TTpool_Vplot.pdf", width=6, height=4)
 
+
+#condition (Incu vs RT)
+
+
+TTcongene_list <- as.data.frame(FCcon)
+
+
+TTcongene_list <-TTcongene_list %>% mutate(FCcon = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))
+
+
+str(TTcongene_list)
+
+TTcongene_list <- drop_na(TTcongene_list)
+
+TTcon_Vplot <- ggplot(TTcongene_list, aes(y=-log10(padj), x=log2FoldChange)) +
+  geom_point(size=2, alpha=1/2 ) +
+  geom_hline(yintercept = 1.30) +
+  #scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
+  theme_half_open()
+
+
+TTcon_Vplot
+
+#ggsave(TTcon_Vplot, filename="../Plots/TTcon_Vplot.pdf", width=6, height=4)
+
+```
+
+#Plot fold change for pairwise: H_Incu vs L_Incu, H_RT vs L_RT, H_Incu vs H_RT, L_Incu vs L_RT
+```{r}
+
+
+#################################################################################################
+#########NEED HELP HERE. STARTED WORKING ON THE CODE USING ENOCH"S EXAMPLE BUT GOT STUCK##########
+##################################################################################################
+
+plot.dat <- data.frame("gname" = rownames(FC_All), 
+                       "Pval"= FC_All$pvalue, 
+                       "Padj"= FC_All$padj,
+                       "BaseMean"= FC_All$baseMean, stringsAsFactors = FALSE)
+
+
+#enoch's example
+
+pp<-ggplot(FC_All, aes(FoldChangeDR,FoldChangeHS, color=log10(BaseMean))) +
+  geom_hline(yintercept=0,col='grey80')+
+  geom_vline(xintercept=0,col='grey80')+
+  geom_abline(intercept=0,slope=1,col='grey80',lty=2)+
+  geom_point(alpha=1/2)+
+ # geom_point(data=pp.dat, aes(FoldChangeDR,FoldChangeHS,color=-log10(Padj+1e-16)), alpha=1/2) +
+  ylim(c(-ax.top,ax.top))+
+  xlim(c(-ax.top,ax.top))+
+  ylab("Fold Change (HS)")+
+  xlab("Fold Change (DR)")+
+  scale_color_gradientn(colours = rainbow_hcl(8, start = 300, end = 40)) +
+  theme(legend.position="none", plot.title = element_text(color="grey50")) +
+  ggtitle("Bodies") +
+  my_theme
 
 
 ```
+
+
 
 #Heat map
 

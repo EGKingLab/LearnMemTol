@@ -202,6 +202,7 @@ resultsNames(TTlrt_All_deseq)
 FCcon <- lfcShrink(TTlrt_con_deseq, contrast =c("condition", "Incu","RT" ), type="normal")
 FCpool <- lfcShrink(TTlrt_pool_deseq, contrast =c("pool", "H","L" ), type="normal")
 save(FCpool, file = "../Data/FCpool.Rda")
+save(FCcon, file = "../Data/FCcon.Rda")
 
 unique(TTpheno$pool_con)
 
@@ -209,14 +210,12 @@ unique(TTpheno$pool_con)
 FC_L <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","L_Incu","L_RT"), type="normal")
 FC_H <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_Incu","H_RT"), type="normal")
 FC_HLIncu <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_Incu","L_Incu"), type="normal")
-FC_HLRT <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_RT","H_RT"), type="normal")
+FC_HLRT <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_RT","L_RT"), type="normal")
 
-#FC_All <- cbind(FC_All, FC_L[,2:6],FC_H[,2:6],FC_HLIncu[,2:6], FC_HLRT[,2:6])
+#place all datasets into one dataframe (list)
+FC_All <- list(FCcon,FCpool,FC_L,FC_H,FC_HLIncu,FC_HLRT)
 
-
-
-
-#save(all.fc.dat, file="../../processed/DESEQ/all_fc_dat.rda")
+save(FC_All, file="../Data/FoldChangeAll.Rda")
 
 ```
 

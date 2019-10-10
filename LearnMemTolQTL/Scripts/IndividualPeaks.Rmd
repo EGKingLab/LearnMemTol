@@ -55,7 +55,9 @@ cors.tt <- data.frame('ID' = colnames(TTqn.mat), 'rThermTol' = as.numeric(ccs.t)
 
 
 cgn<-read.table(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/NewRMA/QTLmapping/fbgn_fbtr_fbpp_fb_2012_02.tsv",header=FALSE,stringsAsFactors=FALSE,sep="\t",fill=TRUE)
+
 load(file='/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/probes/CDS/completeCDS.rda')
+
 ss<-merge(cgn,bl, by.x="V2",by.y="FBtr")
 
 ww.t <- which(ss$CGid %in% colnames(qn.mat))
@@ -160,15 +162,20 @@ str(TTlrt_condition)
 TTlrt_condition$FBgn <- rownames(TTlrt_condition)
 TTcon_sig_genes <- as.data.frame(TTlrt_condition)
 
-load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_pool.Rda")
-str(TTlrt_pool)
-TTlrt_pool$FBgn <- rownames(TTlrt_pool)
-TTpool_sig_genes <- as.data.frame(TTlrt_pool)
+#load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_pool.Rda")
+#str(TTlrt_pool)
+#TTlrt_pool$FBgn <- rownames(TTlrt_pool)
+#TTpool_sig_genes <- as.data.frame(TTlrt_pool)
 
-load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_inter.Rda")
-str(TTlrt_inter)
-TTlrt_inter$FBgn <- rownames(TTlrt_inter)
-TTinter_sig_genes <- as.data.frame(TTlrt_inter)
+#load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_inter.Rda")
+#str(TTlrt_inter)
+#TTlrt_inter$FBgn <- rownames(TTlrt_inter)
+#TTinter_sig_genes <- as.data.frame(TTlrt_inter)
+
+load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/FCpool.Rda")
+str(FCpool)
+FCpool$FBgn <- rownames(FCpool)
+FCpool_sig_genes <- as.data.frame(FCpool)
 
 gene_map_table <- read_lines(file = "../ProcessedData/gene_map_table_fb_2018_04.tsv",
                 skip = 6) %>% 
