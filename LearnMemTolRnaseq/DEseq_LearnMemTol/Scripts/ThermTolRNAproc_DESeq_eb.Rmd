@@ -23,7 +23,7 @@ library(ggplot2)
 TTgenes <- read.csv("../Data/ThermTolBallgown/ballgown_eb/TTgene_count_matrix_eb.csv", stringsAsFactors = FALSE)
 
 
-#delete first 3 row name, so that data set macthes up with pheno data.
+#delete first column but make it rownames first
 rownames(TTgenes) <- TTgenes[,1]
 TTgenes[,1] <- NULL
 
@@ -157,14 +157,8 @@ TTpheno$pool_con <- as.factor(TTpheno$pool_con)
 
 ```{r}
 # DESeqDataSet for all variables,
-
-#TT_dds_02 <- DESeqDataSetFromMatrix(countData = TTgenes, 
-                                 #  colData = TTpheno, 
-                                # design = ~ SV1 + SV2 + batch + pool*condition)
-
-#TTlrt_inter_deseq <- DESeq(TT_dds_02, test="LRT", reduced=~ SV1 + SV2 + batch + pool + condition)
-#TT_inter <- results(TTlrt_inter_deseq)
-#save(TT_inter, file = "../Data/TTlrt_inter_deseq.Rda")
+ 
+# Main effects
 
 TT_dds_01 <- DESeqDataSetFromMatrix(countData = TTgenes, 
                                    colData = TTpheno, 
@@ -180,8 +174,16 @@ TTlrt_pool_deseq <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + c
 TTlrt_pool <- results(TTlrt_pool_deseq)
 save(TTlrt_pool, file = "../Data/TTlrt_pool.Rda")
 
+#Interaction
+TT_dds_02 <- DESeqDataSetFromMatrix(countData = TTgenes, 
+                                   colData = TTpheno, 
+                                 design = ~ SV1 + SV2 + batch + pool*condition)
 
+TTlrt_inter_deseq <- DESeq(TT_dds_02, test="LRT", reduced=~ SV1 + SV2 + batch + pool + condition)
+TT_inter <- results(TTlrt_inter_deseq)
+save(TT_inter, file = "../Data/TTlrt_inter_deseq.Rda")
 
+# Set up contrast for individual fold changes
 TT_dds_All <- DESeqDataSetFromMatrix(countData = TTgenes, 
                                    colData = TTpheno, 
                                    design = ~ SV1 + SV2 + batch + pool_con)
@@ -212,8 +214,30 @@ FC_H <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_Incu","H_RT"), type=
 FC_HLIncu <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_Incu","L_Incu"), type="normal")
 FC_HLRT <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_RT","L_RT"), type="normal")
 
-#place all datasets into one dataframe (list)
-FC_All <- list(FCcon,FCpool,FC_L,FC_H,FC_HLIncu,FC_HLRT)
+# put into a dataframe
+#note we will not keep lfcSE, stat, or pvalue (only LFC & padj)
+
+#start it with one & rename as appropriate
+FC_All <- as.data.frame(FCcon[,c("baseMean","log2FoldChange","padj")])
+colnames(FC_All) <- c("baseMean","FC_Cond_Overall", "padj_Cond_Overall")
+
+#now add the columns you want, naming them as you go
+FC_All$FC_Pool_Overall <- FCpool$log2FoldChange
+FC_All$padj_Pool_Overall <- FCpool$padj
+
+FC_All$FC_PoolL_IvRT <- FC_L$log2FoldChange
+FC_All$padj_PoolL_IvRT <- FC_L$padj
+
+FC_All$FC_Poolh_IvRT <- FC_H$log2FoldChange
+FC_All$padj_PoolH_IvRT <- FC_H$padj
+
+FC_All$FC_CondI_HvL <- FC_HLIncu$log2FoldChange
+FC_All$padj_CondI_HvL <- FC_HLIncu$padj
+
+FC_All$FC_CondRT_HvL <- FC_HLRT$log2FoldChange
+FC_All$padj_CondRT_HvL <- FC_HLRT$padj
+
+FC_All$padj_Interaction_Overall <- TT_inter$padj
 
 save(FC_All, file="../Data/FoldChangeAll.Rda")
 
