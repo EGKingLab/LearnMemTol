@@ -216,6 +216,8 @@ FC_HLRT <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_RT","L_RT"), type
 
 # put into a dataframe
 #note we will not keep lfcSE, stat, or pvalue (only LFC & padj)
+#note copied FoldChangeAll.rda from Libby's space
+####load(file='../Data/FoldChangeAll.da')
 
 #start it with one & rename as appropriate
 FC_All <- as.data.frame(FCcon[,c("baseMean","log2FoldChange","padj")])

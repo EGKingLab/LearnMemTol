@@ -29,37 +29,38 @@ load(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/
 load(file="../../LearnMemTolPheno/ProcessedData/L_MDATA.rda")
 ww<- which(L_MDATA$patRIL %in% rownames(qn.mat))
 wwe<- which(rownames(qn.mat) %in% L_MDATA$patRIL)
+L.sub <- L_MDATA[ww,]
+qn.mat <- qn.mat[wwe,]
 
+all.equal(as.numeric(row.names(qn.mat)), L.sub$patRIL)
+
+ccs.l <- cor(L.sub$Learning_Mean, qn.mat)
+ccs.m <- cor(L.sub$Memory_Mean, qn.mat)
+
+cors.lm <- data.frame('ID' = colnames(qn.mat), 'rLearn' = as.numeric(ccs.l), 'rMem' = as.numeric(ccs.m), stringsAsFactors=FALSE)
+
+
+#Thermal Tolerance 
 load(file="../../LearnMemTolPheno/ProcessedData/T_TDATA.rda")
 tww<- which(T_TDATA$patRIL %in% rownames(qn.mat))
 twwe<- which(rownames(qn.mat) %in% T_TDATA$patRIL)
 TT.sub <- T_TDATA[tww,]
 TTqn.mat <- qn.mat[twwe,]
 
-L.sub <- L_MDATA[ww,]
-qn.mat <- qn.mat[wwe,]
-
-
-all.equal(as.numeric(row.names(qn.mat)), L.sub$patRIL)
-
 all.equal(as.numeric(row.names(TTqn.mat)), TT.sub$patRIL)
 
-ccs.l <- cor(L.sub$Learning_Mean, qn.mat)
-ccs.m <- cor(L.sub$Memory_Mean, qn.mat)
 ccs.t <- cor(TT.sub$Incapacitation_Mean, TTqn.mat)
-
-
-cors.lm <- data.frame('ID' = colnames(qn.mat), 'rLearn' = as.numeric(ccs.l), 'rMem' = as.numeric(ccs.m), stringsAsFactors=FALSE)
 
 cors.tt <- data.frame('ID' = colnames(TTqn.mat), 'rThermTol' = as.numeric(ccs.t), stringsAsFactors=FALSE)
 
-
+#load eQTL data from king et al 2014
 cgn<-read.table(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/NewRMA/QTLmapping/fbgn_fbtr_fbpp_fb_2012_02.tsv",header=FALSE,stringsAsFactors=FALSE,sep="\t",fill=TRUE)
 
 load(file='/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/probes/CDS/completeCDS.rda')
 
 ss<-merge(cgn,bl, by.x="V2",by.y="FBtr")
 
+#learnMem
 ww.t <- which(ss$CGid %in% colnames(qn.mat))
 ww.g <- which(ss$CGgn %in% colnames(qn.mat))
 decode.n <- ss[,c('V1','CGid','CGgn')]
@@ -70,6 +71,17 @@ decode.n <- decode.n[,c('V1','ID')]
 decode.n <- unique(decode.n, MARGIN=1)
 colnames(decode.n) <- c("FBgn","ID")
 
+cors.lm <- merge(cors.lm, decode.n,by='ID',sort=FALSE, all.x=TRUE)
+
+cors.nas <- cors.lm[is.na(cors.lm$FBgn),]
+cors.lm <- cors.lm[is.na(cors.lm$FBgn)==FALSE,]
+
+cors.nas[which.max(abs(cors.nas$rLearn)),]
+cors.nas[which.max(abs(cors.nas$rMem)),]
+cors.nas[which(abs(cors.nas$rLearn) >0.1),]
+
+
+#ThermTol
 ww.tt <- which(ss$CGid %in% colnames(TTqn.mat))
 ww.tg <- which(ss$CGgn %in% colnames(TTqn.mat))
 decode.tn <- ss[,c('V1','CGid','CGgn')]
@@ -80,19 +92,10 @@ decode.tn <- decode.tn[,c('V1','ID')]
 decode.tn <- unique(decode.tn, MARGIN=1)
 colnames(decode.tn) <- c("FBgn","ID")
 
-cors.lm <- merge(cors.lm, decode.n,by='ID',sort=FALSE, all.x=TRUE)
 cors.tt <- merge(cors.tt, decode.tn,by='ID',sort=FALSE, all.x=TRUE)
-
-cors.nas <- cors.lm[is.na(cors.lm$FBgn),]
-cors.lm <- cors.lm[is.na(cors.lm$FBgn)==FALSE,]
 
 cors.tnas <- cors.tt[is.na(cors.tt$FBgn),]
 cors.tt <- cors.tt[is.na(cors.tt$FBgn)==FALSE,]
-
-
-cors.nas[which.max(abs(cors.nas$rLearn)),]
-cors.nas[which.max(abs(cors.nas$rMem)),]
-cors.nas[which(abs(cors.nas$rLearn) >0.1),]
 
 cors.tnas[which.max(abs(cors.tnas$rThermTol)),]
 cors.tnas[which(abs(cors.tnas$rThermTol) >0.1),]
@@ -158,24 +161,20 @@ colnames(MemresSVorder)
 Mem_sig_genes <- as.data.frame(MemresSVorder)
 
 load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_condition.Rda")
-str(TTlrt_condition)
-TTlrt_condition$FBgn <- rownames(TTlrt_condition)
-TTcon_sig_genes <- as.data.frame(TTlrt_condition)
+str(TTlrt_con)
+TTlrt_con$FBgn <- rownames(TTlrt_con)
+TTcon_sig_genes <- as.data.frame(TTlrt_con)
 
-#load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_pool.Rda")
-#str(TTlrt_pool)
-#TTlrt_pool$FBgn <- rownames(TTlrt_pool)
-#TTpool_sig_genes <- as.data.frame(TTlrt_pool)
+load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_pool.Rda")
+str(TTlrt_pool)
+TTlrt_pool$FBgn <- rownames(TTlrt_pool)
+TTpool_sig_genes <- as.data.frame(TTlrt_pool)
 
-#load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_inter.Rda")
-#str(TTlrt_inter)
-#TTlrt_inter$FBgn <- rownames(TTlrt_inter)
-#TTinter_sig_genes <- as.data.frame(TTlrt_inter)
+load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_inter.Rda")
+str(TTlrt_inter)
+TTlrt_inter$FBgn <- rownames(TTlrt_inter)
+TTinter_sig_genes <- as.data.frame(TTlrt_inter)
 
-load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/FCpool.Rda")
-str(FCpool)
-FCpool$FBgn <- rownames(FCpool)
-FCpool_sig_genes <- as.data.frame(FCpool)
 
 gene_map_table <- read_lines(file = "../ProcessedData/gene_map_table_fb_2018_04.tsv",
                 skip = 6) %>% 
@@ -195,16 +194,17 @@ gene_map_table$stopp <- as.numeric(str_split(temp.s1[,2],fixed("("),simplify = T
 
 Learn_gene_list_merged <- merge(Learn_sig_genes, gene_map_table, by="FBgn")
 Mem_gene_list_merged <- merge(Mem_sig_genes, gene_map_table, by="FBgn")
-TTcon_gene_list_merged <- merge(TTcon_sig_genes, gene_map_table, by="FBgn")
-TTpool_gene_list_merged <- merge(TTpool_sig_genes, gene_map_table, by="FBgn")
-TTinter_gene_list_merged <- merge(TTinter_sig_genes, gene_map_table, by="FBgn")
-
 
 Learn_gene_list_sub <- Learn_gene_list_merged[c(1,3,6,7,9,13:15)]
 colnames(Learn_gene_list_sub)
 
 Mem_gene_list_sub <- Mem_gene_list_merged[c(1,3,6,7,9,13:15)]
 colnames(Mem_gene_list_sub)
+
+TTcon_gene_list_merged <- merge(TTcon_sig_genes, gene_map_table, by="FBgn")
+TTpool_gene_list_merged <- merge(TTpool_sig_genes, gene_map_table, by="FBgn")
+TTinter_gene_list_merged <- merge(TTinter_sig_genes, gene_map_table, by="FBgn")
+
 
 TTcon_gene_list_sub <- TTcon_gene_list_merged[c(1,3,6,7,9,13:15)]
 colnames(TTcon_gene_list_sub)
@@ -260,6 +260,8 @@ for(rowN in 1:nrow(ci.peak$Memory_Mean))
   
 }
 
+
+
 all.equal(TTpool_gene_list_sub$FBgn, TTcon_gene_list_sub$FBgn)
 all.equal(TTinter_gene_list_sub$FBgn, TTcon_gene_list_sub$FBgn)
 all.equal(TTpool_gene_list_sub$FBgn, TTinter_gene_list_sub$FBgn)
@@ -272,7 +274,8 @@ for(rowN in 1:nrow(ci.peak$Tolsqrtvariable))
   {
   foc.peak<-ci.peak[['Tolsqrtvariable']][rowN,]
   
-  #condition
+
+#condition
   tcon <- (which(TTcon_gene_list_sub$chr==foc.peak$chr & 
                  ((TTcon_gene_list_sub$startp <= foc.peak$upR6 & TTcon_gene_list_sub$stopp >= foc.peak$lpR6))))  
   
@@ -311,7 +314,6 @@ effects <- effects[pinfo$cis==TRUE,]
 pinfo <- pinfo[pinfo$cis==TRUE,]
 
 effects <- merge(effects, decode.n, by='ID',sort=FALSE, all.x=TRUE)
-tt_effects <- merge(effects, decode.tn, by='ID',sort=FALSE, all.x=TRUE)
 
 #learning
 for(jj in 1:length(learn.list))
@@ -376,6 +378,7 @@ save(Mem.list,file="../ProcessedData/Mem_genes_under_peak.rda")
 
 
 #Thermal Tolerence 
+
 for(jj in 1:length(ThermTol.list))
 {
 
@@ -400,10 +403,10 @@ cors.effs <- data.frame('FBgn'= ee$FBgn, 'corEff'= apply(eqtl.e, 1, function(x) 
 ll.all <- merge(ll.foc, cors.effs, by='FBgn', all=TRUE)
 
 ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
-Mem.list[[jj]] <- ll.all
+ThermTol.listt[[jj]] <- ll.all
 }
 
-save(Mem.list,file="../ProcessedData/Mem_genes_under_peak.rda")
+save(ThermTol.list,file="../ProcessedData/ThermTol_genes_under_peak.rda")
 
 
 ```
@@ -1126,4 +1129,306 @@ FC: `r subset(ll.sub, gname=="hh")$log2FoldChange[1]`
 pval: `r subset(ll.sub, gname=="hh")$padj[1]`
 pheno Learn: `r max(abs(subset(ll.sub, gname=="hh")$rLearn))`
 
+
+
+#####
+#####
+#####
+####Thermal Tolearnace Peaks
+
+###Q1 Doesn't have any sig diff expressed genes uder peak.
+```{r}
+
+###
+###Libby can these thre steps be done in one step?
+
+#Q2 Condition 
+
+ll <- 2
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_con)),]
+ll.sub[which.min(ll.sub$padj_con),]
+
+ll.sub[which(ll.sub$padj_con <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
+
+#Q2 Pool
+ll <- 2
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_pool)),]
+ll.sub[which.min(ll.sub$padj_pool),]
+
+ll.sub[which(ll.sub$padj_pool <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
+
+#Q2 Interaction
+
+ll <- 2
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_inter)),]
+ll.sub[which.min(ll.sub$padj_inter),]
+
+ll.sub[which(ll.sub$padj_inter <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
+
+
+```
+
+
+#Q3
+```{r}
+#Q3 Condition
+ll <- 3
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_con)),]
+ll.sub[which.min(ll.sub$padj_con),]
+
+ll.sub[which(ll.sub$padj_con <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
+
+#Q3 Pool
+ll <- 3
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_pool)),]
+ll.sub[which.min(ll.sub$padj_pool),]
+
+ll.sub[which(ll.sub$padj_pool <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
+
+
+#Q3 Interaction
+ll <- 3
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_inter)),]
+ll.sub[which.min(ll.sub$padj_inter),]
+
+ll.sub[which(ll.sub$padj_inter <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
+
+
+```
+
+
+#Q4
+```{r}
+
+#Q4 Condition
+ll <- 4
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_con)),]
+ll.sub[which.min(ll.sub$padj_con),]
+
+ll.sub[which(ll.sub$padj_con <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
+
+#Q4 Pool
+ll <- 4
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_pool)),]
+ll.sub[which.min(ll.sub$padj_pool),]
+
+ll.sub[which(ll.sub$padj_pool <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
+
+
+#Q4 Interaction
+ll <- 4
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_inter)),]
+ll.sub[which.min(ll.sub$padj_inter),]
+
+ll.sub[which(ll.sub$padj_inter <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
+
+```
+
+
+#Q5
+```{r}
+#Q5 Condition
+ll <- 5
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_con)),]
+ll.sub[which.min(ll.sub$padj_con),]
+
+ll.sub[which(ll.sub$padj_con <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
+
+#Q5 Pool
+ll <- 5
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_pool)),]
+ll.sub[which.min(ll.sub$padj_pool),]
+
+ll.sub[which(ll.sub$padj_pool <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
+
+
+#Q5 Interaction
+ll <- 5
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_inter)),]
+ll.sub[which.min(ll.sub$padj_inter),]
+
+ll.sub[which(ll.sub$padj_inter <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
+
+```
+
+#Q6
+```{r}
+#Q6 Condition
+ll <- 6
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_con)),]
+ll.sub[which.min(ll.sub$padj_con),]
+
+ll.sub[which(ll.sub$padj_con <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
+
+#Q6 Pool
+ll <- 6
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_pool)),]
+ll.sub[which.min(ll.sub$padj_pool),]
+
+ll.sub[which(ll.sub$padj_pool <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
+
+
+#Q6 Interaction
+ll <- 6
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_inter)),]
+ll.sub[which.min(ll.sub$padj_inter),]
+
+ll.sub[which(ll.sub$padj_inter <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
+
+```
+
+#Q7
+```{r}
+#Q7 Condition
+ll <- 7
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_con)),]
+ll.sub[which.min(ll.sub$padj_con),]
+
+ll.sub[which(ll.sub$padj_con <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
+
+#Q7 Pool
+ll <- 7
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_pool)),]
+ll.sub[which.min(ll.sub$padj_pool),]
+
+ll.sub[which(ll.sub$padj_pool <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
+
+
+#Q7 Interaction
+ll <- 7
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_inter)),]
+ll.sub[which.min(ll.sub$padj_inter),]
+
+ll.sub[which(ll.sub$padj_inter <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
+```
+
+#Q8
+```{r}
+#Q8 Condition
+ll <- 8
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_con)),]
+ll.sub[which.min(ll.sub$padj_con),]
+
+ll.sub[which(ll.sub$padj_con <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
+
+#Q8 Pool
+ll <- 8
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_pool)),]
+ll.sub[which.min(ll.sub$padj_pool),]
+
+ll.sub[which(ll.sub$padj_pool <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
+
+
+#Q8 Interaction
+ll <- 8
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
+ll.sub[which.max(abs(ll.sub$l2F_inter)),]
+ll.sub[which.min(ll.sub$padj_inter),]
+
+ll.sub[which(ll.sub$padj_inter <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
+```
 

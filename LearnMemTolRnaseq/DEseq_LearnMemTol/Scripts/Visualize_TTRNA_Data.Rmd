@@ -22,135 +22,318 @@ source(file="../../../Functions/ggplot_theme.R")
 
 
 ```{r}
-#load("../Data/TTDEseqSVA_resOrdered_padj.Rda")
-#load("../Data/TTlrt_inter.Rda")
-#load("../Data/TTlrt_pool.Rda")
-#load("../Data/TTlrt_condition.Rda")
 
-load("../Data/FCpool.Rda")
-load("../Data/FCcon.Rda")
-load("../Data/FoldChangeAll.Rda")
+load("../Data/TTlrt_inter.Rda")
+load("../Data/TTlrt_pool.Rda")
+load("../Data/TTlrt_condition.Rda")
 
-FC_All
+ww <-which(TTlrt_pool$padj < 0.05)
+length(ww)
+sig.Pgenes <- TTlrt_pool[ww,]
+nrow(sig.Pgenes[sig.Pgenes$log2FoldChange>0,])
+nrow(sig.Pgenes[sig.Pgenes$log2FoldChange<0,])
+
+
+ww <-which(TTlrt_con$padj < 0.05)
+length(ww)
+sig.Cgenes <- TTlrt_con[ww,]
+nrow(sig.Cgenes[sig.Cgenes$log2FoldChange>0,])
+nrow(sig.Cgenes[sig.Cgenes$log2FoldChange<0,])
+
+ww <-which(TTlrt_inter$padj < 0.05)
+length(ww)
+sig.Igenes <- TTlrt_inter[ww,]
+nrow(sig.Igenes[sig.Igenes$log2FoldChange>0,])
+nrow(sig.Igenes[sig.Igenes$log2FoldChange<0,])
+
+share.wp <- which(rownames(sig.Pgenes) %in% rownames(sig.Pgenes))
+share.wc <- which(rownames(sig.Cgenes) %in% rownames(sig.Cgenes))
+share.wi <- which(rownames(sig.Igenes) %in% rownames(sig.Igenes))
+
+TTlrt_pool$gname <- rownames(TTlrt_pool)
+TTlrt_con$gname <- rownames(TTlrt_con)
+TTlrt_inter$gname <- rownames(TTlrt_inter)
+
+#all.expr <- merge(as.data.frame(TTlrt_pool[share.wp,]), as.data.frame(TTlrt_con[share.wc,]), as.data.frame(TTlrt_inter[share.wi,]), by="gname")
+
+plot(all.expr$log2FoldChange.x, all.expr$log2FoldChange.y)
+
+length(which(all.expr$log2FoldChange.x > 0 & all.expr$log2FoldChange.y > 0))
+length(which(all.expr$log2FoldChange.x < 0 & all.expr$log2FoldChange.y < 0))
+
+# add known labels to volcanos.
 
 # Could do with built-in DESeq2 function:
-DESeq2::plotMA(TTlrt_condition, ylim=c(-15,10))
+# EGK looked at source code. Plot is x = log(baseMean), y = log fold change
+#LearnMAplot <- DESeq2::plotMA(LearnresSVorder, ylim=c(-4.5,4))
+#MemMAplot <- DESeq2::plotMA(MemresSVorder, ylim=c(-4.5,4))
+#plot matches - scale? need to check.
 
-# see all results available
-resultsNames(TTlrt_condition)
+#Pool
+TTlrt_pool <- subset(TTlrt_pool, baseMean != 0)
+
+TTlrt_pool$sig <- TTlrt_pool$padj
+TTlrt_pool$sig[TTlrt_pool$padj > 0.05] <- NA
+
+TTlrt_pool <- TTlrt_pool[order(-TTlrt_pool$padj, na.last=FALSE),]
 
 
-results(TTlrt_condition, contrast=c("pool","condition"))
+PoolMAplot <- ggplot(as.data.frame(TTlrt_pool[is.na(TTlrt_pool$sig),]), aes(baseMean, log2FoldChange)) +
+  geom_point(color='pink')+
+  geom_point(data=as.data.frame(TTlrt_pool[is.na(TTlrt_pool$sig)==FALSE,]), aes(baseMean, log2FoldChange,color=sig))+
+  xlab("Normalized Mean Expression")+
+  ylab(expression("log"[2]*"(FC)"))+
+  scale_x_log10() +
+  ylim(c(-4.5,4)) +
+  scale_color_gradient2(low = "steelblue", mid = "grey",
+  high = "pink", midpoint = 0.03,breaks=c(0.049,0.04,0.03,0.02,0.01), labels=c('NS',0.04,0.03,0.02,0.01))+
+  my_theme +
+  theme(legend.position="none")
+
+PoolMAplot
+
+
+#Condition
+TTlrt_con <- subset(TTlrt_con, baseMean != 0)
+
+TTlrt_con$sig <- TTlrt_con$padj
+TTlrt_con$sig[TTlrt_con$padj > 0.05] <- NA
+
+TTlrt_con <- TTlrt_con[order(-TTlrt_con$padj, na.last=FALSE),]
+
+ConMAplot <- ggplot(as.data.frame(TTlrt_con[is.na(TTlrt_con$sig),]), aes(baseMean, log2FoldChange)) +
+  geom_point(color='pink')+
+  geom_point(data=as.data.frame(TTlrt_con[is.na(TTlrt_con$sig)==FALSE,]), aes(baseMean, log2FoldChange,color=sig))+
+  xlab("Normalized Mean Expression")+
+  ylab(expression("log"[2]*"(FC)"))+
+  ylim(c(-4.5,4)) +
+  scale_x_log10()+
+scale_color_gradient2(name = expression("P"[adj]*""), low = "steelblue", mid = "grey",
+  high = "pink", midpoint = 0.03, breaks=c(0.049,0.04,0.03,0.02,0.01), labels=c('NS',0.04,0.03,0.02,0.01))+
+  my_theme +
+  theme(axis.title.y=element_blank())
+
+ConMAplot
+
+#Interaction
+TTlrt_inter <- subset(TTlrt_inter, baseMean != 0)
+
+TTlrt_inter$sig <- TTlrt_inter$padj
+TTlrt_inter$sig[TTlrt_inter$padj > 0.05] <- NA
+
+TTlrt_inter <- TTlrt_inter[order(-TTlrt_inter$padj, na.last=FALSE),]
+
+InterMAplot <- ggplot(as.data.frame(TTlrt_inter[is.na(TTlrt_inter$sig),]), aes(baseMean, log2FoldChange)) +
+  geom_point(color='pink')+
+  geom_point(data=as.data.frame(TTlrt_inter[is.na(TTlrt_inter$sig)==FALSE,]), aes(baseMean, log2FoldChange,color=sig))+
+  xlab("Normalized Mean Expression")+
+  ylab(expression("log"[2]*"(FC)"))+
+  ylim(c(-4.5,4)) +
+  scale_x_log10()+
+scale_color_gradient2(name = expression("P"[adj]*""), low = "steelblue", mid = "grey",
+  high = "pink", midpoint = 0.03, breaks=c(0.049,0.04,0.03,0.02,0.01), labels=c('NS',0.04,0.03,0.02,0.01))+
+  my_theme +
+  theme(axis.title.y=element_blank())
+
+InterMAplot
+
+
+ggsave(PoolMAplot, file="../Plots/PoolMAplot.pdf", width=10, height=4)
+ggsave(ConMAplot, file="../Plots/ConMAplot.pdf", width=10, height=4)
+ggsave(InterMAplot, file="../Plots/InterMAplot.pdf", width=10, height=4)
 
 ```
 
-#Volcano Plot
-
-```{r}
-
-par(mar=c(5,5,5,5), cex=1.0, cex.main=1.4, cex.axis=1.4, cex.lab=1.4)
-
-TTtop <- as.data.frame(TTres.dds_table)
-
-#Adjusted P values (FDR Q values)
-with(TTres.dds_table, plot(log2FoldChange, -log10(padj), pch=20, main="Volcano plot", cex=1.0, xlab=bquote(~Log[2]~fold~change), ylab=bquote(~-log[10]~Q~value)))
-
-
-with(subset(TTres.dds_table, padj<0.05 & abs(log2FoldChange)>2), points(log2FoldChange, -log10(padj), pch=20, col="red", cex=0.5))
-
-with(subset(TTres.dds_table, padj<0.05 & abs(log2FoldChange)>2), text(log2FoldChange, -log10(padj), labels=subset(rownames(TTtop), TTtop$padj<0.05 & abs(TTtop$log2FoldChange)>2), cex=0.8, pos=3))
-
-#Add lines for absolute FC>2 and P-value cut-off at FDR Q<0.05
-abline(v=0, col="black", lty=3, lwd=1.0)
-abline(v=-2, col="black", lty=4, lwd=2.0)
-abline(v=2, col="black", lty=4, lwd=2.0)
-abline(h=-log10(max(TTtop$pvalue[TTtop$padj<0.05], na.rm=TRUE)), col="black", lty=4, lwd=2.0)
-```
 
 #Volcano Plot (ggplot2), pool and condition
 
 ```{r}
 
-#pool (H vs L)
-
-TTpoolgene_list <- as.data.frame(FCpool)
-
-
-TTpoolgene_list <-TTpoolgene_list %>% mutate(FCpool = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))
+load("../Data/TTlrt_pool.Rda")
+load("../Data/TTlrt_condition.Rda")
+load("../Data/TTlrt_inter.Rda")
 
 
-str(TTpoolgene_list)
+str(TTlrt_pool)
 
-TTpoolgene_list <- drop_na(TTpoolgene_list)
+TTlrt_pool$FBgn <- rownames(TTlrt_pool)
+colnames(TTlrt_pool)
+Pool_sig_genes <- as.data.frame(TTlrt_pool)
 
-TTpool_Vplot <- ggplot(TTpoolgene_list, aes(y=-log10(padj), x=log2FoldChange)) +
-  geom_point(size=2, alpha=1/2 ) +
-  geom_hline(yintercept = 1.30) +
-  #scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
-  theme_half_open()
+TTlrt_con$FBgn <- rownames(TTlrt_con)
+Con_sig_genes <- as.data.frame(TTlrt_con)
 
-
-TTpool_Vplot
-
-#ggsave(TTpool_Vplot, filename="../Plots/TTpool_Vplot.pdf", width=6, height=4)
+TTlrt_inter$FBgn <- rownames(TTlrt_inter)
+Inter_sig_genes <- as.data.frame(TTlrt_inter)
 
 
-#condition (Incu vs RT)
+gene_map_table <- read_lines(file = "../../../LearnMemTolQTL/ProcessedData/gene_map_table_fb_2018_04.tsv",
+                skip = 6) %>% 
+  str_split(pattern = "\t", simplify = TRUE) %>% 
+  as_tibble() %>% 
+  filter(V1 == "Dmel")
+
+colnames(gene_map_table) <- c('spp','gname','FBgn','v3','cyt','pos')
 
 
-TTcongene_list <- as.data.frame(FCcon)
+gene_map_table$chr <- str_split(gene_map_table$pos, ":",simplify=TRUE)[,1]
+temp.s1 <- str_split(gene_map_table$pos, ":",simplify=TRUE)[,2] %>% 
+  str_split(fixed(".."),simplify=TRUE)
+gene_map_table$startp <- as.numeric(temp.s1[,1])
+
+gene_map_table$stopp <- as.numeric(str_split(temp.s1[,2],fixed("("),simplify = TRUE)[,1])
+
+Poolgene_list <- merge(Pool_sig_genes, gene_map_table, by="FBgn")
+Congene_list <- merge(Con_sig_genes, gene_map_table, by="FBgn")
+Intergene_list <- merge(Inter_sig_genes, gene_map_table, by="FBgn")
 
 
-TTcongene_list <-TTcongene_list %>% mutate(FCcon = ifelse(log2FoldChange >= 2, "A", ifelse(log2FoldChange <=-2, "B", "C")))
+Poolgene_list <-Poolgene_list %>% mutate(Pool_Genes = ifelse(padj <= 0.05, "A",ifelse(is.na(padj) , "B", "B")))
+Congene_list <-Congene_list %>% mutate(Con_Genes = ifelse(padj <= 0.05, "A",ifelse(is.na(padj) , "B", "B")))
+Intergene_list <-Intergene_list %>% mutate(Inter_Genes = ifelse(padj <= 0.05, "A",ifelse(is.na(padj) , "B", "B")))
 
 
-str(TTcongene_list)
-
-TTcongene_list <- drop_na(TTcongene_list)
-
-TTcon_Vplot <- ggplot(TTcongene_list, aes(y=-log10(padj), x=log2FoldChange)) +
-  geom_point(size=2, alpha=1/2 ) +
-  geom_hline(yintercept = 1.30) +
-  #scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
-  theme_half_open()
+str(Poolgene_list)
+str(Congene_list)
+str(Intergene_list)
 
 
-TTcon_Vplot
+######took this from the LearnMem Code. Not sure how you chose the FBgn #s
+place.g<- c("FBgn0000479",
+            "FBgn0086782",
+            "FBgn0003996",
+            "FBgn0265597",
+            "FBgn0003301",
+            "FBgn0029095",
+            "FBgn0028978")
 
-#ggsave(TTcon_Vplot, filename="../Plots/TTcon_Vplot.pdf", width=6, height=4)
+
+#Pool
+Pool_Volcanoplot <- ggplot(na.omit(Poolgene_list), aes(y=-log10(padj), x=log2FoldChange, color=log10(baseMean), label=gname)) +
+  geom_hline(yintercept=-log10(0.05), color='grey70')+
+  geom_vline(xintercept= -1, color='grey70')+
+  geom_vline(xintercept= 1, color='grey70')+
+  geom_point(size=1.3) +
+  geom_text_repel(data = Poolgene_list[Poolgene_list$FBgn,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
+  ylab(expression("-log"[10]*"(P"[adj]*")")) +
+  xlab(expression("log"[2]*"(FC)"))+
+  xlim(c(-4.5,4)) +
+  ylim(c(0,75)) +
+  my_theme +
+  #scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\nExpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
+  theme(legend.position="none")
+ 
+Pool_Volcanoplot
+
+#Condtion
+Con_Volcanoplot <- ggplot(na.omit(Congene_list), aes(y=-log10(padj), x=log2FoldChange, color=log10(baseMean), label=gname)) +
+  geom_hline(yintercept=-log10(0.05), color='grey70')+
+  geom_vline(xintercept= -1, color='grey70')+
+  geom_vline(xintercept= 1, color='grey70')+
+  geom_point(size=1.3) +
+  geom_text_repel(data = Congene_list[Congene_list$FBgn,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
+  ylab(expression("-log"[10]*"(P"[adj]*")")) +
+  xlab(expression("log"[2]*"(FC)"))+
+  xlim(c(-4.5,4)) +
+  ylim(c(0,75)) +
+  my_theme +
+  #scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\nExpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
+  theme(legend.position="none")
+
+Con_Volcanoplot
+
+#Interaction
+Inter_Volcanoplot <- ggplot(na.omit(Intergene_list), aes(y=-log10(padj), x=log2FoldChange, color=log10(baseMean), label=gname)) +
+  geom_hline(yintercept=-log10(0.05), color='grey70')+
+  geom_vline(xintercept= -1, color='grey70')+
+  geom_vline(xintercept= 1, color='grey70')+
+  geom_point(size=1.3) +
+  geom_text_repel(data = Intergene_list[Intergene_list$FBgn,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
+  ylab(expression("-log"[10]*"(P"[adj]*")")) +
+  xlab(expression("log"[2]*"(FC)"))+
+  xlim(c(-4.5,4)) +
+  ylim(c(0,75)) +
+  my_theme +
+  #scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\nExpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
+  theme(legend.position="none")
+
+ 
+Inter_Volcanoplot
+
+ggsave(Pool_Volcanoplot, filename="../Plots/Pool_Volcanoplot.pdf", width=6.5, height=3)
+ggsave(Con_Volcanoplot, filename="../Plots/Con_Volcanoplot.pdf", width=6.5, height=3)
+ggsave(Inter_Volcanoplot, filename="../Plots/Inter_Volcanoplot.pdf", width=6.5, height=3)
+
+
+allplot <- plot_grid(LearnMAplot,MemMAplot, Learn_Volcanoplot, Mem_Volcanoplot,nrow=2,labels = c('a.', 'b.', 'c.','d.'), rel_widths = c(1,1.3,1,1.3), label_size = 10)
+
+#allplot
+
+ggsave(allplot, file="../Plots/ExprPatterns_all.pdf",width=6.5,height=5)
 
 ```
 
-#Plot fold change for pairwise: H_Incu vs L_Incu, H_RT vs L_RT, H_Incu vs H_RT, L_Incu vs L_RT
+#for different conditions: H_Incu vs L_Incu, H_RT vs L_RT, H_Incu vs H_RT, L_Incu vs L_RT
 ```{r}
+load(file = '../Data/FoldChangeAll.Rda')
+
+str(FC_All)
+
+FC_All <- drop_na(FC_All)
+
+#change padj to log10 
+#remake plots
 
 
-#################################################################################################
-#########NEED HELP HERE. STARTED WORKING ON THE CODE USING ENOCH"S EXAMPLE BUT GOT STUCK##########
-##################################################################################################
-
-plot.dat <- data.frame("gname" = rownames(FC_All), 
-                       "Pval"= FC_All$pvalue, 
-                       "Padj"= FC_All$padj,
-                       "BaseMean"= FC_All$baseMean, stringsAsFactors = FALSE)
-
-
-#enoch's example
-
-pp<-ggplot(FC_All, aes(FoldChangeDR,FoldChangeHS, color=log10(BaseMean))) +
-  geom_hline(yintercept=0,col='grey80')+
-  geom_vline(xintercept=0,col='grey80')+
-  geom_abline(intercept=0,slope=1,col='grey80',lty=2)+
-  geom_point(alpha=1/2)+
- # geom_point(data=pp.dat, aes(FoldChangeDR,FoldChangeHS,color=-log10(Padj+1e-16)), alpha=1/2) +
-  ylim(c(-ax.top,ax.top))+
-  xlim(c(-ax.top,ax.top))+
-  ylab("Fold Change (HS)")+
-  xlab("Fold Change (DR)")+
-  scale_color_gradientn(colours = rainbow_hcl(8, start = 300, end = 40)) +
-  theme(legend.position="none", plot.title = element_text(color="grey50")) +
-  ggtitle("Bodies") +
+#Pool Low Inncubated vs Room Temp 
+p1 <- ggplot(FC_All, aes(y=-log10(padj_PoolL_IvRT), x=FC_PoolL_IvRT)) +
+  geom_hline(yintercept=-log10(0.05), color='grey70')+
+  geom_vline(xintercept= -1, color='grey70')+
+  geom_vline(xintercept= 1, color='grey70')+
+  geom_point(size=2, alpha=1/2 ) +
+  geom_hline(yintercept = 1.30) +
+  scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
   my_theme
+
+p1
+
+#Pool High Inncubated vs Room Temp 
+p2 <- ggplot(FC_All, aes(y=-log10(padj_PoolH_IvRT), x=FC_Poolh_IvRT)) +
+  geom_hline(yintercept=-log10(0.05), color='grey70')+
+  geom_vline(xintercept= -1, color='grey70')+
+  geom_vline(xintercept= 1, color='grey70')+
+  geom_point(size=2, alpha=1/2 ) +
+  geom_hline(yintercept = 1.30) +
+  scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
+  my_theme
+
+p2
+
+#Condition Incubated High vs Low
+p3 <- ggplot(FC_All, aes(y=-log10(padj_CondI_HvL), x=FC_CondI_HvL)) +
+  geom_hline(yintercept=-log10(0.05), color='grey70')+
+  geom_vline(xintercept= -1, color='grey70')+
+  geom_vline(xintercept= 1, color='grey70')+
+  geom_point(size=2, alpha=1/2 ) +
+  geom_hline(yintercept = 1.30) +
+  scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
+  my_theme
+
+p3
+
+#Condition Room Temp High vs Low
+p4 <- ggplot(FC_All, aes(y=-log10(padj_CondRT_HvL), x=FC_CondRT_HvL)) +
+  geom_hline(yintercept=-log10(0.05), color='grey70')+
+  geom_vline(xintercept= -1, color='grey70')+
+  geom_vline(xintercept= 1, color='grey70')+
+  geom_point(size=2, alpha=1/2 ) +
+  geom_hline(yintercept = 1.30) +
+  scale_color_manual(values=c('red','blue','black'),labels=c('Up Regulated','Down Regulated','Base Levels')) +
+  my_theme
+
+p4
+
+allVplot <- plot_grid(p1,p2, p3, p4,nrow=2,labels = c('a.', 'b.', 'c.','d.'), rel_widths = c(1,1.3,1,1.3), label_size = 10)
 
 
 ```

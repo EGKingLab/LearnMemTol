@@ -474,7 +474,7 @@ ttpool.plot.list[[5]]
 
 ttinter.plot.list <- vector(mode='list', length=length(tt)) 
 
-for(zz in tt.inter)
+for(zz in tt)
 {
   tt.set <- ThermTol.list[[zz]]
   tt.set[which.max(abs(tt.set$l2F_inter)),]
@@ -535,6 +535,11 @@ for(zz in tt)
   
   pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
   
+  
+   pgene <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn, color=Phenotype))
+  
+  
+  
   TTcon_peaks <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
     geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','l2F_con'],yend=tt.set.s[tt.set.s$sig=='Y','l2F_con'], color='grey50', size=segsize)+
     xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
@@ -558,7 +563,7 @@ for(zz in tt)
 
 ttcon.plot.list[[5]]
 
-
+#QTL CI for pool, condition and interaction
 ttmaster.list <- list(
   ttcon.plot.list[[1]],
   ttcon.plot.list[[2]],
@@ -584,11 +589,11 @@ ttmaster.list <- list(
 
 ttplots <- plot_grid(ttcon.plot.list,ttpool.plot.list, ttinter.plot.list)
 
-ttallplots <- plot_grid(plotlist=ttmaster.list, nrow=4, ncol=4,labels = c("a.","b.","c.","d.","e.","f.","g.","h.","i.","j.","k.","l.","m.","n.","o.","p.","q.","r.","s.","t.","u."), align="hv", axis="tl", rel_widths=c(1,0.9,0.9,0.9), rel_heights = c(0.9,0.9,0.9,1), label_size=10, hjust= c(rep(c(0,rep(-2,3)),3),0,-2,-2))
+ttallplots <- plot_grid(plotlist=ttmaster.list, nrow=4, ncol=4,labels = c("a.","b.","c.","d.","e.","f.","g.","h.","i.","j.","k.","l.","m.","n.","o.","p.","q.","r.","s.","t.","u.", ), align="hv", axis="tl", rel_widths=c(1,0.9,0.9,0.9), rel_heights = c(0.9,0.9,0.9,1), label_size=10, hjust= c(rep(c(0,rep(-2,3)),3),0,-2,-2))
 
 
 
-#only QTLs for Pool
+#QTLs CI for Pool
 
 ttpool.list <- list(ttpool.plot.list[[1]],
   ttpool.plot.list[[2]],
@@ -601,6 +606,23 @@ ttpool.list <- list(ttpool.plot.list[[1]],
 
 ttpool_plots <- plot_grid(ttpool.plot.list)
 
-ttpoolplots <- plot_grid(plotlist=ttpool.list, nrow=4, ncol=4,labels = c("a.","b.","c.","d.","e.","f.","g."), align="hv", axis="tl", rel_widths=c(3,1,1,1), rel_heights = c(1,1,1,2), label_size=10, hjust= c(rep(c(0,rep(-2,3)),3),0,-2,-2))
+ttpoolplots <- plot_grid(plotlist=ttpool.list, nrow=3, ncol=3,labels = c("a.","b.","c.","d.","e.","f.","g."), align="hv", axis="tl", rel_widths=c(3,1,1,1), rel_heights = c(1,1,1,2), label_size=5, hjust= c(rep(c(0,rep(-2,3)),3),0,-2,-2))
+
+
+#QTLs CI for condition
+
+ttcon.list <- list(ttcon.plot.list[[1]],
+ ttcon.plot.list[[2]],
+  ttcon.plot.list[[3]],
+  ttcon.plot.list[[4]],
+  ttcon.plot.list[[5]],
+  ttcon.plot.list[[6]],
+  ttcon.plot.list[[7]])
+
+
+ttcon_plots <- plot_grid(ttcon.plot.list)
+
+ttconplots <- plot_grid(plotlist=ttcon.plot.list, nrow=2, ncol=2,labels = c("a.","b.","c.","d.","e.","f.","g."), align="hv", axis="tl", rel_widths=c(3,1,1,1), rel_heights = c(1,1,1,2), label_size=10, hjust= c(rep(c(0,rep(-2,3)),3),0,-2,-2))
+
 
 ```
