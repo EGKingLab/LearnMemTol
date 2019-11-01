@@ -161,9 +161,9 @@ colnames(MemresSVorder)
 Mem_sig_genes <- as.data.frame(MemresSVorder)
 
 load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_condition.Rda")
-str(TTlrt_con)
-TTlrt_con$FBgn <- rownames(TTlrt_con)
-TTcon_sig_genes <- as.data.frame(TTlrt_con)
+str(TTlrt_condition)
+TTlrt_condition$FBgn <- rownames(TTlrt_condition)
+TTcon_sig_genes <- as.data.frame(TTlrt_condition)
 
 load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_pool.Rda")
 str(TTlrt_pool)
@@ -195,10 +195,10 @@ gene_map_table$stopp <- as.numeric(str_split(temp.s1[,2],fixed("("),simplify = T
 Learn_gene_list_merged <- merge(Learn_sig_genes, gene_map_table, by="FBgn")
 Mem_gene_list_merged <- merge(Mem_sig_genes, gene_map_table, by="FBgn")
 
-Learn_gene_list_sub <- Learn_gene_list_merged[c(1,3,6,7,9,13:15)]
+Learn_gene_list_sub <- Learn_gene_list_merged[,c(1,3,6,7,9,13:15)]
 colnames(Learn_gene_list_sub)
 
-Mem_gene_list_sub <- Mem_gene_list_merged[c(1,3,6,7,9,13:15)]
+Mem_gene_list_sub <- Mem_gene_list_merged[,c(1,3,6,7,9,13:15)]
 colnames(Mem_gene_list_sub)
 
 TTcon_gene_list_merged <- merge(TTcon_sig_genes, gene_map_table, by="FBgn")
@@ -206,13 +206,13 @@ TTpool_gene_list_merged <- merge(TTpool_sig_genes, gene_map_table, by="FBgn")
 TTinter_gene_list_merged <- merge(TTinter_sig_genes, gene_map_table, by="FBgn")
 
 
-TTcon_gene_list_sub <- TTcon_gene_list_merged[c(1,3,6,7,9,13:15)]
+TTcon_gene_list_sub <- TTcon_gene_list_merged[,c(1,3,6,7,9,13:15)]
 colnames(TTcon_gene_list_sub)
 
-TTpool_gene_list_sub <- TTpool_gene_list_merged[c(1,3,6,7,9,13:15)]
+TTpool_gene_list_sub <- TTpool_gene_list_merged[,c(1,3,6,7,9,13:15)]
 colnames(TTpool_gene_list_sub)
 
-TTinter_gene_list_sub <- TTinter_gene_list_merged[c(1,3,6,7,9,13:15)]
+TTinter_gene_list_sub <- TTinter_gene_list_merged[,c(1,3,6,7,9,13:15)]
 colnames(TTinter_gene_list_sub)
 
 
@@ -403,7 +403,7 @@ cors.effs <- data.frame('FBgn'= ee$FBgn, 'corEff'= apply(eqtl.e, 1, function(x) 
 ll.all <- merge(ll.foc, cors.effs, by='FBgn', all=TRUE)
 
 ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
-ThermTol.listt[[jj]] <- ll.all
+ThermTol.list[[jj]] <- ll.all
 }
 
 save(ThermTol.list,file="../ProcessedData/ThermTol_genes_under_peak.rda")
