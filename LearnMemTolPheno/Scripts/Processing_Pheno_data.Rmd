@@ -115,6 +115,7 @@ ThermTolhisto
 L_MDATA[which.min(L_MDATA$Learning_Mean),]
 L_MDATA[which.min(L_MDATA$Memory_Mean),]
 T_TDATA[which.min(T_TDATA$Incapacitation_Mean),]
+T_TDATA[which.max(T_TDATA$Incapacitation_Mean),]
 
 
 #Look at indivial Learning PIs for RILs with lowest means

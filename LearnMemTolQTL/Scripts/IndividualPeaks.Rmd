@@ -1140,7 +1140,7 @@ pheno Learn: `r max(abs(subset(ll.sub, gname=="hh")$rLearn))`
 ```{r}
 
 ###
-###Libby can these thre steps be done in one step?
+###Libby can these three steps be done in one step?
 
 #Q2 Condition 
 
@@ -1354,51 +1354,33 @@ unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
 
 There are 21 genes located within this CI. 6 DE for pool, 8 for condition and 0 for interaction. 
 
-*Mvl* and *Dhc* are both DE in pool and condition.
+Genes of interest *Mvl, Dhc93AB, Calx, Atplase*, they are all invloved in ion channels. (?)
 
-.... is most significant
+*Mvl* and *Dhc93AB* are both DE in pool and condition.
 
-####Libby Ignore the text below
-Of the genes with a cis eQTL:
+*Mvl*
+FC: `r subset(ll.sub, gname=="Mvl")$l2F_con[1]`
+pval: `r subset(ll.sub, gname=="Mvl")$padj_con[1]`
+#pheno Learn: `r max(abs(subset(ll.sub, gname=="Mvl")$rLearn))`
 
-CG1441 is most signficant.
+FC: `r subset(ll.sub, gname=="Mvl")$l2F_pool[1]`
+pval: `r subset(ll.sub, gname=="Mvl")$padj_pool[1]`
 
-CG1441
-FC: `r subset(ll.sub, gname=="CG1441")$log2FoldChange[1]`
-pval: `r subset(ll.sub, gname=="CG1441")$padj[1]`
-corr Eff : `r max(abs(subset(ll.sub, gname=="CG1441")$corEff))`
-pheno Learn: `r max(abs(subset(ll.sub, gname=="CG1441")$rLearn))`
+*Mvl* encodes a member of the SLC11 family of metal ion transporters that transports divalent metal cations, including Mn2+ and Fe2+. Its function has been linked to feeding-related decisions, possibly via modulation of dopaminergic signaling.
 
+*Dhc93AB*
+FC: `r subset(ll.sub, gname=="Dhc93AB")$l2F_con[1]`
+pval: `r subset(ll.sub, gname=="Dhc93AB")$padj_con[1]`
 
-CG1698 is involved in neurotransmitter transporter activity
+FC: `r subset(ll.sub, gname=="Dhc93AB")$l2F_pool[1]`
+pval: `r subset(ll.sub, gname=="Dhc93AB")$padj_pool[1]`
 
-CG1698
-FC: `r subset(ll.sub, gname=="CG1698")$log2FoldChange[1]`
-pval: `r subset(ll.sub, gname=="CG1698")$padj[1]`
-corr Eff : `r max(abs(subset(ll.sub, gname=="CG1698")$corEff))`
-pheno Learn: `r max(abs(subset(ll.sub, gname=="CG1698")$rLearn))`
-
-KCNQ voltage gated channel - heart? moderate effect correlation & phenotypic
-
-KCNQ
-FC: `r subset(ll.sub, gname=="KCNQ")$log2FoldChange[1]`
-pval: `r subset(ll.sub, gname=="KCNQ")$padj[1]`
-corr Eff : `r max(abs(subset(ll.sub, gname=="KCNQ")$corEff))`
-pheno Learn: `r max(abs(subset(ll.sub, gname=="KCNQ")$rLearn))`
-
-CAP - sensory processes, neuronal processes, low/moderate effect correlation & moderate phenotypic correlation
-
-CAP
-FC: `r subset(ll.sub, gname=="CAP")$log2FoldChange[1]`
-pval: `r subset(ll.sub, gname=="CAP")$padj[1]`
-corr Eff : `r max(abs(subset(ll.sub, gname=="CAP")$corEff))`
-pheno Learn: `r max(abs(subset(ll.sub, gname=="CAP")$rLearn))`
-
-Hdc is another candidate from Flybase & Patricka. It does not have a cis eQTL.
+*Dhc93AB* encodes a motor protein involved in hearing. 
 
 
+*....* is most significant for conditon
 
-
+*.....* is most significant for pool 
 
 
 #Q7

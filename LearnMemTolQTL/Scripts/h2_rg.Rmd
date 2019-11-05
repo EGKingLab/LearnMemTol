@@ -29,6 +29,9 @@ rawdLM <- rawdLM[,c('patRIL','Learning','Memory')]
 rawdLM <- rawdLM %>% mutate(LearnNorm = quant.norm(Learning),
                             MemoryNorm = quant.norm(Memory))
 
+rawdTT <- rawdTT[,c('patRIL','incapacitation')]
+rawdTT <- rawdTT %>% mutate(ThermTolNorm = quant.norm(incapacitation))
+
 ```
 
 ## Broad sense heritability
@@ -45,6 +48,7 @@ pheno <- rawdLM$LearnNorm
 afit<-lme(pheno ~ 1 , random= ~1 | geno, method="ML")
 afit.n <- lm(pheno ~ 1)
 anova.lme(afit.n, afit)
+
 #check
 x2val <- -2*logLik(afit.n, REML=FALSE) + 2* logLik(afit, REML=FALSE)
 pchisq(x2val, df=1, lower.tail=F, log.p = TRUE)
@@ -61,7 +65,6 @@ afit.n <- lm(pheno ~ 1)
 anova.lme(afit.n, afit)
 
 x2val <- -2*logLik(afit.n, REML=FALSE) + 2* logLik(afit, REML=FALSE)
-
 pchisq(x2val, df=1, lower.tail=F, log.p=TRUE)
 
 learn.jk <- jk.h2.lme(geno=as.factor(rawdLM$patRIL), pheno=rawdLM$LearnNorm)
@@ -81,6 +84,29 @@ nn <- length(mem.jk[is.na(mem.jk)==FALSE])
 tval <- qt(0.025, nn-1, lower.tail=FALSE)
 mean(mem.jk, na.rm=TRUE) + tval*sd(mem.jk, na.rm=TRUE)/sqrt(nn)
 mean(mem.jk, na.rm=TRUE) - tval*sd(mem.jk, na.rm=TRUE)/sqrt(nn)
+
+#Thermal Tolerance 
+
+ThermTol.h2 <- h2.lme(geno=as.factor(rawdTT$patRIL), pheno=rawdTT$ThermTolNorm)
+
+geno <- as.factor(rawdTT$patRIL)
+pheno <- rawdTT$ThermTolNorm
+
+afit<-lme(pheno ~ 1 , random= ~1 | geno, method="ML")
+afit.n <- lm(pheno ~ 1)
+anova.lme(afit.n, afit)
+
+#check
+x2val <- -2*logLik(afit.n, REML=FALSE) + 2* logLik(afit, REML=FALSE)
+pchisq(x2val, df=1, lower.tail=F, log.p = TRUE)
+
+ThermTol.jk <- jk.h2.lme(geno=as.factor(rawdTT$patRIL), pheno=rawdTT$ThermTolNorm)
+mean(ThermTol.jk, na.rm=TRUE)
+sd(ThermTol.jk, na.rm=TRUE)
+nn <- length(ThermTol.jk[is.na(ThermTol.jk)==FALSE])
+tval <- qt(0.025, nn-1, lower.tail=FALSE)
+mean(ThermTol.jk, na.rm=TRUE) + tval*sd(ThermTol.jk, na.rm=TRUE)/sqrt(nn)
+mean(ThermTol.jk, na.rm=TRUE) - tval*sd(ThermTol.jk, na.rm=TRUE)/sqrt(nn)
 
 
 ```
