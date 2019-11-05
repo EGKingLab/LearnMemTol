@@ -1377,6 +1377,24 @@ pval: `r subset(ll.sub, gname=="Dhc93AB")$padj_pool[1]`
 
 *Dhc93AB* encodes a motor protein involved in hearing. 
 
+*Calx*
+FC: `r subset(ll.sub, gname=="Calx")$l2F_con[1]`
+pval: `r subset(ll.sub, gname=="Calx")$padj_con[1]`
+
+FC: `r subset(ll.sub, gname=="Calx")$l2F_pool[1]`
+pval: `r subset(ll.sub, gname=="Calx")$padj_pool[1]`
+
+Na/Ca-exchange protein (*Calx*) encodes a Na-Ca exchanger involved in phototransduction and response to endoplasmic reticulum stress.
+
+
+*Atpalpha*
+FC: `r subset(ll.sub, gname=="Atpalpha")$l2F_con[1]`
+pval: `r subset(ll.sub, gname=="Atpalpha")$padj_con[1]`
+
+FC: `r subset(ll.sub, gname=="Atpalpha")$l2F_pool[1]`
+pval: `r subset(ll.sub, gname=="Atpalpha")$padj_pool[1]`
+
+Na pump α subunit (*Atpα*) encodes an integral membrane cation antiporter protein that utilizes ATP to shuttle Na[+] and K[+] across the plasma membrane to maintain ion homeostasis.
 
 *....* is most significant for conditon
 

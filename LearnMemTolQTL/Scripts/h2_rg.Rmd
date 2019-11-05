@@ -128,6 +128,28 @@ mean(psrg, na.rm=TRUE) + tval*sd(psrg, na.rm=TRUE)/sqrt(nn)
 mean(psrg, na.rm=TRUE) - tval*sd(psrg, na.rm=TRUE)/sqrt(nn)
 
 length(psrg[is.na(psrg)])
+
+#Thermal Tolerance
+
+##note to self: you will have to merge the two df to be able to do the following steps
+
+phen.t <- rawdTT[,c('patRIL','ThermTolNorm','MemoryNorm')] %>% gather(phenotype,value,-patRIL)
+
+rg.lme(phenoval=phen.t$value, phenotype=phen.t$phenotype, geno=phen.t$patRIL)
+
+which(is.na(phen.t$phenotype))
+which(is.na(phen.t$value))
+which(is.na(phen.t$patRIL))
+
+psrg <- jk.rg.lme(phenoval=phen.t$value, phenotype=phen.t$phenotype, geno=phen.t$patRIL)
+
+mean(psrg,na.rm=TRUE)
+nn <- length(psrg[is.na(psrg)==FALSE])
+tval <- qt(0.025, nn-1, lower.tail=FALSE)
+mean(psrg, na.rm=TRUE) + tval*sd(psrg, na.rm=TRUE)/sqrt(nn)
+mean(psrg, na.rm=TRUE) - tval*sd(psrg, na.rm=TRUE)/sqrt(nn)
+
+length(psrg[is.na(psrg)])
 ```
 
 
