@@ -53,7 +53,7 @@ ccs.t <- cor(TT.sub$Incapacitation_Mean, TTqn.mat)
 
 cors.tt <- data.frame('ID' = colnames(TTqn.mat), 'rThermTol' = as.numeric(ccs.t), stringsAsFactors=FALSE)
 
-#load eQTL data from king et al 2014
+#load eQTL data from king et  al 2014
 cgn<-read.table(file="/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/AbyB/Analysis/NewRMA/QTLmapping/fbgn_fbtr_fbpp_fb_2012_02.tsv",header=FALSE,stringsAsFactors=FALSE,sep="\t",fill=TRUE)
 
 load(file='/home/kingeg/Archived/wfitchNOV2015/Fheads_eQTLs/eQTLs/probes/CDS/completeCDS.rda')
@@ -402,7 +402,7 @@ cors.effs <- data.frame('FBgn'= ee$FBgn, 'corEff'= apply(eqtl.e, 1, function(x) 
 
 ll.all <- merge(ll.foc, cors.effs, by='FBgn', all=TRUE)
 
-ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
+ll.all <- merge(ll.all, cors.tt, by='FBgn', all.x=TRUE)
 ThermTol.list[[jj]] <- ll.all
 }
 
@@ -1342,7 +1342,7 @@ unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
 ll <- 6
 cc.ll <- ci.peak[[3]][ll,]
 ll.sub <- ThermTol.list[[ll]]
-
+ll.sub <- ll.sub[which(is.na(ll.sub$startp)==FALSE),]
 ll.sub[which.max(abs(ll.sub$l2F_inter)),]
 ll.sub[which.min(ll.sub$padj_inter),]
 
@@ -1350,18 +1350,26 @@ ll.sub[which(ll.sub$padj_inter <= 0.05),]
 
 unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
 
+ll.sub[which.max(abs(ll.sub$rThermTol)),]
+ll.sub[which.max(abs(ll.sub$corEff)),]
+
+ll.sub[ll.sub$gname=="Mvl",]
+ll.sub[ll.sub$gname=="Dhc93AB",]
+ll.sub[ll.sub$gname=="Calx",]
+ll.sub[ll.sub$gname=="Atpalpha",]
+
 ```
 
 There are 21 genes located within this CI. 6 DE for pool, 8 for condition and 0 for interaction. 
 
-Genes of interest *Mvl, Dhc93AB, Calx, Atplase*, they are all invloved in ion channels. (?)
+Genes of interest *Mvl, Dhc93AB, Calx, Atpalpha*, they are all invloved in ion channels. (?)
 
 *Mvl* and *Dhc93AB* are both DE in pool and condition.
 
 *Mvl*
 FC: `r subset(ll.sub, gname=="Mvl")$l2F_con[1]`
 pval: `r subset(ll.sub, gname=="Mvl")$padj_con[1]`
-#pheno Learn: `r max(abs(subset(ll.sub, gname=="Mvl")$rLearn))`
+pheno Therm: `r max(abs(subset(ll.sub, gname=="Mvl")$rThermTol))`
 
 FC: `r subset(ll.sub, gname=="Mvl")$l2F_pool[1]`
 pval: `r subset(ll.sub, gname=="Mvl")$padj_pool[1]`
@@ -1374,6 +1382,7 @@ pval: `r subset(ll.sub, gname=="Dhc93AB")$padj_con[1]`
 
 FC: `r subset(ll.sub, gname=="Dhc93AB")$l2F_pool[1]`
 pval: `r subset(ll.sub, gname=="Dhc93AB")$padj_pool[1]`
+pheno Therm: `r max(abs(subset(ll.sub, gname=="Dhc93AB")$rThermTol))`
 
 *Dhc93AB* encodes a motor protein involved in hearing. 
 
@@ -1383,6 +1392,8 @@ pval: `r subset(ll.sub, gname=="Calx")$padj_con[1]`
 
 FC: `r subset(ll.sub, gname=="Calx")$l2F_pool[1]`
 pval: `r subset(ll.sub, gname=="Calx")$padj_pool[1]`
+pheno Therm: `r max(abs(subset(ll.sub, gname=="Calx")$rThermTol))`
+
 
 Na/Ca-exchange protein (*Calx*) encodes a Na-Ca exchanger involved in phototransduction and response to endoplasmic reticulum stress.
 
@@ -1393,6 +1404,9 @@ pval: `r subset(ll.sub, gname=="Atpalpha")$padj_con[1]`
 
 FC: `r subset(ll.sub, gname=="Atpalpha")$l2F_pool[1]`
 pval: `r subset(ll.sub, gname=="Atpalpha")$padj_pool[1]`
+
+pheno Therm: `r max(abs(subset(ll.sub, gname=="Atpalpha")$rThermTol))`
+
 
 Na pump α subunit (*Atpα*) encodes an integral membrane cation antiporter protein that utilizes ATP to shuttle Na[+] and K[+] across the plasma membrane to maintain ion homeostasis.
 

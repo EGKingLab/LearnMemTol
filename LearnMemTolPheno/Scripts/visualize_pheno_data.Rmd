@@ -271,6 +271,7 @@ ThermTol_indi_points <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
   stat_summary(fun.data = mean_se, 
                geom = "errorbar", 
                color = 'red', width=0, size=0.3, alpha=1/2) +
+  theme_half_open() +
   theme(legend.position = "none",axis.ticks.x=element_blank()) +
   xlab("RILs") +
   ylab("Thermo Tolerance PI") +
@@ -282,7 +283,7 @@ ThermTol_indi_points <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
 ThermTol_indi_points
 
 #to save plot
-ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points.pdf", width=10, height=4)
+ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points.pdf", width=3.5, height=2.5)
 
 ```
 
@@ -337,7 +338,7 @@ ThermTol_indi_points_2 <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
  ThermTol_indi_points_2
 
 #to save plot
-ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points_2.pdf", width=10, height=4)
+ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points_2.pdf", width=3.5, height=2.5)
 
 ```
 
