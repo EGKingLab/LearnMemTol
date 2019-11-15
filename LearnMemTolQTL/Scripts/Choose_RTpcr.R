@@ -63,4 +63,6 @@ table(pph$HQ4[1:20])
 table(pph$HQ11[1:20])
 table(pph$HQ14[1:20])
 
-write.table(sort(c(pp$patRIL,pph$patRIL)), file="../ProcessedData/RTpcr.txt",sep="\t", row.names=FALSE, col.names = FALSE)
+output <- data.frame("class" = c(rep("L",nrow(pp)),rep("H",nrow(pph))), "RIL"=c(pp$patRIL,pph$patRIL))
+
+write.table(output, file="../ProcessedData/RTpcr.txt",sep="\t", row.names=FALSE)
