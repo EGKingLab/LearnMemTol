@@ -414,12 +414,15 @@ Q6 <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
   geom_text_repel(data = tt.set.s, show.legend = FALSE,  fontface='italic', size=5, segment.size=txseg.size, min.segment.length = 0) +
         ylab(expression("log"[2]*"(FC)")) +
     xlab(paste("Position (Mbp)", sep="")) +
-  theme(legend.position="none")+
-  ylim(c(-4,3))+
   theme_half_open() +
-  my_theme
+  my_theme +
+  theme(legend.position="none")+
+  ylim(c(-4,3))
+  
 
 Q6
+
+ggsave(Q6, file="../Plots/Q6_pool_genes.pdf", width=8, height=6)
 
 
 #for all QTls, loop. Expect 1, because there are no sig genes.

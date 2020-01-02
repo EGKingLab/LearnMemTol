@@ -30,6 +30,8 @@ load(file="../../LearnMemTolPheno/ProcessedData/L_MDATA.rda")
 ww<- which(L_MDATA$patRIL %in% rownames(qn.mat))
 wwe<- which(rownames(qn.mat) %in% L_MDATA$patRIL)
 L.sub <- L_MDATA[ww,]
+
+
 qn.mat <- qn.mat[wwe,]
 
 all.equal(as.numeric(row.names(qn.mat)), L.sub$patRIL)
@@ -42,6 +44,7 @@ cors.lm <- data.frame('ID' = colnames(qn.mat), 'rLearn' = as.numeric(ccs.l), 'rM
 
 #Thermal Tolerance 
 load(file="../../LearnMemTolPheno/ProcessedData/T_TDATA.rda")
+str(T_TDATA)
 tww<- which(T_TDATA$patRIL %in% rownames(qn.mat))
 twwe<- which(rownames(qn.mat) %in% T_TDATA$patRIL)
 TT.sub <- T_TDATA[tww,]
@@ -1243,10 +1246,6 @@ ll.sub[which(ll.sub$padj_con <= 0.05),]
 unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
 
 #Q4 Pool
-ll <- 4
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
 ll.sub[which.max(abs(ll.sub$l2F_pool)),]
 ll.sub[which.min(ll.sub$padj_pool),]
 
@@ -1256,10 +1255,6 @@ unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
 
 
 #Q4 Interaction
-ll <- 4
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
 ll.sub[which.max(abs(ll.sub$l2F_inter)),]
 ll.sub[which.min(ll.sub$padj_inter),]
 
@@ -1285,10 +1280,6 @@ ll.sub[which(ll.sub$padj_con <= 0.05),]
 unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
 
 #Q5 Pool
-ll <- 5
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
 ll.sub[which.max(abs(ll.sub$l2F_pool)),]
 ll.sub[which.min(ll.sub$padj_pool),]
 
@@ -1298,10 +1289,6 @@ unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
 
 
 #Q5 Interaction
-ll <- 5
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
 ll.sub[which.max(abs(ll.sub$l2F_inter)),]
 ll.sub[which.min(ll.sub$padj_inter),]
 
@@ -1326,9 +1313,6 @@ ll.sub[which(ll.sub$padj_con <= 0.05),]
 unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
 
 #Q6 Pool
-ll <- 6
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
 
 ll.sub[which.max(abs(ll.sub$l2F_pool)),]
 ll.sub[which.min(ll.sub$padj_pool),]
@@ -1339,9 +1323,7 @@ unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
 
 
 #Q6 Interaction
-ll <- 6
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
+
 ll.sub <- ll.sub[which(is.na(ll.sub$startp)==FALSE),]
 ll.sub[which.max(abs(ll.sub$l2F_inter)),]
 ll.sub[which.min(ll.sub$padj_inter),]

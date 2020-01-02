@@ -1,0 +1,89 @@
+---
+title: "ThermTol_SV"
+author: "Patricka Williams-Simon"
+date: "11/13/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Questions: What are the SVs that are in Q6 CI and founder background?
+            Can we use these SVs to identify candidate genes for TT?
+            Are any of these SVs locatd within our 'candidate genes'?
+            
+Aim: Use SV raw data to identify SVs in the founders, which have an effect on Q6 for TT. (http://github.com/mahulchak/dspr.asm)
+
+How: Load SV raw data files for all the founders that has an effect on Q6.
+      Filter for only 3R chr.
+      Load file with individual peaks.
+      Merge files by gene names or by postition. 
+      load file for release 6.13
+      
+Founders: A3, A4, A5, A6, A7, 
+
+#looad data sets 
+```{r cars}
+
+load(file="../LearnMemTolQTL/ProcessedData/Peaks_wCIs.rda")
+
+ci.peak[[3]][6,]
+
+#load Sv raw data for each founder with effect on Q6 
+
+burden_table <- read.table("/home/pwilliams/MyGitHub/dspr-asm/rscripts/Burden/burden_table.08032018.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+str(burden_table)
+
+
+sv.a3 <- read.table("/home/pwilliams/MyGitHub/dspr-asm/variants-raw/sv.a3.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+str(sv.a3)
+
+sv.a4 <- read.table("/home/pwilliams/MyGitHub/dspr-asm/variants-raw/sv.a4.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+sv.a5 <- read.table("/home/pwilliams/MyGitHub/dspr-asm/variants-raw/sv.a5.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+sv.a6 <- read.table("/home/pwilliams/MyGitHub/dspr-asm/variants-raw/sv.a6.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+sv.a7 <- read.table("/home/pwilliams/MyGitHub/dspr-asm/variants-raw/sv.a7.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+```
+
+#filter data set for genes located in QR
+```{r}
+
+
+Q6_gene_burden <- burden_table %>% filter(Gene %in% c("AnxB9","Atpalpha","Mvl","Dhc93AB","Cortactin",    "CG7079","RhoGAP93B","CG31207","r-l","Calx","dmrt93B", "RhoGAP93B", "CG17279", "CG12278", "HHEX","CG31189","Rlip","Alp5","lncRNA:CR44178","CG43446","CG5697","CG31191","CG31189","CG17278", ""))
+
+#Filter dataset for only chr 3R
+sv.a3 <- sv.a3 %>% filter(REF_CHROM %in% c("iso1.3R"))
+str(sv.a3)
+sv.a4 <- sv.a4 %>% filter(REF_CHROM %in% c("iso1.3R"))
+sv.a5 <- sv.a5 %>% filter(REF_CHROM %in% c("iso1.3R"))
+sv.a6 <- sv.a6 %>% filter(REF_CHROM %in% c("iso1.3R"))
+sv.a7 <- sv.a7 %>% filter(REF_CHROM %in% c("iso1.3R"))
+
+#filter 3R dataset for Q6 range
+Q6_sv.a3 <- sv.a3[(sv.a3$REF_START >= 20909100) & (sv.a3$REF_START <= 21088800),]
+Q6_sv.a4 <- sv.a4[(sv.a4$REF_START >= 20909100) & (sv.a4$REF_START <= 21088800),]
+Q6_sv.a5 <- sv.a5[(sv.a5$REF_START >= 20909100) & (sv.a5$REF_START <= 21088800),]
+Q6_sv.a6 <- sv.a6[(sv.a6$REF_START >= 20909100) & (sv.a6$REF_START <= 21088800),]
+Q6_sv.a7 <- sv.a7[(sv.a7$REF_START >= 20909100) & (sv.a7$REF_START <= 21088800),]
+
+Q6_sv <- rbind(Q6_sv.a3, Q6_sv.a4, Q6_sv.a5, Q6_sv.a6, Q6_sv.a7)
+
+Q6 <- ci.peak[[3]][6,]
+
+final_df <- as.data.frame(t(Q6$A1))
+
+d2 <- data.frame(RIL= row.names(Q6), Q6, row.names=NULL) 
+
+
+ggplot(Q6, aes(x = Q6$A1)) +
+  geom_histogram()
+
+```
+
+
