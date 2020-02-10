@@ -19,12 +19,16 @@ source(file="../../Functions/ggplot_theme.R")
 ```{r}
 load(file="../../LearnMemTolPheno/ProcessedData/L_MDATA.rda")
 
+load(file="../../LearnMemTolPheno/ProcessedData/T_TDATA.rda")
+
+
 load(file ="../ProcessedData/Peaks_wCIs.rda")
 
 rrs <- read.table(file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/RILs_in_pools.txt", sep="\t", stringsAsFactors = FALSE, header=TRUE)
 
 load(file="../ProcessedData/Mem_genes_under_peak.rda")
 load(file="../ProcessedData/Learn_genes_under_peak.rda")
+load(file="../ProcessedData/TT_genes_under_peak.rda")
 
 L.plot <- L_MDATA[,c("patRIL","LearnPowerTrans","Memory_Mean")]
 

@@ -9,7 +9,6 @@ load(file="../ProcessedData/sig_ths.rda")#fdr.out
 load(file="../ProcessedData/Lodscores_3traits.rda")#obs.LL
 
 
-
 #th.2 <- fdr.out$fwer
 th.l <- fdr.out$fdr$threshold[min(which(fdr.out$fdr$fdr<=0.05))]
 

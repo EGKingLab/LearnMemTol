@@ -38,7 +38,7 @@ PhenoData <- read.csv("../Data/sample_description.csv", stringsAsFactors = FALSE
 
 #Separate traits into different obejects and add id column 
 
-TTpheno <- PhenoData %>% filter(treatment %in% c("TH", "TH_Incu", "TH_Incu_control", "TL","TL_Incu", "TL_Incu_control"  ))
+TTpheno <- PhenoData %>% filter(treatment %in% c("TH", "TH_Incu", "TH_Incu_control", "TL","TL_Incu", "TL_Incu_control"))
 
 names(TTpheno)[1]<-"ids"
 TTpheno <- TTpheno %>%

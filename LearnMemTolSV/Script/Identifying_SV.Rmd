@@ -1,0 +1,185 @@
+---
+title: "ThermTol_SV"
+author: "Patricka Williams-Simon"
+date: "11/13/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+Questions: What are the SVs that are in Q6 CI and founder background?
+            Can we use these SVs to identify candidate genes for TT?
+            Are any of these SVs locatd within our 'candidate genes'?
+            
+Aim: Use SV raw data to identify SVs in the founders, which have an effect on Q6 for TT. (http://github.com/mahulchak/dspr.asm)
+
+How: Load SV raw data files for all the founders that has an effect on Q6.
+      Filter for only 3R chr.
+      Load file with individual peaks.
+      Merge files by gene names or by postition. 
+      load file for release 6.13
+      
+Founders: A3, A4, A5, A6, A7, 
+
+#load data sets and filter for Q6
+```{r cars}
+
+load(file="../../LearnMemTolQTL/ProcessedData/Peaks_wCIs.rda")
+
+ci.peak[[3]][6,]
+ci.peak[[3]][7,]
+
+
+
+#learnMem
+pp<-ci.peak[[1]]
+str(pp)
+which.max(pp$LL)
+
+ci.peak[[1]][1,]
+
+#load Sv raw data for each founder with effect on Q6 
+
+burden_table <- read.table("/home/pwilliams/MyGitHub/dspr-asm/rscripts/Burden/burden_table.08032018.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+str(burden_table)
+
+
+#gene table from fly base, release 6, 2019.
+gene_map <- read.table("../raw_data/gene_map_table_fb_2019_06.tsv",sep="\t", header=FALSE, stringsAsFactors = FALSE)
+
+str(gene_map)
+gene_map$V6[1:5]
+
+#separate chromosome arm from location
+pp<-gene_map[,6]
+mm<- str_split(pp, fixed(":"), simplify =TRUE)
+gene_map$Chrm <-mm[,1]
+gene_map$Chrm_st_end <-mm[,2]
+
+
+#separate chromosome start and stop locations
+pp<-gene_map[,8]
+mm<- str_split(pp, fixed(".."), simplify =TRUE)
+gene_map$REF_start <-mm[,1]
+gene_map$REF_end <-mm[,2]
+
+pp<-gene_map[,10]
+mm<- str_split(pp, fixed("("), simplify =TRUE)
+gene_map$REF_end <-mm[,1]
+gene_map$Chrm_st_end <- NULL
+
+pp<-gene_map[,2]
+gene_map$gene <-pp
+gene_map$V1 <- NULL
+gene_map$V2 <- NULL
+gene_map$V3 <- NULL
+gene_map$V4 <- NULL
+gene_map$V5 <- NULL
+gene_map$V6 <- NULL
+
+str(gene_map)
+
+#selecting only chromosome 3R, and QTL CI
+gene_map <- gene_map %>% filter(Chrm %in% c("3R"))
+
+Q6_gene_map <- gene_map[(gene_map$REF_start >= 20909100) & (gene_map$REF_end <= 21088800),]
+str(Q6_gene_map)
+
+Q7_gene_map <- gene_map[(gene_map$REF_start >= 26004178) & (gene_map$REF_end <= 26634378),]
+str(Q7_gene_map)
+
+
+#Learn
+gene_map <- gene_map %>% filter(Chrm %in% c("3R"))
+
+Q1_gene_map <- gene_map[(gene_map$REF_start >= 3059000) & (gene_map$REF_end <= 3221000),]
+str(Q1_gene_map)
+
+sv_table <- read.table("../raw_data/master_table.new.final.txt",sep="\t", header=FALSE, stringsAsFactors = FALSE)
+
+str(sv_table)
+
+#assinging names to colums for sv dataset, please below for more details
+
+col <- c("Chrm_ISO1","Chrm_start_ISO1","Chrm_end_ISO1", "num_founders_sv","Chrm_FI","Chrm_start_FI","Chrm_end_FI","sv_type","Chrm_FF","Chrm_start_FF","Chrm_end_FF","sv_id","sv_length_F","sv_coverage1","sv_coverage2")
+colnames(sv_table) <-col
+
+#remove the column labeled NA
+sv_table <- sv_table[,1:15]
+str(sv_table)
+
+
+sv_table <- sv_table %>% filter(Chrm_ISO1 %in% c("iso1.3R"))
+
+sv_table[1,]
+
+max(sv_table$Chrm_start_ISO1)
+
+min(sv_table$Chrm_start_ISO1)
+
+Q6_sv_table <- sv_table[(sv_table$Chrm_start_ISO1 >= 20909100) & (sv_table$Chrm_end_ISO1 <= 21088800),]
+str(Q6_sv_table)
+Q6_sv_table <- Q6_sv_table %>% filter(Chrm_FF %in% c("a3.3R","a4.3R", "a5.3R", "a6.3R", "a7.3R"))
+
+Q7_sv_table <- sv_table[(sv_table$Chrm_start_ISO1 >= 26004178) & (sv_table$Chrm_end_ISO1 <= 26634378),]
+str(Q7_sv_table)
+Q7_sv_table <- Q7_sv_table %>% filter(Chrm_FF %in% c("a1.3R","a2.3R", "a4.3R", "a5.3R", "a7.3R", "a8.3R"))
+Q7_sv_table[1:5,]
+
+
+
+#learning
+Q1_sv_table <- sv_table[(sv_table$REF_start >= 3059000) & (sv_table$REF_end <= 3221000),]
+str(Q1_sv_table)
+
+
+
+
+Q6_sv_table[1:5,]
+
+
+
+```
+#columns in sv table
+
+1. ISO1 chromosome name for the SV
+2. ISO1 start for the SV
+3. ISO1 end for the SV
+4. # of founders the SV is present in
+5-7. chromosome,start, end of the SV in each founder in ISO1 coordinates. For mutations that have identical breakpoints in each founder will have the same ISO1 coordinates
+8. type of the SV (with respect to the reference).
+9-11. chromosome,start, end of the SV in each founder in the  founder coordinates.
+12. ID of the SV
+13. lengths of the SV in each founder
+14-15. genome coverage of the SVs
+
+
+#filter data set for genes located in Q6
+```{r}
+
+
+Q6_gene_burden <- burden_table %>% filter(Gene %in% c("AnxB9","Atpalpha","Mvl","Dhc93AB","Cortactin",    "CG7079","RhoGAP93B","CG31207","r-l","Calx","dmrt93B", "RhoGAP93B", "CG17279", "CG12278", "HHEX","CG31189","Rlip","Alp5","lncRNA:CR44178","CG43446","CG5697","CG31191","CG31189","CG17278"))
+
+#Filter dataset for only chr 3R
+
+#filter 3R dataset for Q6 range
+
+Q6_sv <- rbind(Q6_sv.a3, Q6_sv.a4, Q6_sv.a5, Q6_sv.a6, Q6_sv.a7)
+
+Q6 <- ci.peak[[3]][6,]
+
+final_df <- as.data.frame(t(Q6$A1))
+
+d2 <- data.frame(RIL= row.names(Q6), Q6, row.names=NULL) 
+
+
+ggplot(Q6, aes(x = Q6$A1)) +
+  geom_histogram()
+
+```
+
+

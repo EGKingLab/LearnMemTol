@@ -279,6 +279,10 @@ load(file = '../Data/FoldChangeAll.Rda')
 
 str(FC_All)
 
+
+FCpool[1:10,]
+TTlrt_pool_deseq[1:5,]
+
 FC_All <- drop_na(FC_All)
 
 #change padj to log10 
@@ -335,10 +339,29 @@ p4
 
 allVplot <- plot_grid(p1,p2, p3, p4,nrow=2,labels = c('a.', 'b.', 'c.','d.'), rel_widths = c(1,1.3,1,1.3), label_size = 10)
 
+#expression in Pool low and high
+load(file = '../Data/FCpool.Rda')
+
+
+
+TTpheno$pool[TTpheno$treatment=='TH_Incu_control'] <- "H"
+
+
+
+#Plotting expression for low and high
+ggplot(FCpool, aes(x=log2FoldChange)) +
+  geom_point()
+
+
+
 
 ```
 
+#Visualizing gene expression in high and low chorts
 
+```{r}
+
+```
 
 #Heat map
 
@@ -389,6 +412,7 @@ heatmap.2(assay(vsd)[Select,], col = hmcol,
 
 
 load("../Data/TTdds_deseq.Rda")
+str(TTdds_deseq)
 
 rlogtransTTdds_deseq <- rlogTransformation(TTdds_deseq, blind=TRUE) #time intensive
 vstransTTdds_deseq <- varianceStabilizingTransformation(TTdds_deseq, blind = TRUE)
