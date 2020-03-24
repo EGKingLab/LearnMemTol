@@ -318,6 +318,12 @@ _When running DESeq with SV in the model there was 3 rows that did not converge 
 - Checked raw processing scripts. 
 - Checked validation script for incapacitation. 
 
-###Oct 29
+###March 04, 2020
+-loaded raw founder heatbox dataset
+-processed the raw data
+
+
+###March 23, 2020
+- 
 
 

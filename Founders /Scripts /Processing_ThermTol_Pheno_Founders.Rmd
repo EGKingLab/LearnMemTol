@@ -1,0 +1,108 @@
+---
+title: "Processing_TTPheno_Founders"
+author: "Patricka Williams-Simon"
+date: "2/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(readxl)
+library(ggplot2)
+library(DSPRqtl)
+library(DSPRqtlDataA)
+library(tidyverse)
+```
+
+## Read in ThermTol Founders raw data and check
+```{r}
+rawdTT <- read.table("../Raw_Data/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+str(rawdTT)
+rawdTT[1:5]
+
+```
+
+
+## Find means, SEMs and percentiles for trait
+
+```{r}
+T_TDATA <- rawdTT %>% 
+  group_by(patRIL) %>% 
+  summarise(Incapacitation_Mean = mean(incapacitation),
+            Incapacitation_SEM = sd(incapacitation)/sqrt(length(incapacitation)),
+            N = length(incapacitation))
+
+T_TDATA$Percentile_ThermTol<- ecdf(T_TDATA$Incapacitation_Mean)(T_TDATA$Incapacitation_Mean)
+
+```
+
+## Visualize data
+
+```{r}
+#Make histogram LearnMem
+ThermTolhisto <- ggplot(T_TDATA, aes(x = Incapacitation_Mean)) +
+  geom_histogram()
+
+#View graph
+ThermTolhisto
+
+```
+
+
+## Check dataset
+
+```{r}
+#Identify minimum mean (find really low learning point identified in histograms)
+T_TDATA[which.min(T_TDATA$Incapacitation_Mean),]
+
+#Look at indivial Incapacitation times for RIL with lowest mean
+rawdTT[rawdTT$patRIL==11459,'incapacitation']
+
+#Identify maximum mean
+T_TDATA[which.max(T_TDATA$Incapacitation_Mean),]
+
+
+#Sort and save from decreasing to increasing means 
+ThermTolDATA_sort <- T_TDATA[order(T_TDATA$Incapacitation_Mean),]
+
+#Identify RILs in the low, mid, and high cohort
+ThermTolDATA_sort[1:20,]
+ThermTolDATA_sort[349:374,]
+ThermTolDATA_sort[731:740,]
+
+```
+
+
+#Identify where RILs used for RNAseq are in the final Dataset
+
+```{r}
+#Thermal Tolerance Low
+ThermRNAseqLow <- T_TDATA %>% filter(patRIL %in% c("12047", "12290", "12042", "11106", "12060", "11042", "11132"))
+
+#save(ThermRNAseqLow, file="../ProcessedData/ThermRNAseqLow.rda")
+
+#Thermal Tolerance High
+ThermRNAseqHigh <- T_TDATA %>% filter(patRIL %in% c("12069", "12062", "11024", "11163", "11023", "11043", "11067"))
+
+#save(ThermRNAseqHigh, file="../ProcessedData/ThermRNAseqHigh.rda")
+
+```
+
+##Transform data set (only if necessary). There are several methods used to transform data, choose the best fit.
+
+```{r}
+
+#log transformation, log10 transformation, arcsign transformation 
+
+#sqaure root transformation
+T_TDATA$Tolsqrtvariable<-sqrt(T_TDATA$Incapacitation_Mean)
+
+#after transformation always visualize data
+ggplot(T_TDATA, aes(x = T_TDATA$Tolsqrtvariable)) +
+  geom_histogram()
+
+#save new dataset
+save(T_TDATA, file="../ProcessedData/T_TDATA.rda")
+
+```
+

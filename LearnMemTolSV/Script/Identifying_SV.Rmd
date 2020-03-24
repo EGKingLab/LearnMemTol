@@ -93,11 +93,7 @@ Q7_gene_map <- gene_map[(gene_map$REF_start >= 26004178) & (gene_map$REF_end <= 
 str(Q7_gene_map)
 
 
-#Learn
-gene_map <- gene_map %>% filter(Chrm %in% c("3R"))
 
-Q1_gene_map <- gene_map[(gene_map$REF_start >= 3059000) & (gene_map$REF_end <= 3221000),]
-str(Q1_gene_map)
 
 sv_table <- read.table("../raw_data/master_table.new.final.txt",sep="\t", header=FALSE, stringsAsFactors = FALSE)
 
@@ -125,6 +121,9 @@ Q6_sv_table <- sv_table[(sv_table$Chrm_start_ISO1 >= 20909100) & (sv_table$Chrm_
 str(Q6_sv_table)
 Q6_sv_table <- Q6_sv_table %>% filter(Chrm_FF %in% c("a3.3R","a4.3R", "a5.3R", "a6.3R", "a7.3R"))
 
+Q6_sv_table[1:5,]
+
+
 Q7_sv_table <- sv_table[(sv_table$Chrm_start_ISO1 >= 26004178) & (sv_table$Chrm_end_ISO1 <= 26634378),]
 str(Q7_sv_table)
 Q7_sv_table <- Q7_sv_table %>% filter(Chrm_FF %in% c("a1.3R","a2.3R", "a4.3R", "a5.3R", "a7.3R", "a8.3R"))
@@ -132,9 +131,6 @@ Q7_sv_table[1:5,]
 
 
 
-#learning
-Q1_sv_table <- sv_table[(sv_table$REF_start >= 3059000) & (sv_table$REF_end <= 3221000),]
-str(Q1_sv_table)
 
 
 
@@ -179,6 +175,14 @@ d2 <- data.frame(RIL= row.names(Q6), Q6, row.names=NULL)
 
 ggplot(Q6, aes(x = Q6$A1)) +
   geom_histogram()
+
+
+
+#Learn
+gene_map <- gene_map %>% filter(Chrm %in% c("3R"))
+
+Q1_gene_map <- gene_map[(gene_map$REF_start >= 3059000) & (gene_map$REF_end <= 3221000),]
+str(Q1_gene_map)
 
 ```
 
