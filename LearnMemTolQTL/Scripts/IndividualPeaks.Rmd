@@ -1139,7 +1139,7 @@ pheno Learn: `r max(abs(subset(ll.sub, gname=="hh")$rLearn))`
 #####
 ####Thermal Tolearnace Peaks
 
-###Q1 Doesn't have any sig diff expressed genes uder peak.
+###Q1 Doesn't have any sig diff expressed genes under peak.
 ```{r}
 
 ###
