@@ -1,0 +1,95 @@
+---
+title: "AlleleSp_lines_choose"
+author: "Libby King"
+date: "8/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(DSPRqtlDataA)
+library(tidyverse)
+library(cowplot)
+theme_set(theme_cowplot())
+
+set.seed(108155)
+
+
+```
+
+# Identify lines for Allele Specific Expression Project
+
+Goal is to find lines that are in the high & low haplotype group for thermal tolerance at our focal peak
+
+### Get data
+
+```{r}
+
+load(file="../../LearnMemTolPheno/ProcessedData/T_TDATA.rda")
+
+load(file ="../ProcessedData/Peaks_wCIs.rda")
+
+tt.peaks <- ci.peak[["Tolsqrtvariable"]]
+
+tt.foc <- tt.peaks[which.max(tt.peaks$LL),]
+
+```
+
+### Get haplotype id for each RIL
+
+```{r}
+
+objname<-paste("A_",tt.foc$chr,"_",tt.foc$Ppos,sep="")
+data(list=objname)
+geno <- get(objname)
+geno <- geno[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
+
+geno$ril <- as.integer(geno$ril)
+
+geno$hard <- paste0("A",apply(geno[,2:9], 1, which.max))
+geno$hprob <- apply(geno[,2:9], 1, max)
+  
+T_all <- merge(T_TDATA, geno[,c('ril','hard','hprob')], by.x="patRIL",by.y='ril')
+
+```
+
+### Choose lines
+
+```{r}
+
+#check means per group outside of model fit
+
+sum.dat <- T_all %>% 
+  group_by(hard) %>%
+  summarise(meanraw= mean(Incapacitation_Mean),meantrans= mean(Tolsqrtvariable))
+
+#A5 high, A4 low
+rr.list <- T_all[c(sample(which(T_all$hard=="A4" & T_all$hprob>0.95),25, replace=FALSE), sample(which(T_all$hard=="A5" & T_all$hprob>0.95),25, replace=FALSE)),]
+
+#checks
+which(duplicated(rr.list$patRIL))
+min(rr.list$hprob)
+rr.list %>% 
+  group_by(hard) %>%
+  summarise(meanraw= mean(Incapacitation_Mean),meantrans= mean(Tolsqrtvariable))
+
+#plot raw data
+
+p1 <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
+  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
+  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
+  geom_point(data = rr.list, aes(hard, Incapacitation_Mean), color="black",position = position_jitter(width = 0.4), alpha = 1/2)
+
+p1
+
+write.table(sort(rr.list[,"patRIL"]),file= "../ProcessedData/HL_thermQTL_lines.txt", row.names=FALSE)
+
+
+
+
+```
+
+
+
