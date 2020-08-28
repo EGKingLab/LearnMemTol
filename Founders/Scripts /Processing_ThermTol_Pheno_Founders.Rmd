@@ -15,7 +15,7 @@ library(tidyverse)
 
 ## Read in ThermTol Founders raw data and check
 ```{r}
-rawdTT <- read.table("../Raw_Data/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
+rawdTT <- read.table("../Raw_Data/Incapacitation_Founder/.rda",sep="\t", header=TRUE, stringsAsFactors = FALSE)
 
 str(rawdTT)
 rawdTT[1:5]

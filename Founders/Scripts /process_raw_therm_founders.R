@@ -62,7 +62,7 @@ ThermTol <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0)
                       'file'=character(length=0), stringsAsFactors = FALSE)
 
 #load dataset (this may change depending on which dataset)
-basef <- "/home/pwilliams/MyGitHub/LearnMemTol/Founders /Raw_Data/Incapacitation_founders/"
+basef <- "/home/MyGitHub/LearnMemTol/Founders/Raw_Data/Incapacitation_founders/"
 folds <-list.files(basef)
 
 fcheck <- data.frame("file"=character(length=0),"rows"=numeric(length=0), stringsAsFactors=FALSE)
@@ -76,9 +76,9 @@ for(kk in folds)
   RR <- substr(kk,1,17)
   for(gg in fiset)
   {
-    therm.set <- read.table(file.path(basef,kk,gg), sep="\t", header=TRUE, skip=29)
+    therm.set<-read.table(file.path(basef,kk,gg),sep="\t", header=TRUE, skip=29)
     fcheck <- rbind(fcheck,data.frame("file"=file.path(basef,kk,gg),"rows"=nrow(therm.set), stringsAsFactors=FALSE))
-    all.dat <- data.frame('patRIL'= rep(RR,16) , 'chamber'= numeric(length=16), 
+    all.dat <-data.frame('patRIL'= rep(RR,16) , 'chamber'= numeric(length=16), 
                          'incapacitation'=numeric(length=16), 
                          'target.Temp.test.A'=numeric(length=16), 
                          'actual.Temp.test.A'=numeric(length=16),
@@ -178,29 +178,5 @@ tester <- ThermTol[which(ThermTol$incapacitation==0),]
 #ThermTol <- ThermTol[-which(ThermTol$incapacitation==0),]
 
 #save the R object
-save(ThermTol, file="../Processed_Data/ThermTol_Founder.rda")
-
-
-
-
-
-#visualize the raw data
-
-Library(ggplot)
-
-ThermTol_founders <- ggplot(ThermTol, aes(x = Tname, y = incapacitation)) +
-  geom_point(size = 0.01, alpha = 1/8) +
-  stat_summary(fun = mean,
-               position = position_dodge(width = 0.5),
-               geom = "point",
-               color = "red",
-               size = 0.01, alpha = 1/2) +
-  stat_summary(fun.data = mean_se, 
-               geom = "errorbar", 
-               color = 'red', width=0, size=0.3, alpha=1/2) +
-  theme(legend.position = "none",axis.ticks.x=element_blank()) +
-  xlab("Founders") +
-  ylab("Thermo Tolerance PI") +
-  ylim(c( -0.5, 601))
-  
+save(ThermTol, file="../Processed_Data/Incapacitation_Founder.rda")
 
