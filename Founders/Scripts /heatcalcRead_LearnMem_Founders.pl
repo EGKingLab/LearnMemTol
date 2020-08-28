@@ -5,7 +5,7 @@ use strict;
 open(OF, ">../Processed_Data/HeatProc_LearnMemFound.txt");
 print OF "patRIL","\t","chamber","\t","Pre","\t","Learning","\t","Memory","\t","file","\n";
 
-open(AC, ">/home/pwilliams/DSPR/RawData/HeatProc_Activity.txt");
+open(AC, ">../Processed_Data/HeatProc_ActFound.txt");
 print AC "patRIL","\t","chamber","\t","Pre","\t","Learning","\t","Memory","\n";
 
 
@@ -20,8 +20,8 @@ next if ($file =~ m/^\./);
 
 print "$directory/$file\n"; 
 my @rilset = split(/_/, $file);
-my $rils = $rilset[1];
-my $ril = substr $rils, 0, 5;
+my $ril = $rilset[1];
+
 #print "$ril\n";
     
 open (HC, "$directory/$file")  || die ("Can't open!");
