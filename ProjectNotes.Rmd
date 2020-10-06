@@ -138,6 +138,7 @@ N.B. All output scripts were copied to Lewis where the RNAseq analysis was proce
 
 A record of notes in the style of a lab notebook
 
+
 ###Dec. 12, 2018
 -Compared the significantly defferentially expressed genes that we identified from the DEseq analysis to the gene summary on flybase. From all the genes identified, we needed to look at specific genes that may influence learning and memory based on their known functions. I took note of all the genes that were listed to play a role behavior, neurotransmitter transportation and trafficking. I also listed a few genes that are shown to interact with to a genes that was listed. Below are the list of genes: 
 Learning: 
@@ -323,7 +324,8 @@ _When running DESeq with SV in the model there was 3 rows that did not converge 
 -processed the raw data
 
 
-###March 23, 2020
-- 
+### Sep 10, 2020
+-identified haplotype effect at Q6 ( file saved: LearnMemTol/LearnMemTolQTL/Scripts/TT-founder-effect-Q6.Rmd)
+
 
 

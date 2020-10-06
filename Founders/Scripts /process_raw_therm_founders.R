@@ -42,7 +42,7 @@ slideRec <- function(st, xx, tt)
 }
 
 #set as data frame
-ThermTol <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0), 
+ThermTol<-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0), 
                       'incapacitation'= numeric(length=0), 
                       'target.Temp.test.A'= numeric(length=0), 
                       'actual.Temp.test.A'= numeric(length=0),
@@ -62,7 +62,7 @@ ThermTol <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0)
                       'file'=character(length=0), stringsAsFactors = FALSE)
 
 #load dataset (this may change depending on which dataset)
-basef <- "/home/MyGitHub/LearnMemTol/Founders/Raw_Data/Incapacitation_founders/"
+basef <- "/home/pwilliams/MyGitHub/LearnMemTol/Founders/Raw_Data/Incapacitation_founders/"
 folds <-list.files(basef)
 
 fcheck <- data.frame("file"=character(length=0),"rows"=numeric(length=0), stringsAsFactors=FALSE)
@@ -74,6 +74,7 @@ for(kk in folds)
   
   #folder identifier
   RR <- substr(kk,1,17)
+  
   for(gg in fiset)
   {
     therm.set<-read.table(file.path(basef,kk,gg),sep="\t", header=TRUE, skip=29)
@@ -169,6 +170,8 @@ for(kk in folds)
     #cat(min(allR$pos),"\t", max(allR$pos),"\n")
   } #gg
 }#kk
+
+
 
 ThermTol$incapacitation <- ThermTol$incapacitation/1000
 ThermTol$incapacitation <- ThermTol$incapacitation - 30

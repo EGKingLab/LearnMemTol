@@ -35,12 +35,15 @@ tt.peaks <- ci.peak[["Tolsqrtvariable"]]
 
 tt.foc <- tt.peaks[which.max(tt.peaks$LL),]
 
+tt.foc
+
 ```
 
 ### Get haplotype id for each RIL
 
 ```{r}
 
+#haplotype data at a given position
 objname<-paste("A_",tt.foc$chr,"_",tt.foc$Ppos,sep="")
 data(list=objname)
 geno <- get(objname)

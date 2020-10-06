@@ -288,3 +288,38 @@ ggplot(compdat, aes(x=Learning,y=Expression, color=Haplotype)) +
 
   
 ```
+
+
+#Effect QTL for Thermal Tolerance 
+```{r}
+
+
+load(file="../../LearnMemTolPheno/ProcessedData/T_TDATA.rda")
+
+load(file ="../ProcessedData/Peaks_wCIs.rda")
+
+load(file="../ProcessedData/TT_genes_under_peak.rda")
+
+TT_QTL <- ci.peak[[3]]
+
+TT_Q6 <- TT_QTL[6, ]
+
+rrs <- read.table(file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/RILs_in_pools.txt", sep="\t", stringsAsFactors = FALSE, header=TRUE)
+
+
+Eff_QTL_TT <- ggplot(L.plot.s, aes(x=LearnPowerTrans,y=Memory_Mean, color=Haplotype)) +
+  geom_point(alpha = 1/3, size=1) +
+  geom_point(data = effs.dat, aes(x=eLearn,y=eMem,fill=Haplotype), size=3,pch=21, color="black") +
+  geom_segment(data = effs.dat, aes(x=eLearn-LearnSE, xend=eLearn + LearnSE, y=eMem, yend=eMem), color = 'black') +
+  geom_segment(data = effs.dat, aes(x=eLearn, xend=eLearn, y=eMem-MemSE, yend=eMem+MemSE), color = 'black') +
+  #geom_point(data= L.plot.s.pool, aes(x=LearnPowerTrans, y=Memory_Mean, fill=Haplotype, shape=pool), color="black")+
+  scale_shape_manual(values=c(24,25))+
+  ylab("Memory") +
+  xlab(expression(Learning^3)) +
+  annotate("text", label=qnames[ii], x= 0.1, y=0.8, fontface=2) +
+  theme(legend.position="none") +
+  my_theme
+  
+
+
+```

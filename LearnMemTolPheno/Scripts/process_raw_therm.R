@@ -42,7 +42,7 @@ slideRec <- function(st, xx, tt)
 }
 
 #set as data frame
-ThermTol <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0), 
+ThermTol_found <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0), 
                       'incapacitation'= numeric(length=0), 
                       'target.Temp.test.A'= numeric(length=0), 
                       'actual.Temp.test.A'= numeric(length=0),
@@ -61,7 +61,7 @@ ThermTol <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0)
                       'group'=character(length=0),
                       'file'=character(length=0), stringsAsFactors = FALSE)
 
-basef <- "/home/pwilliams/DSPR/RawData/Main_Incapacitation/"
+basef <- "/home/pwilliams/DSPR/RawData/Founders_Incapacitation_/"
 folds <-list.files(basef)
 
 fcheck <- data.frame("file"=character(length=0),"rows"=numeric(length=0), stringsAsFactors=FALSE)

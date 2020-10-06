@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+
 ```
 
 Questions: What are the SVs that are in Q6 CI and founder background?
@@ -99,9 +100,10 @@ sv_table <- read.table("../raw_data/master_table.new.final.txt",sep="\t", header
 
 str(sv_table)
 
-#assinging names to colums for sv dataset, please below for more details
+#assigning names to columns to SV dataset (see burden_table.08032018.txt above ), please see below for more details
 
 col <- c("Chrm_ISO1","Chrm_start_ISO1","Chrm_end_ISO1", "num_founders_sv","Chrm_FI","Chrm_start_FI","Chrm_end_FI","sv_type","Chrm_FF","Chrm_start_FF","Chrm_end_FF","sv_id","sv_length_F","sv_coverage1","sv_coverage2")
+
 colnames(sv_table) <-col
 
 #remove the column labeled NA
@@ -113,14 +115,15 @@ sv_table <- sv_table %>% filter(Chrm_ISO1 %in% c("iso1.3R"))
 
 sv_table[1,]
 
+#identify the width of QR
 max(sv_table$Chrm_start_ISO1)
-
 min(sv_table$Chrm_start_ISO1)
 
 Q6_sv_table <- sv_table[(sv_table$Chrm_start_ISO1 >= 20909100) & (sv_table$Chrm_end_ISO1 <= 21088800),]
 str(Q6_sv_table)
 Q6_sv_table <- Q6_sv_table %>% filter(Chrm_FF %in% c("a3.3R","a4.3R", "a5.3R", "a6.3R", "a7.3R"))
 
+#there are only 4 SVs in this region
 Q6_sv_table[1:5,]
 
 
