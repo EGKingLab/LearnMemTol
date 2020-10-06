@@ -71,6 +71,14 @@ sum.dat <- T_all %>%
 #A5 high, A4 low
 rr.list <- T_all[c(sample(which(T_all$hard=="A4" & T_all$hprob>0.95),25, replace=FALSE), sample(which(T_all$hard=="A5" & T_all$hprob>0.95),25, replace=FALSE)),]
 
+rr.list[which(rr.list$patRIL %in% c(11480, 12049,12069, 12093, 12116)),]
+
+T_all.minus <- T_all[which(!(T_all$patRIL %in% rr.list$patRIL)),]
+
+#possible replacements
+rr.list.rep <- T_all.minus[c(sample(which(T_all.minus$hard=="A4" & T_all.minus$hprob>0.95),10, replace=FALSE), sample(which(T_all.minus$hard=="A5" & T_all.minus$hprob>0.95),10, replace=FALSE)),]
+
+
 #checks
 which(duplicated(rr.list$patRIL))
 min(rr.list$hprob)
