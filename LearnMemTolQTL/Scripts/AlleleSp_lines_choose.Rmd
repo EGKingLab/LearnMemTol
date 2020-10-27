@@ -95,7 +95,7 @@ p1 <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
 
 p1
 
-write.table(sort(rr.list[,"patRIL"]),file= "../ProcessedData/HL_thermQTL_lines.txt", row.names=FALSE)
+#write.table(sort(rr.list[,"patRIL"]),file= #"../ProcessedData/HL_thermQTL_lines.txt", row.names=FALSE)
 
 
 
@@ -103,4 +103,32 @@ write.table(sort(rr.list[,"patRIL"]),file= "../ProcessedData/HL_thermQTL_lines.t
 ```
 
 
+## Look at which SJM actually sent
 
+```{r}
+
+rr.all <- rbind(rr.list, rr.list.rep)
+
+rcd.list <- read.table(file="../ProcessedData/HL_thermQTL_lines_recvd.txt", header=TRUE)
+
+ww <- which(rr.all$patRIL %in% rcd.list$patRIL)
+
+rr.rcd <- rr.all[ww,]
+
+rr.rcd.a4 <- subset(rr.rcd, hard == "A4")
+rr.rcd.a4 <- rr.rcd.a4[order(rr.rcd.a4$Incapacitation_Mean),]
+
+
+rr.rcd.a5 <- subset(rr.rcd, hard == "A5")
+rr.rcd.a5 <- rr.rcd.a5[order(-rr.rcd.a5$Incapacitation_Mean),]
+
+ase.set <- rbind(rr.rcd.a4[sample(seq(1:12)),],rr.rcd.a5[sample(seq(1:12)),])
+
+ase.set$type <- rep("H",nrow(ase.set))
+ase.set$type[ase.set$hard=="A4"] <- "L"
+ase.set$sort <- c(seq(from=1,to=23,by=2),seq(from=2,to=24, by=2))
+ase.set <- ase.set[order(ase.set$sort),]
+
+write.table(ase.set, file="../ProcessedData/HL_thermQTL_lines_testset.txt", sep="\t", row.names=FALSE)
+
+```
