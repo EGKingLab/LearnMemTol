@@ -129,6 +129,6 @@ ase.set$type[ase.set$hard=="A4"] <- "L"
 ase.set$sort <- c(seq(from=1,to=23,by=2),seq(from=2,to=24, by=2))
 ase.set <- ase.set[order(ase.set$sort),]
 
-write.table(ase.set, file="../ProcessedData/HL_thermQTL_lines_testset.txt", sep="\t", row.names=FALSE)
+#write.table(ase.set, #file="../ProcessedData/HL_thermQTL_lines_testset.txt", sep="\t", #row.names=FALSE)
 
 ```
