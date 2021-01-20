@@ -131,4 +131,12 @@ ase.set <- ase.set[order(ase.set$sort),]
 
 #write.table(ase.set, #file="../ProcessedData/HL_thermQTL_lines_testset.txt", sep="\t", #row.names=FALSE)
 
+
+p2 <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
+  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
+  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
+  geom_point(data = ase.set, aes(hard, Incapacitation_Mean), color="black",position = position_jitter(width = 0.4), alpha = 1/2)
+
+p2
+
 ```
