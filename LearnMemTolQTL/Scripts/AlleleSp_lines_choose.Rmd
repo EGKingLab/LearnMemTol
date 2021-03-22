@@ -137,7 +137,9 @@ p2 <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
   stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
   geom_point(data = ase.set, aes(hard, Incapacitation_Mean), color="black",position = position_jitter(width = 0.4), alpha = 1/2)
 
-p2 
+p2
+
+hello 
 
 
 
