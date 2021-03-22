@@ -139,7 +139,7 @@ p2 <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
 
 p2
 
-hello 
+
 
 
 
