@@ -41,7 +41,7 @@ slideRec <- function(st, xx, tt)
   return(max(vvs))  
 }
 
-#set as data frame
+#set as data frame ###change 
 ThermTol_found <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0), 
                       'incapacitation'= numeric(length=0), 
                       'target.Temp.test.A'= numeric(length=0), 
@@ -174,6 +174,6 @@ tester <- ThermTol[which(ThermTol$incapacitation==0),]
 
 #ThermTol <- ThermTol[-which(ThermTol$incapacitation==0),]
 
-#save the R object to 
+#save the R object to n
 save(ThermTol, file="../ProcessedData/Incapacitation.rda")
 
