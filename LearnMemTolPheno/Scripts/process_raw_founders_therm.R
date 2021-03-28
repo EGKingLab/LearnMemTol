@@ -27,7 +27,7 @@ slideThermo <- function(xx, tt)
 
 slideRec <- function(st, xx, tt)
 {
-  steps <- 50
+  steps <- 50 
   width <- 600
   
   iis<-seq(st,5701,by=50)
@@ -42,7 +42,7 @@ slideRec <- function(st, xx, tt)
 }
 
 #set as data frame
-ThermTol<-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0), 
+ThermTol_found <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0), 
                       'incapacitation'= numeric(length=0), 
                       'target.Temp.test.A'= numeric(length=0), 
                       'actual.Temp.test.A'= numeric(length=0),
@@ -61,8 +61,7 @@ ThermTol<-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0),
                       'group'=character(length=0),
                       'file'=character(length=0), stringsAsFactors = FALSE)
 
-#load dataset (this may change depending on which dataset)
-basef <- "/home/pwilliams/MyGitHub/LearnMemTol/Founders/Raw_Data/Incapacitation_founders/"
+basef <- "/home/pwilliams/DSPR/RawData/Founders_Incapacitation_/"
 folds <-list.files(basef)
 
 fcheck <- data.frame("file"=character(length=0),"rows"=numeric(length=0), stringsAsFactors=FALSE)
@@ -71,10 +70,7 @@ fcheck <- data.frame("file"=character(length=0),"rows"=numeric(length=0), string
 for(kk in folds)
 {
   fiset<-list.files(file.path(basef,kk,fsep=""),pattern=".asc$")
-  
-  #folder identifier
-  RR <- substr(kk,1,17)
-  
+  RR <- substr(kk,1,5)
   for(gg in fiset)
   {
     therm.set<-read.table(file.path(basef,kk,gg),sep="\t", header=TRUE, skip=29)
@@ -166,19 +162,18 @@ for(kk in folds)
       counter<-counter+9
       
     } #ii
-    ThermTol <- rbind(ThermTol, all.dat)
+    ThermTol_found <- rbind(ThermTol_found, all.dat)
     #cat(min(allR$pos),"\t", max(allR$pos),"\n")
   } #gg
 }#kk
 
+ThermTol_found$incapacitation <- ThermTol_found$incapacitation/1000
+ThermTol_found$incapacitation <- ThermTol_found$incapacitation - 30
 
+tester <- ThermTol_found[which(ThermTol_found$incapacitation==0),]
 
-ThermTol$incapacitation <- ThermTol$incapacitation/1000
-ThermTol$incapacitation <- ThermTol$incapacitation - 30
+#ThermTol <- ThermTol[-which(ThermTol$incapacitation==0),]
 
-tester <- ThermTol[which(ThermTol$incapacitation==0),]
+#save the R object to 
+save(ThermTol_found, file="../ProcessedData/Founders_Incapacitation.rda")
 
-ThermTol <- ThermTol[-which(ThermTol$incapacitation==0),]
-
-#save the R object
-save(ThermTol, file="../Processed_Data/Incapacitation_Founder.rda")

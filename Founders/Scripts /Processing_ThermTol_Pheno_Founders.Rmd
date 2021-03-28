@@ -15,10 +15,10 @@ library(tidyverse)
 
 ## Read in ThermTol Founders raw data and check
 ```{r}
-load(file="../Raw_Data/Incapacitation_founders.rda")
+load(file="../Processed_Data/Incapacitation_Founder.rda")
 
-str(rawdTT)
-rawdTT[1:5]
+str(ThermTol)
+ThermTol[1:5]
 
 ```
 
@@ -26,13 +26,36 @@ rawdTT[1:5]
 ## Find means, SEMs and percentiles for trait
 
 ```{r}
-T_TDATA <- rawdTT %>% 
+TTFoundDATA <- ThermTol %>% 
   group_by(patRIL) %>% 
   summarise(Incapacitation_Mean = mean(incapacitation),
             Incapacitation_SEM = sd(incapacitation)/sqrt(length(incapacitation)),
             N = length(incapacitation))
 
-T_TDATA$Percentile_ThermTol<- ecdf(T_TDATA$Incapacitation_Mean)(T_TDATA$Incapacitation_Mean)
+TTFoundDATA$Percentile_ThermTol<- ecdf(TTFoundDATA$Incapacitation_Mean)(TTFoundDATA$Incapacitation_Mean)
+
+```
+
+
+## sort through data
+```{r}
+
+#length of string
+nchar(ThermTol)
+
+#to get range
+ThermTol[which.min(ThermTol$incapacitation),]
+ThermTol[which.max(ThermTol$incapacitation),]
+
+
+summ <- data.frame(min=apply(scores[,!grepl("patRIL",colnames(scores))],2,min),
+                   max=apply(scores[,!grepl("patRIL",colnames(scores))],2,max))
+
+#look at a specific Founder
+ThermTol[ThermTol$patRIL==A1_Incapacitation,'incapacitation']
+
+
+
 
 ```
 
@@ -40,11 +63,11 @@ T_TDATA$Percentile_ThermTol<- ecdf(T_TDATA$Incapacitation_Mean)(T_TDATA$Incapaci
 
 ```{r}
 #Make histogram LearnMem
-ThermTolhisto <- ggplot(T_TDATA, aes(x = Incapacitation_Mean)) +
+TTFoundhisto <- ggplot(TTFoundDATA, aes(x = Incapacitation_Mean)) +
   geom_histogram()
 
 #View graph
-ThermTolhisto
+TTFoundhisto
 
 ```
 
@@ -52,41 +75,33 @@ ThermTolhisto
 ## Check dataset
 
 ```{r}
+
+#look at dataset 
+TTFoundDATA
+
 #Identify minimum mean (find really low learning point identified in histograms)
-T_TDATA[which.min(T_TDATA$Incapacitation_Mean),]
-
-#Look at indivial Incapacitation times for RIL with lowest mean
-rawdTT[rawdTT$patRIL==11459,'incapacitation']
-
-#Identify maximum mean
-T_TDATA[which.max(T_TDATA$Incapacitation_Mean),]
+TTFoundDATA[which.min(TTFoundDATA$Incapacitation_Mean),]
 
 
 #Sort and save from decreasing to increasing means 
-ThermTolDATA_sort <- T_TDATA[order(T_TDATA$Incapacitation_Mean),]
+TTFoundDATA_sort <- TTFoundDATA[order(TTFoundDATA$Incapacitation_Mean),]
 
-#Identify RILs in the low, mid, and high cohort
-ThermTolDATA_sort[1:20,]
-ThermTolDATA_sort[349:374,]
-ThermTolDATA_sort[731:740,]
+#visualize data set
 
-```
+TT_Founders_pheno <- ggplot(ThermTol, aes(patRIL, incapacitation, color=patRIL)) +
+  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
+  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) 
+  
+
+TT_Founders_pheno
+
+ggsave(TT_Founders_pheno, file="../Plots/TT_Founders_pheno.pdf", width=10, height=4)
 
 
-#Identify where RILs used for RNAseq are in the final Dataset
-
-```{r}
-#Thermal Tolerance Low
-ThermRNAseqLow <- T_TDATA %>% filter(patRIL %in% c("12047", "12290", "12042", "11106", "12060", "11042", "11132"))
-
-#save(ThermRNAseqLow, file="../ProcessedData/ThermRNAseqLow.rda")
-
-#Thermal Tolerance High
-ThermRNAseqHigh <- T_TDATA %>% filter(patRIL %in% c("12069", "12062", "11024", "11163", "11023", "11043", "11067"))
-
-#save(ThermRNAseqHigh, file="../ProcessedData/ThermRNAseqHigh.rda")
 
 ```
+
+
 
 ##Transform data set (only if necessary). There are several methods used to transform data, choose the best fit.
 
