@@ -27,6 +27,7 @@ load("../Data/TTlrt_inter.Rda")
 load("../Data/TTlrt_pool.Rda")
 load("../Data/TTlrt_condition.Rda")
 
+#identify num of genes that are significant in pool treatment
 ww <-which(TTlrt_pool$padj < 0.05)
 length(ww)
 sig.Pgenes <- TTlrt_pool[ww,]
@@ -34,12 +35,14 @@ nrow(sig.Pgenes[sig.Pgenes$log2FoldChange>0,])
 nrow(sig.Pgenes[sig.Pgenes$log2FoldChange<0,])
 
 
+#identify num of genes that are significant in conditoin treatment
 ww <-which(TTlrt_con$padj < 0.05)
 length(ww)
 sig.Cgenes <- TTlrt_con[ww,]
 nrow(sig.Cgenes[sig.Cgenes$log2FoldChange>0,])
 nrow(sig.Cgenes[sig.Cgenes$log2FoldChange<0,])
 
+#identify num of genes that are significant in interaction 
 ww <-which(TTlrt_inter$padj < 0.05)
 length(ww)
 sig.Igenes <- TTlrt_inter[ww,]
@@ -50,16 +53,17 @@ share.wp <- which(rownames(sig.Pgenes) %in% rownames(sig.Pgenes))
 share.wc <- which(rownames(sig.Cgenes) %in% rownames(sig.Cgenes))
 share.wi <- which(rownames(sig.Igenes) %in% rownames(sig.Igenes))
 
+#assign fbgn to each treatment
 TTlrt_pool$gname <- rownames(TTlrt_pool)
 TTlrt_con$gname <- rownames(TTlrt_con)
 TTlrt_inter$gname <- rownames(TTlrt_inter)
 
 #all.expr <- merge(as.data.frame(TTlrt_pool[share.wp,]), as.data.frame(TTlrt_con[share.wc,]), as.data.frame(TTlrt_inter[share.wi,]), by="gname")
 
-plot(all.expr$log2FoldChange.x, all.expr$log2FoldChange.y)
+#plot(all.expr$log2FoldChange.x, all.expr$log2FoldChange.y)
 
-length(which(all.expr$log2FoldChange.x > 0 & all.expr$log2FoldChange.y > 0))
-length(which(all.expr$log2FoldChange.x < 0 & all.expr$log2FoldChange.y < 0))
+#length(which(all.expr$log2FoldChange.x > 0 & all.expr$log2FoldChange.y > 0))
+#length(which(all.expr$log2FoldChange.x < 0 & all.expr$log2FoldChange.y < 0))
 
 # add known labels to volcanos.
 
@@ -93,6 +97,7 @@ PoolMAplot <- ggplot(as.data.frame(TTlrt_pool[is.na(TTlrt_pool$sig),]), aes(base
 PoolMAplot
 
 
+
 #Condition
 TTlrt_con <- subset(TTlrt_con, baseMean != 0)
 
@@ -106,7 +111,7 @@ ConMAplot <- ggplot(as.data.frame(TTlrt_con[is.na(TTlrt_con$sig),]), aes(baseMea
   geom_point(data=as.data.frame(TTlrt_con[is.na(TTlrt_con$sig)==FALSE,]), aes(baseMean, log2FoldChange,color=sig))+
   xlab("Normalized Mean Expression")+
   ylab(expression("log"[2]*"(FC)"))+
-  ylim(c(-4.5,4)) +
+  ylim(c(-10,10)) +
   scale_x_log10()+
 scale_color_gradient2(name = expression("P"[adj]*""), low = "steelblue", mid = "grey",
   high = "pink", midpoint = 0.03, breaks=c(0.049,0.04,0.03,0.02,0.01), labels=c('NS',0.04,0.03,0.02,0.01))+
@@ -265,11 +270,13 @@ ggsave(Con_Volcanoplot, filename="../Plots/Con_Volcanoplot.pdf", width=6.5, heig
 ggsave(Inter_Volcanoplot, filename="../Plots/Inter_Volcanoplot.pdf", width=6.5, height=3)
 
 
-allplot <- plot_grid(LearnMAplot,MemMAplot, Learn_Volcanoplot, Mem_Volcanoplot,nrow=2,labels = c('a.', 'b.', 'c.','d.'), rel_widths = c(1,1.3,1,1.3), label_size = 10)
+#allplot <- plot_grid(LearnMAplot,MemMAplot, Learn_Volcanoplot, Mem_Volcanoplot,nrow=2,labels = c('a.', 'b.', 'c.','d.'), rel_widths = c(1,1.3,1,1.3), label_size = 10)
 
-#allplot
+allplot <- plot_grid(PoolMAplot, ConMAplot, InterMAplot,Pool_Volcanoplot,Con_Volcanoplot,Inter_Volcanoplot, nrow=2,labels = c('a.', 'b.', 'c.','d.','e.','f.'), rel_widths = c(1,1.3,1,1.3), label_size = 10)
 
-ggsave(allplot, file="../Plots/ExprPatterns_all.pdf",width=6.5,height=5)
+allplot
+
+ggsave(allplot, file="../Plots/TTExprPatterns_all.pdf",width=6.5,height=5)
 
 ```
 
@@ -278,7 +285,6 @@ ggsave(allplot, file="../Plots/ExprPatterns_all.pdf",width=6.5,height=5)
 load(file = '../Data/FoldChangeAll.Rda')
 
 str(FC_All)
-
 
 FCpool[1:10,]
 TTlrt_pool_deseq[1:5,]
@@ -337,7 +343,10 @@ p4 <- ggplot(FC_All, aes(y=-log10(padj_CondRT_HvL), x=FC_CondRT_HvL)) +
 
 p4
 
-allVplot <- plot_grid(p1,p2, p3, p4,nrow=2,labels = c('a.', 'b.', 'c.','d.'), rel_widths = c(1,1.3,1,1.3), label_size = 10)
+TTallVplot <- plot_grid(p1,p2, p3, p4,nrow=2,labels = c('a.', 'b.', 'c.','d.'), rel_widths = c(1,1.3,1,1.3), label_size = 10)
+
+ggsave(TTallVplot, file="../Plots/TTall_Vplot.pdf", width=10, height=5)
+
 
 #expression in Pool low and high
 load(file = '../Data/FCpool.Rda')
@@ -347,9 +356,8 @@ load(file = '../Data/FCpool.Rda')
 TTpheno$pool[TTpheno$treatment=='TH_Incu_control'] <- "H"
 
 
-
 #Plotting expression for low and high
-ggplot(FCpool, aes(x=log2FoldChange)) +
+ExpLH <- ggplot(FCpool, aes(x=log2FoldChange)) +
   geom_point()
 
 
@@ -369,7 +377,6 @@ ggplot(FCpool, aes(x=log2FoldChange)) +
 # Heatmap of count table
 library(gplots)
 
-load(file="../Data/.Rda")
 
 load("../Data/TTlrt_inter.Rda")
 
@@ -419,10 +426,16 @@ vstransTTdds_deseq <- varianceStabilizingTransformation(TTdds_deseq, blind = TRU
 
 dev.off()
 
-print(plotPCA(rlogtransTTdds_deseq, intgroup=c("pool", "condition")))
-plotPCA(rlogtransTTdds_deseq, intgroup=c("pool"), returnData=FALSE)
+PcaPoolCon <- print(plotPCA(rlogtransTTdds_deseq, intgroup=c("pool", "condition")))
+PcaPool <- plotPCA(rlogtransTTdds_deseq, intgroup=c("pool"), returnData=FALSE)
 
-###save plots as pdf
+TTallPCA <- plot_grid(PcaPoolCon,PcaPool,nrow=2,labels = c('a.', 'b.'), rel_widths = c(1,1), label_size = 10)
+
+ggsave(PcaPoolCon, file="../Plots/PcaPoolCon.pdf", width=10, height=4) 
+ggsave(PcaCon, file="../Plots/PcaPoolCon.pdf", width=10, height=4) 
+ggsave(TTallPCAplot, file="../Plots/TTallPCAplot.pdf", width=10, height=4) 
+
+
 
 # Visualize p-value optimization
 attr(res.dds, "filterThreshold")
@@ -475,13 +488,17 @@ tbl <- tb %>%
 
 tbl_star <- tbl %>% filter(DE != "NC")
 
-ggplot() +
+TTreactNorm <- ggplot() +
   geom_line(data = tbl, aes(x = Tx, y = Exp, group = Gene, color = DE),
             alpha = 0.05) +
   geom_line(data = tbl_star,
             aes(x = Tx, y = Exp, group = Gene, color = DE),
             lwd = 0.5) +
   scale_color_manual(values = c("red", "black", "blue"))
+
+ggsave(TTreactNorm, file="../Plots/TTreactNorm.pdf", width=10, height=4) 
+
+
 
 ```
 

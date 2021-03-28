@@ -242,6 +242,7 @@ FC_All$padj_CondRT_HvL <- FC_HLRT$padj
 FC_All$padj_Interaction_Overall <- TT_inter$padj
 
 save(FC_All, file="../Data/FoldChangeAll.Rda")
+load(file="../Data/FoldChangeAll.Rda")
 
 ```
 
