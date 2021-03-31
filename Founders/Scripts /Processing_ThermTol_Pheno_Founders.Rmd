@@ -47,6 +47,9 @@ nchar(ThermTol)
 ThermTol[which.min(ThermTol$incapacitation),]
 ThermTol[which.max(ThermTol$incapacitation),]
 
+#
+ThermTol[ThermTol$patRIL==A6_Incapacitation,'incapacitation']
+
 
 summ <- data.frame(min=apply(scores[,!grepl("patRIL",colnames(scores))],2,min),
                    max=apply(scores[,!grepl("patRIL",colnames(scores))],2,max))

@@ -140,7 +140,7 @@ A record of notes in the style of a lab notebook
 
 
 ###Dec. 12, 2018
--Compared the significantly defferentially expressed genes that we identified from the DEseq analysis to the gene summary on flybase. From all the genes identified, we needed to look at specific genes that may influence learning and memory based on their known functions. I took note of all the genes that were listed to play a role behavior, neurotransmitter transportation and trafficking. I also listed a few genes that are shown to interact with to a genes that was listed. Below are the list of genes: 
+-Compared the significantly deferentially expressed genes that we identified from the DEseq analysis to the gene summary on flybase. From all the genes identified, we needed to look at specific genes that may influence learning and memory based on their known functions. I took note of all the genes that were listed to play a role behavior, neurotransmitter transportation and trafficking. I also listed a few genes that are shown to interact with to a genes that was listed. Below are the list of genes: 
 Learning: 
   2L: Mad, chm, Nlg2, Pvf3, Myo281
   2R: Fkbpl2, Mctp, Jheh2,DptA/B, Jabba, 5-HT1B 

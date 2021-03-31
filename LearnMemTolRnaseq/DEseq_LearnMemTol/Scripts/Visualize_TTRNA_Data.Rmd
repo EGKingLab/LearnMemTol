@@ -35,7 +35,7 @@ nrow(sig.Pgenes[sig.Pgenes$log2FoldChange>0,])
 nrow(sig.Pgenes[sig.Pgenes$log2FoldChange<0,])
 
 
-#identify num of genes that are significant in conditoin treatment
+#identify num of genes that are significant in condition treatment
 ww <-which(TTlrt_con$padj < 0.05)
 length(ww)
 sig.Cgenes <- TTlrt_con[ww,]
@@ -57,6 +57,11 @@ share.wi <- which(rownames(sig.Igenes) %in% rownames(sig.Igenes))
 TTlrt_pool$gname <- rownames(TTlrt_pool)
 TTlrt_con$gname <- rownames(TTlrt_con)
 TTlrt_inter$gname <- rownames(TTlrt_inter)
+
+#look at FC for specific gene
+aa <-which(TTlrt_inter$gname == "FBgn0013812")
+aa <-which(TTlrt_inter$gname == "4766")
+
 
 #all.expr <- merge(as.data.frame(TTlrt_pool[share.wp,]), as.data.frame(TTlrt_con[share.wc,]), as.data.frame(TTlrt_inter[share.wi,]), by="gname")
 

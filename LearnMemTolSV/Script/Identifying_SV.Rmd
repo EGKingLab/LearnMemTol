@@ -30,6 +30,7 @@ Founders: A3, A4, A5, A6, A7,
 
 load(file="../../LearnMemTolQTL/ProcessedData/Peaks_wCIs.rda")
 
+ci.peak[[3]]
 ci.peak[[3]][6,]
 ci.peak[[3]][7,]
 
@@ -53,7 +54,7 @@ str(burden_table)
 gene_map <- read.table("../raw_data/gene_map_table_fb_2019_06.tsv",sep="\t", header=FALSE, stringsAsFactors = FALSE)
 
 str(gene_map)
-gene_map$V6[1:5]
+gene_map$V6[1:5] 
 
 #separate chromosome arm from location
 pp<-gene_map[,6]
@@ -84,14 +85,38 @@ gene_map$V6 <- NULL
 
 str(gene_map)
 
-#selecting only chromosome 3R, and QTL CI
-gene_map <- gene_map %>% filter(Chrm %in% c("3R"))
+#check data for sig QTLs C1 and select each one
+ci.peak[[3]]
 
-Q6_gene_map <- gene_map[(gene_map$REF_start >= 20909100) & (gene_map$REF_end <= 21088800),]
+#selecting only chromosome arm, and sig QTL CI
+gene_map_2L <- gene_map %>% filter(Chrm %in% c("2L"))
+gene_map_3L <- gene_map %>% filter(Chrm %in% c("3L"))
+gene_map_3R <- gene_map %>% filter(Chrm %in% c("3R"))
+
+#Q1 spans a centromere therefore, I did not compute
+
+#decreased or Increased the CI, by 100 bases to insure that I captured all the genes. some of the genes were seating on the Ci line.
+
+Q2_gene_map <- gene_map_3L[(gene_map_3L$REF_start >= 8816700) & (gene_map_3L$REF_end <= 9417000),]
+str(Q2_gene_map)
+
+Q3_gene_map <- gene_map_3R[(gene_map_3R$REF_start >= 5534178) & (gene_map_3R$REF_end <= 8284378),]
+str(Q3_gene_map)
+
+Q4_gene_map <- gene_map_3R[(gene_map_3R$REF_start >= 15264178) & (gene_map_3R$REF_end <= 17374378),]
+str(Q4_gene_map)
+
+Q5_gene_map <- gene_map_3R[(gene_map_3R$REF_start >= 19094178) & (gene_map_3R$REF_end <= 19344378),]
+str(Q5_gene_map)
+
+Q6_gene_map <- gene_map_3R[(gene_map_3R$REF_start >= 20909100) & (gene_map_3R$REF_end <= 21088800),]
 str(Q6_gene_map)
 
-Q7_gene_map <- gene_map[(gene_map$REF_start >= 26004178) & (gene_map$REF_end <= 26634378),]
+Q7_gene_map <- gene_map_3R[(gene_map_3R$REF_start >= 26004178) & (gene_map_3R$REF_end <= 26634378),]
 str(Q7_gene_map)
+
+Q8_gene_map <- gene_map_3R[(gene_map_3R$REF_start >= 26974178) & (gene_map_3R$REF_end <= 21088800),]
+str(Q6_gene_map)
 
 
 
@@ -111,36 +136,78 @@ sv_table <- sv_table[,1:15]
 str(sv_table)
 
 
-sv_table <- sv_table %>% filter(Chrm_ISO1 %in% c("iso1.3R"))
+#fliter out Chrm 3L and 3R
+sv_table_3L <- sv_table %>% filter(Chrm_ISO1 %in% c("iso1.3L"))
+sv_table_3R <- sv_table %>% filter(Chrm_ISO1 %in% c("iso1.3R"))
 
-sv_table[1,]
+sv_table_3L[1,]
+sv_table_3R[1,]
 
-#identify the width of QR
-max(sv_table$Chrm_start_ISO1)
-min(sv_table$Chrm_start_ISO1)
+#identify the width of arm
+max(sv_table_3L$Chrm_start_ISO1)
+min(sv_table_3L$Chrm_start_ISO1)
 
-Q6_sv_table <- sv_table[(sv_table$Chrm_start_ISO1 >= 20909100) & (sv_table$Chrm_end_ISO1 <= 21088800),]
+max(sv_table_3R$Chrm_start_ISO1)
+min(sv_table_3R$Chrm_start_ISO1)
+
+
+#identify where the SVs are located within each QTL, but first check to see which founder that has an effect at each QTL 
+
+ci.peak[[3]][2,]
+
+Q2_sv_table <- sv_table_3L[(sv_table_3L$Chrm_start_ISO1 >= 8816700) & (sv_table_3L$Chrm_end_ISO1 <= 9417000),]
+str(Q2_sv_table)
+
+#filter the founders that has an effect at this QTL
+Q2_sv_table <- Q2_sv_table %>% filter(Chrm_FF %in% c("a2.3L", "a3.3R", "a4.3L", "a5.3L", "a6.3R", "a8.3L"))
+nrow(Q2_sv_table)
+#Q2 has 16 SVs with filters used 
+
+
+ci.peak[[3]][3,]
+Q3_sv_table <- sv_table_3R[(sv_table_3R$Chrm_start_ISO1 >= 5534178) & (sv_table_3R$Chrm_end_ISO1 <= 8284378),]
+str(Q3_sv_table)
+Q3_sv_table <- Q3_sv_table %>% filter(Chrm_FF %in% c("a1.3R","a2.3R", "a3.3R", "a4.3R", "a6.3R", "a7.3R", "a8.3R"))
+nrow(Q3_sv_table)
+#Q3 has 0 SVs
+
+
+ci.peak[[3]][4,]
+Q4_sv_table <- sv_table_3R[(sv_table_3R$Chrm_start_ISO1 >= 15264178) & (sv_table_3R$Chrm_end_ISO1 <= 17374378),]
+str(Q4_sv_table)
+Q4_sv_table <- Q4_sv_table %>% filter(Chrm_FF %in% c("a2.3R", "a3.3R", "a4.3R", "a5.3R", "a6.3R", "a7.3R", "a8.3R"))
+nrow(Q4_sv_table)
+#Q4 has 111 SVs
+
+ci.peak[[3]][5,]
+Q5_sv_table <- sv_table_3R[(sv_table_3R$Chrm_start_ISO1 >= 19094178) & (sv_table_3R$Chrm_end_ISO1 <= 19344378),]
+str(Q5_sv_table)
+Q5_sv_table <- Q5_sv_table %>% filter(Chrm_FF %in% c("a1.3R","a2.3R", "a3.3R", "a4.3R", "a5.3R", "a6.3R", "a7.3R", "a8.3R"))
+#Q5 has 13 SVs
+
+ci.peak[[3]][6,]
+Q6_sv_table <- sv_table_3R[(sv_table_3R$Chrm_start_ISO1 >= 20909100) & (sv_table_3R$Chrm_end_ISO1 <= 21088800),]
 str(Q6_sv_table)
-Q6_sv_table <- Q6_sv_table %>% filter(Chrm_FF %in% c("a3.3R","a4.3R", "a5.3R", "a6.3R", "a7.3R"))
-
-#there are only 4 SVs in this region
-Q6_sv_table[1:5,]
+Q6_sv_table <- Q6_sv_table %>% filter(Chrm_FF %in% c("a3.3R", "a4.3R", "a5.3R", "a6.3R", "a7.3R"))
+#Q6 4 SVs 
 
 
-Q7_sv_table <- sv_table[(sv_table$Chrm_start_ISO1 >= 26004178) & (sv_table$Chrm_end_ISO1 <= 26634378),]
+ci.peak[[3]][7,]
+Q7_sv_table <- sv_table_3R[(sv_table_3R$Chrm_start_ISO1 >= 26004178) & (sv_table_3R$Chrm_end_ISO1 <= 26634378),]
 str(Q7_sv_table)
-Q7_sv_table <- Q7_sv_table %>% filter(Chrm_FF %in% c("a1.3R","a2.3R", "a4.3R", "a5.3R", "a7.3R", "a8.3R"))
-Q7_sv_table[1:5,]
+Q7_sv_table <- Q7_sv_table %>% filter(Chrm_FF %in% c("a1.3R","a2.3R", "a3.3R", "a4.3R", "a5.3R","a6.3R", "a7.3R", "a8.3R"))
+nrow(Q7_sv_table)
+#Q6 45 SVs 
 
+ci.peak[[3]][8,]
+Q8_sv_table <- sv_table_3R[(sv_table_3R$Chrm_start_ISO1 >= 26974178) & (sv_table_3R$Chrm_end_ISO1 <= 21088800),]
+str(Q8_sv_table)
+Q8_sv_table <- Q8_sv_table %>% filter(Chrm_FF %in% c("a2.3R", "a3.3R", "a4.3R", "a5.3R", "a6.3R", "a7.3R"))
+nrow(Q8_sv_table)
+#Q6 0 SVs 
 
-
-
-
-
-
-Q6_sv_table[1:5,]
-
-
+All_TT_SV <- rbind(Q2_sv_table,Q3_sv_table,Q4_sv_table, Q5_sv_table, Q6_sv_table, Q7_sv_table, Q8_sv_table)
+#three are 189 SVs in all QTLs
 
 ```
 #columns in sv table
@@ -160,7 +227,6 @@ Q6_sv_table[1:5,]
 #filter data set for genes located in Q6
 ```{r}
 
-
 Q6_gene_burden <- burden_table %>% filter(Gene %in% c("AnxB9","Atpalpha","Mvl","Dhc93AB","Cortactin",    "CG7079","RhoGAP93B","CG31207","r-l","Calx","dmrt93B", "RhoGAP93B", "CG17279", "CG12278", "HHEX","CG31189","Rlip","Alp5","lncRNA:CR44178","CG43446","CG5697","CG31191","CG31189","CG17278"))
 
 #Filter dataset for only chr 3R
@@ -179,13 +245,6 @@ d2 <- data.frame(RIL= row.names(Q6), Q6, row.names=NULL)
 ggplot(Q6, aes(x = Q6$A1)) +
   geom_histogram()
 
-
-
-#Learn
-gene_map <- gene_map %>% filter(Chrm %in% c("3R"))
-
-Q1_gene_map <- gene_map[(gene_map$REF_start >= 3059000) & (gene_map$REF_end <= 3221000),]
-str(Q1_gene_map)
 
 ```
 

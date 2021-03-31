@@ -1,7 +1,7 @@
 ---
 title: "Check Raw Data"
 author: "Patricka Williams-Simon and Elizabeth King"
-date: "5/26/2020"
+date: "4/19/2018"
 output: html_document
 ---
 
@@ -14,25 +14,137 @@ library(nlme)
 ```
 
 ## Read in Data
-The raw data for Thermal Tolerance, the raw data for Learning and Memory, and the Learning and Memory data processed through HeatCalc. 
+
+There are three files. The raw data for Thermal Tolerance, the raw data for Learning and Memory, and the Learning and Memory data processed through HeatCalc. 
 
 ```{r}
+#raw learning and memory data
+#named LearnMem
+load(file="../ProcessedData/Learn_raw.rda")
+
+
+#learning and memory data processed through HeatCalc
+LM_proc <- read.table(file="../ProcessedData/HeatProc_Learn.txt", sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+A_proc <- read.table(file="../ProcessedData/HeatProc_Activity.txt", sep="\t", header=TRUE, stringsAsFactors = FALSE)
+
+LM_proc$Activity_score <- A_proc$Pre
+
 #raw thermal tolerance data
 #Named ThermTol
+load(file="../ProcessedData/Incapacitation.rda")
 
-load(file="../Processed_Data/Incapacitation_Founder.rda")
-str(ThermTol)
 
-load(file="../Processed_Data/Incapacitation_Founder.rda")
-
+#dates
+load(file="../ProcessedData/Learn_Dates.rda") #named set
+dd.g <- table(set[,c('patRIL','group')])
+#5-2 is duplicate, 6 -2 is just 6
+set <- set[set$group!="5-2",]
+set[set$group=="6- 2","group"] <- "6"
+set$group <- as.numeric(set$group)
+set$year <- year(set$date)
+set$month <- month(set$date)
+set$wday <- wday(set$date)
+set$hour <- hour(set$date)
 ```
 
 ## Assign chamber and group number to processed data
 
+Group numbers were assigned inconsistently and so we need to merge these to track a sample through all phenotypes (& processed and raw). Patricka always numbered her groups sequentially and before James's. Therefore, James's were numbered starting following Patricka's groups. There are also a few errors that get fixed here in group assignment.
+
+```{r}
+
+LearnMem[which(LearnMem$patRIL==12127 & LearnMem$group==12),'group'] <- 1
+
+LearnMem[which(LearnMem$patRIL==12127 & LearnMem$group==12),'file'] <- "Group 1.asc"
+
+
+LM_proc$chamber <- LM_proc$chamber+1
+LM_proc[which(LM_proc$patRIL==11019 & LM_proc$file=="5-2.hbx"),'file']<-"5.hbx"
+LM_proc[which(LM_proc$patRIL==11097 & LM_proc$file=="2-2.hbx"),'file']<-"2.hbx"
+LM_proc[which(LM_proc$patRIL==11104 & LM_proc$file=="4-1.hbx"),'file']<-"4.hbx"
+LM_proc[which(LM_proc$patRIL==11138 & LM_proc$file=="Group5.hbx"),'file']<-"5.hbx"
+
+LM_proc <- LM_proc[-which(LM_proc$patRIL==11040 & LM_proc$file=="11040_001A_6min.hbx"),]
+
+rrs<-unique(LM_proc$patRIL)
+
+LM_procg<-LM_proc[0,]
+LM_procg$group <-numeric(0)
+for(rr in rrs)
+{
+  ss.test <- subset(LM_proc, patRIL==rr)
+  
+  gg.s <-unlist(lapply(strsplit(ss.test$file, split=".", fixed=TRUE),function(x) x[1]))
+  gg.num <- rep(NA, length(gg.s))
+  nn <- nchar(gg.s)
+  if(all(nn>2))
+  {
+    uus<-unique(gg.s)
+    tts<-seq(1,length(uus))
+    for(i in 1:length(uus))
+    {
+      gg.num[gg.s==uus[i]]<-tts[i]
+    }
+  }else{
+    if(any(nn>2))
+    {
+      gg.num[nn<=2]<-as.numeric(gg.s[nn<=2])
+      uus<-unique(gg.s[nn>2])
+      tts<-seq((max(gg.num,na.rm=T)+1),(max(gg.num,na.rm=T)+length(uus)))
+      for(i in 1:length(uus))
+      {
+        gg.num[gg.s==uus[i]]<-tts[i]
+      }
+      
+    }else{
+      gg.num<-as.numeric(gg.s)
+    }
+  }
+  ss.test$group<-gg.num
+  LM_procg<-rbind(LM_procg,ss.test)
+  #cat(rr,"\n")
+}
+
+wset <- which(as.numeric(ThermTol$group)>19)
+ThermTol$group[wset] <- substr(ThermTol$group[wset], 1, nchar(ThermTol$group[wset])-1)
+
+wset <- which(as.numeric(LearnMem$group)>19)
+LearnMem$group[wset] <- substr(LearnMem$group[wset], 1, nchar(LearnMem$group[wset])-1)
+
+
+ThermTol$group <- as.numeric(ThermTol$group)
+LearnMem$group <- as.numeric(LearnMem$group)
+
+#check for duplicates
+
+aa <- which(duplicated(ThermTol[,1:17], MARGIN=1))
+bb <- which(duplicated(ThermTol[,1:17], MARGIN=1,fromLast=TRUE))
+
+uu.therm<-unique(ThermTol[c(aa,bb),'patRIL'])
+
+table(ThermTol[c(aa,bb),c('patRIL','group')])
+
+aa <- which(duplicated(LM_procg[,1:5], MARGIN=1))
+bb <- which(duplicated(LM_procg[,1:5], MARGIN=1,fromLast=TRUE))
+
+uu.LM<-unique(LM_procg[c(aa,bb),'patRIL'])
+
+table(LM_procg[c(aa,bb),c('patRIL','group')])
+
+aa <- which(duplicated(LearnMem[,1:7], MARGIN=1))
+bb <- which(duplicated(LearnMem[,1:7], MARGIN=1,fromLast=TRUE))
+uu.LMR<-unique(LearnMem[c(aa,bb),'patRIL'])
+
+table(LearnMem[c(aa,bb),c('patRIL','group')])
+
+```
+
+## Identify chambers with temperature issues
 
 ```{r}
 #max average absolute difference between set and actual for Learning and Mem
-#topdif<-5
+topdif<-5
 
 # lowest allowable average temp across the chamber during training for Thermal Tolerance
 lowtem<-35
@@ -42,7 +154,7 @@ ThermTol.keep <- ThermTol[-notgood,]
 #which chambers?
 
 
-#Learn Mem
+#Learn Memory 
 ww <- which(LearnMem$diff.train.A >= topdif|LearnMem$diff.train.B >= topdif)
 LearnMem.good<-LearnMem[-ww,]
 

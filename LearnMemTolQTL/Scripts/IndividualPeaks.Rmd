@@ -164,9 +164,9 @@ colnames(MemresSVorder)
 Mem_sig_genes <- as.data.frame(MemresSVorder)
 
 load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_condition.Rda")
-str(TTlrt_condition)
-TTlrt_condition$FBgn <- rownames(TTlrt_condition)
-TTcon_sig_genes <- as.data.frame(TTlrt_condition)
+str(TTlrt_con)
+TTlrt_con$FBgn <- rownames(TTlrt_con)
+TTcon_sig_genes <- as.data.frame(TTlrt_con)
 
 load(file = "../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_pool.Rda")
 str(TTlrt_pool)
@@ -264,7 +264,6 @@ for(rowN in 1:nrow(ci.peak$Memory_Mean))
 }
 
 
-
 all.equal(TTpool_gene_list_sub$FBgn, TTcon_gene_list_sub$FBgn)
 all.equal(TTinter_gene_list_sub$FBgn, TTcon_gene_list_sub$FBgn)
 all.equal(TTpool_gene_list_sub$FBgn, TTinter_gene_list_sub$FBgn)
@@ -293,14 +292,15 @@ for(rowN in 1:nrow(ci.peak$Tolsqrtvariable))
   TTcon_genes_under_peak$l2F_inter <- TTinter_gene_list_sub[tcon,"log2FoldChange"]
   TTcon_genes_under_peak$pval_inter <- TTinter_gene_list_sub[tcon,"pvalue"]
   TTcon_genes_under_peak$padj_inter <- TTinter_gene_list_sub[tcon,"padj"]
+  
   ThermTol.list[[rowN]] <-TTcon_genes_under_peak
+  ThermTol.list[3]
   
 }
 
 save(ThermTol.list,file="../ProcessedData/TT_genes_under_peak.rda")
 
 ```
-
 
 
 # For each peak, get means and compare to eQTL means. Also compare to genes in intervals from cohort expression expt.
