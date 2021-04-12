@@ -22,6 +22,7 @@ output: html_document
 1. Process raw data for learning, memory, and thermal tolerance
   - Learning and Memory
       - Processed data from HeatCalc is parsed using a perl script (heatcalcRead_LearnMem.pl) and outputs: HeatProc_Learn.txt
+        -use 'perl myscript.pl > myoutput.txt 2> myerror.txt &' in terminal 
       - Raw .asc files are processed using an R script (process_raw_learnmem.R) to identify any other issues (see Step 2)
   - Thermal tolerance
       - Raw .asc files are processed using an R script (process_raw_therm.R) to identify issues and calculate thermal tolerance for each individual
@@ -138,6 +139,13 @@ N.B. All output scripts were copied to Lewis where the RNAseq analysis was proce
 
 A record of notes in the style of a lab notebook
 
+
+####April 12, 2021
+-Libby, Can you help with adding a gradient color to my volcano plots.
+-Please look at script in LearnMemTolRnaseq/DEseq_LearnMemTol/Scripts/Visualize_TTRNA_data.Rmd
+-Section under volcano plot, #for different conditions: H_Incu vs L_Incu, H_RT vs L_RT, H_Incu vs H_RT, L_Incu vs L_RT
+-Also, because you are here let's add the gnames to volcano plots. Genes are in object called place.g  
+-Thanks!!!
 
 ###Dec. 12, 2018
 -Compared the significantly deferentially expressed genes that we identified from the DEseq analysis to the gene summary on flybase. From all the genes identified, we needed to look at specific genes that may influence learning and memory based on their known functions. I took note of all the genes that were listed to play a role behavior, neurotransmitter transportation and trafficking. I also listed a few genes that are shown to interact with to a genes that was listed. Below are the list of genes: 

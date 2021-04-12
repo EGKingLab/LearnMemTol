@@ -1,7 +1,7 @@
 library(ggplot2)
 library(cowplot)
 
-therm.dat <- read.csv(file ="../Data/Thermotolerance_test.csv", header=TRUE, stringsAsFactors = FALSE)
+therm.dat <- read.csv(file ="../Raw_Data/Thermotolerance_test.csv", header=TRUE, stringsAsFactors = FALSE)
 
 #drop NAs
 therm.dat <- therm.dat[-which(is.na(therm.dat$Chamber)),]

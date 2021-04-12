@@ -302,7 +302,7 @@ load(file="../ProcessedData/TT_genes_under_peak.rda")
 
 TT_QTL <- ci.peak[[3]]
 
-TT_Q6 <- TT_QTL[6, ]
+#TT_Q6 <- TT_QTL[6, ]
 
 rrs <- read.table(file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/RILs_in_pools.txt", sep="\t", stringsAsFactors = FALSE, header=TRUE)
 

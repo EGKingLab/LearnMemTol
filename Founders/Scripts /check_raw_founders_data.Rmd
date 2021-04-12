@@ -23,7 +23,7 @@ The raw data for Thermal Tolerance, the raw data for Learning and Memory, and th
 load(file="../Processed_Data/Incapacitation_Founder.rda")
 str(ThermTol)
 
-load(file="../Processed_Data/Incapacitation_Founder.rda")
+
 
 ```
 

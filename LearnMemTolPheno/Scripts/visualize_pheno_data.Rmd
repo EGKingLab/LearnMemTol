@@ -263,7 +263,7 @@ ggsave(c_plot, file="../Plots/Pheno_pattern_LM.pdf", width=3.5, height=7.5)
 
 ThermTol_indi_points <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
   geom_point(size = 0.01, alpha = 1/8) +
-  stat_summary(fun.y = mean,
+  stat_summary(fun = mean,
                position = position_dodge(width = 0.5),
                geom = "point",
                color = "red",
@@ -288,8 +288,6 @@ ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points.pdf", width=3.5
 ```
 
 
-
-
 #Visualizing Thermal Tolerance phenotypic data with RNAseq RILs Highlighted
 
 ```{r}
@@ -304,7 +302,7 @@ rawdTT <- rawdTT[-which(rawdTT$incapacitation<=0),]
 
 ThermTol_indi_points_2 <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
   geom_point(size = 0.01, alpha = 1/8) +
-  stat_summary(fun.y = mean,
+  stat_summary(fun = mean,
                position = position_dodge(width = 0.5),
                geom = "point",
                color = "red",
@@ -338,7 +336,7 @@ ThermTol_indi_points_2 <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
  ThermTol_indi_points_2
 
 #to save plot
-ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points_2.pdf", width=3.5, height=2.5)
+ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points_2.pdf", width=4, height=4)
 
 ```
 

@@ -154,7 +154,7 @@ ThermTol.keep <- ThermTol[-notgood,]
 #which chambers?
 
 
-#Learn Memory 
+#Learn Mem
 ww <- which(LearnMem$diff.train.A >= topdif|LearnMem$diff.train.B >= topdif)
 LearnMem.good<-LearnMem[-ww,]
 

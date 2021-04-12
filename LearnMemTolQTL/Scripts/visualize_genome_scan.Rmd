@@ -166,7 +166,7 @@ p2 <- ggplot(obs.TT_long, aes(x=Gaxis, y=Pval)) +
   annotate("text",label= "FDR", x=295, y=pfdr, color='grey30',size=3) +
   annotate("text",label= "FWER", x=295, y=pfwer, color='grey30',size=3) +
   geom_segment(x=-50, xend=275,y=pfwer,yend=pfwer, color='grey30', size=line.ww, lty=3) +
-  geom_line(alpha=0.6, size=line.ww, color='slateblue') +
+  geom_line(alpha=0.6, size=line.ww, color='orange') +
   geom_point(data = TTq.mat, aes(x=Gaxis, y=Pval+2), pch = 25, color="grey50", fill = "grey50") +
   geom_text(data=TTq.mat, mapping=aes(x=Gaxis, y=Pval+3, label = QTL), size=3, color="grey50")+
   scale_x_continuous(breaks=c(0,66.3,120,174,221,277,33.15,98.3,145,205,249), 
