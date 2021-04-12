@@ -139,6 +139,14 @@ N.B. All output scripts were copied to Lewis where the RNAseq analysis was proce
 
 A record of notes in the style of a lab notebook
 
+####April 12, 2021
+
+Patricka - you were missing the ggrepel library: library(ggrepel)
+Also, the separator \n was missing the n - this means new line. It just had a slash.
+
+You had added some code adding a gname column to your TTlrt objects. This created two columns when you did the merge gname.x and gname.y. So when you try to use gname in the plot, it doesnt know what to use. I commented these out. 
+
+Also, check that the object you read in TTlrt_condition is named right. You refer to this as TTlrt_con throughout - fine if it matches for you. It didnt for me but i may have an old rda. 
 
 ####April 12, 2021
 -Libby, Can you help with adding a gradient color to my volcano plots.

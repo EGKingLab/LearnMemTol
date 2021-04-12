@@ -15,6 +15,8 @@ library(ggplot2)
 library(cowplot)
 library(tidyverse)
 library(colorspace)
+library(ggrepel)
+
 theme_set(theme_cowplot())
 
 source(file="../../../Functions/ggplot_theme.R")
@@ -60,9 +62,9 @@ share.wc <- which(rownames(sig.Cgenes) %in% rownames(sig.Cgenes))
 share.wi <- which(rownames(sig.Igenes) %in% rownames(sig.Igenes))
 
 #assign fbgn to each treatment
-TTlrt_pool$gname <- rownames(TTlrt_pool)
-TTlrt_con$gname <- rownames(TTlrt_con)
-TTlrt_inter$gname <- rownames(TTlrt_inter)
+#TTlrt_pool$gname <- rownames(TTlrt_pool)
+#TTlrt_con$gname <- rownames(TTlrt_con)
+#TTlrt_inter$gname <- rownames(TTlrt_inter)
 
 #look at FC for specific gene
 aa <-which(TTlrt_inter$gname == "FBgn0013812")
@@ -251,7 +253,7 @@ Pool_Volcanoplot <- ggplot(na.omit(Poolgene_list), aes(y=-log10(padj), x=log2Fol
   xlim(c(-4.5,4)) +
   ylim(c(0,75)) +
   my_theme +
-  scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\Expression",colours = rainbow_hcl(8, start = 300, end = 40)) +
+  scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\nExpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
   theme(legend.position="none")
  
 Pool_Volcanoplot
@@ -270,7 +272,7 @@ Con_Volcanoplot <- ggplot(na.omit(Congene_list), aes(y=-log10(padj), x=log2FoldC
   xlim(c(-4.5,4)) +
   ylim(c(0,75)) +
   my_theme +
-  scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\Expression",colours = rainbow_hcl(8, start = 300, end = 40)) +
+  scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\nExpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
   theme(legend.position="right")
 
 Con_Volcanoplot
@@ -283,13 +285,13 @@ Inter_Volcanoplot <- ggplot(na.omit(Intergene_list), aes(y=-log10(padj), x=log2F
   geom_vline(xintercept= -1, color='grey70')+
   geom_vline(xintercept= 1, color='grey70')+
   geom_point(size=1.3) +
-  geom_text_repel(data = Intergene_list[Intergene_list$FBgn,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
+  #geom_text_repel(data = Intergene_list[Intergene_list$FBgn,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
   ylab(expression("-log"[10]*"(P"[adj]*")")) +
   xlab(expression("log"[2]*"(FC)"))+
   xlim(c(-4.5,4)) +
   ylim(c(0,75)) +
   my_theme +
-  #scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\nExpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
+  scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\nExpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
   theme(legend.position="none")
 
  
