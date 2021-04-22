@@ -1280,6 +1280,10 @@ ll.sub[which(ll.sub$padj_con <= 0.05),]
 unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
 
 #Q5 Pool
+ll <- 5
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+
 ll.sub[which.max(abs(ll.sub$l2F_pool)),]
 ll.sub[which.min(ll.sub$padj_pool),]
 

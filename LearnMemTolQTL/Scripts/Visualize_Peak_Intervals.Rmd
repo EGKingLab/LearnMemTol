@@ -444,7 +444,7 @@ tt.set.s$labelrep[tt.set.s$sig=='N']<-""
 
 #to subset a specific coloumn
   Fctt.set.s <-tt.set.s[c(2,8)]
-  
+ 
 
 pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
 

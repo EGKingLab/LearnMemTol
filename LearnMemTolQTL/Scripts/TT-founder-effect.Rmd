@@ -32,8 +32,6 @@ load(file="../../LearnMemTolPheno/ProcessedData/T_TDATA.rda")
 
 load(file ="../ProcessedData/Peaks_wCIs.rda")
 
-
-
 ```
 
 ### Get haplotype id for each RIL
@@ -112,7 +110,7 @@ Q2_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
   guides(col=guide_legend("Founder Mean")) +
   ylab("Incapacitation Mean") +
   xlab("Founders") +
-  theme(legend.position="none")
+  theme(legend.position="right")
    my_theme
 
 
@@ -142,7 +140,7 @@ Q3_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
   guides(col=guide_legend("Founder Mean")) +
   ylab("Incapacitation Mean") +
   xlab("Founders") +
-  theme(legend.position="none")
+  theme(legend.position="right")
   my_theme
 
 #Q4
@@ -171,7 +169,7 @@ Q4_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
   guides(col=guide_legend("Founder Mean")) +
   ylab("Incapacitation Mean") +
   xlab("Founders") +
-  theme(legend.position="none")
+  theme(legend.position="right")
   my_theme
 
 #Q5
@@ -229,8 +227,8 @@ Q7_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
   guides(col=guide_legend("Founder Mean")) +
   ylab("Incapacitation Mean") +
   xlab("Founders") +
-  theme(legend.position="none")
-   my_theme
+  theme(legend.position="right") 
+  my_theme
 
 
 #Q8
@@ -259,7 +257,7 @@ Q8_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
   guides(col=guide_legend("Founders Mean")) +
   ylab("Incapacitation Mean") +
   xlab("Founders") +
-  theme(legend.position="none")
+  theme(legend.position="right")
   my_theme
 
 
@@ -272,7 +270,7 @@ TT_eff_plots <- plot_grid(plotlist=plot.list, nrow=3, ncol=2,labels = c("A.Q2","
 
 
 
-ggsave(TT_eff_plots, filename="../Plots/TT_eff_plots.pdf", width=6.5, height=3)
+ggsave(TT_eff_plots, filename="../Plots/TT_eff_plots.pdf", width=10, height=9)
 
 
 ```

@@ -247,11 +247,11 @@ Pool_Volcanoplot <- ggplot(na.omit(Poolgene_list), aes(y=-log10(padj), x=log2Fol
   geom_vline(xintercept= -1, color='grey70')+
   geom_vline(xintercept= 1, color='grey70')+
   geom_point(size=1.3) +
-  geom_text_repel(data = Poolgene_list[Poolgene_list$FBgn,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
+  geom_text_repel(data = Poolgene_list[Poolgene_list$FBgn %in% place.g,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3, max.overlaps=20) +
   ylab(expression("-log"[10]*"(P"[adj]*")")) +
   xlab(expression("log"[2]*"(FC)"))+
-  xlim(c(-4.5,4)) +
-  ylim(c(0,75)) +
+  #xlim(c(-4.5,4)) +
+  #ylim(c(0,75)) +
   my_theme +
   scale_color_gradientn(breaks = c(2:5), labels = 10^seq(2,5), name = "Mean\nExpression",colours = rainbow_hcl(8, start = 300, end = 40)) +
   theme(legend.position="none")
@@ -277,15 +277,17 @@ Con_Volcanoplot <- ggplot(na.omit(Congene_list), aes(y=-log10(padj), x=log2FoldC
 
 Con_Volcanoplot
 
-PoolConVolPlot<- plot_grid(Pool_Volcanoplot,Con_Volcanoplot, nrow=2,labels = c('A.', 'B.'), rel_widths = c(1,1.3), label_size = 10)
+PoolConVolPlot<- plot_grid(Pool_Volcanoplot,Con_Volcanoplot, nrow=2,labels = c('A. Pool', 'B. Condition'), rel_widths = c(1,1.3), label_size = 10)
 
 #Interaction
+Intergene_list[Intergene_list$FBgn %in% place.g,]
+
 Inter_Volcanoplot <- ggplot(na.omit(Intergene_list), aes(y=-log10(padj), x=log2FoldChange, color=log10(baseMean), label=gname)) +
   geom_hline(yintercept=-log10(0.05), color='grey70')+
   geom_vline(xintercept= -1, color='grey70')+
   geom_vline(xintercept= 1, color='grey70')+
   geom_point(size=1.3) +
-  #geom_text_repel(data = Intergene_list[Intergene_list$FBgn,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
+  geom_text_repel(data = Congene_list[Congene_list$FBgn,], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
   ylab(expression("-log"[10]*"(P"[adj]*")")) +
   xlab(expression("log"[2]*"(FC)"))+
   xlim(c(-4.5,4)) +
@@ -302,8 +304,6 @@ ggsave(Con_Volcanoplot, filename="../Plots/Con_Volcanoplot.pdf", width=6.5, heig
 ggsave(Inter_Volcanoplot, filename="../Plots/Inter_Volcanoplot.pdf", width=6.5, height=3)
 
 
-
-
 allplot <- plot_grid(PoolMAplot, ConMAplot, InterMAplot,Pool_Volcanoplot,Con_Volcanoplot,Inter_Volcanoplot, nrow=2,labels = c('a.', 'b.', 'c.','d.','e.','f.'), rel_widths = c(1,1.3,1,1.3), label_size = 10)
 
 allplot
@@ -312,6 +312,8 @@ ggsave(allplot, file="../Plots/TTExprPatterns_all.pdf",width=6.5,height=5)
 
 ```
 
+
+
 #for different conditions: H_Incu vs L_Incu, H_RT vs L_RT, H_Incu vs H_RT, L_Incu vs L_RT
 ```{r}
 load(file = '../Data/FoldChangeAll.Rda')
@@ -319,6 +321,8 @@ load(file = '../Data/FoldChangeAll.Rda')
 str(FC_All)
 
 FCpool[1:10,]
+
+#load TTlrt_pool_deseq and run corresponding codes in section above
 TTlrt_pool_deseq[1:5,]
 
 FC_All <- drop_na(FC_All)
@@ -334,6 +338,7 @@ p1 <- ggplot(FC_All, aes(y=-log10(padj_PoolL_IvRT), x=FC_PoolL_IvRT)) +
   geom_vline(xintercept= 1, color='grey70')+
   geom_point(size=2, alpha=1/2 ) +
   geom_hline(yintercept = 1.30) +
+  geom_text_repel(data = Congene_list[Congene_list$FBgn, ], show.legend = FALSE,  fontface='italic', color="grey30", ylim=25, size=3) +
   ylab('log10(padj) Pool Low (Incu vs. RT)') +
   xlab('FC Pool Low (Incu vs. RT)') +
   my_theme +
