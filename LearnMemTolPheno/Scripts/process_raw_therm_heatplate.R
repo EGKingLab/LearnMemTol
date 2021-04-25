@@ -1,119 +1,104 @@
-library(stringr)
 
 
 slideThermo <- function(xx, tt)
 {
-  st <- 0
+  st <- 1
   steps <- 1
-  width <- 50
+  width <- 60
   tol <- 1
   set <- 20
- # disp <- 20
+  # disp <- 20
   #dtol <-10
-  
-  while((set > tol)) #& (disp > dtol))
+  starts <- seq(from=1, to=(max(tt)-(width-1)),by=1)
+  ends <- seq(from = width, to = max(tt), by = 1)
+  counter <- 1
+  while((set > tol) & (counter <= length(starts)))
   {
-    if(st<=(length(xx)-width)){
-      set <- var(xx[st:(st+width)])
-      #disp <- max(abs(diff(xx[st:(st+width)],lag=100)))
-      #cat(subR$time[st],"\t",subR$time[st+300],"\n")
-      st <- st+steps
-    }else{
-      set<-0
-      st<-length(xx)+steps
-    }
+    set <- var(xx[tt >= starts[counter] & tt < ends[counter]])
+    st <- st+steps
+    counter <- counter+1
   }
   
-  return(tt[(st)])  
+  return(counter)  
 }
 
 slideRec <- function(st, xx, tt)
 {
   
   steps <- 1 
-  width <- 50
+  width <- 60
   
-  iis<-seq(from = st, to = (length(xx) - width), by=steps)
+  iis<-seq(from = tt[st], to = (max(tt)-width), by=steps)
   vvs <- numeric(length(iis))
   for(ii in 1:length(iis))
   {
-    st <- iis[ii]
-    vvs[ii] <- var(xx[st:(st+width)])
+    vvs[ii] <- var(xx[tt >= iis[ii] & tt < (iis[ii] + width)])
   }
   
   return(max(vvs))  
 }
 
+
+
+library(tidyverse)
+library(data.table)
+
+
 #set as data frame ###change 
-ThermTol_HeatPlate<-data.frame('patRIL'= numeric(length=1) , 'chamber'= numeric(length=1), 
-                      'incapacitation'= numeric(length=1), 
-                      'Rvar'= numeric(length=1),
-                      'group'=character(length=1),
-                      'date' =character(length=1),
-                      'file'=character(length=1), stringsAsFactors = FALSE)
-
-#basef <- "/home/pwilliams/DSPR/RawData/Founders_Incapacitation_/"
-#folds <-list.files(basef)
-
-#fcheck <- data.frame("file"=character(length=0),"rows"=numeric(length=0), stringsAsFactors=FALSE)
+ThermTol_HeatPlate<-data.frame('file'=character(length=0),
+                               'incapacitation'= numeric(length=0), 
+                               'Rvar'= numeric(length=0),
+                               stringsAsFactors = FALSE)
 
 
-#for(kk in folds)
-#{
-#  fiset<-list.files(file.path(basef,kk,fsep=""),pattern=".asc$")
- # RR <- substr(kk,1,5)
- # for(gg in fiset)
- # {
-  
- therm.set<-read.csv(file="../ProcessedData/HeatPlate_autotrack/2021-01-21_VAL-11465-2_group1_9DLC_resnet50_fly_trackerNov28shuffle1_1030000.csv", skip = 2)
+TTdat <- readRDS(file="Combined_tracks.Rds")
+TTdat <- as.data.table(TTdat)
 
- #####might want to check for low likelihood
-  #min(therm.set$likelihood)  
- 
- 
- #########################################################################
- 
- RNAi.therm.set <- read.csv(file="../ProcessedData/HeatPlate_autotrack/2021-01-21_VAL-11465-2_group1_9DLC_resnet50_fly_trackerNov28shuffle1_1030000.csv",
-                            skip = 6) %>% 
-   str_split(pattern = "_", simplify = TRUE) %>% 
-   as_tibble() %>% 
-   filter(V5 == ".csv")
- 
- colnames(fname) <- c('date','genotype','group','v1','v2','v3','v4' ,'v5') #we need to add rep column, split on -2
- 
- RNAi.therm.set$genotype <- str_split(RNAi.therm.set$genotype, ":",simplify=TRUE)
- RNAi.therm.set$genotype <- as.numeric(temp.s1[,1])
- 
- RNAi.therm.set$v5 <- as.numeric(str_split(temp.s1[,2],fixed("("),simplify = TRUE)[,1])
- 
- 
- 
- #splitting file name into different columns 
+ffs <- unique(TTdat$id)
+cc <- 1
 
- fname <- "2021-01-21_RNAi-32871.51941-2_group1_9DLC_resnet50_fly_trackerNov28shuffle1_1030000.csv"
- 
- fname<- str_split(fname, pattern = "_", simplify = TRUE)
- colnames(fname) <- c('date','genotype','group','v1','v2','v3','v4' ,'v5')
- 
- 
- 
- fname<- str_split_fixed(fname, pattern =  "-2_",n =1)
- 
- fnamet$genotype <- as.numeric(temp.s1[,1])
- 
- RNAi.therm.set$v5 <- as.numeric(str_split(temp.s1[,2],fixed("("),simplify = TRUE)[,1])
- #########
- ##############################################################
- 
- 
- incap <- slideThermo(xx=therm.set$x, tt = therm.set$coords)
- 
+for(ff in ffs) {
+  tt1 <- TTdat[TTdat$id==ff,]
+  if(mean(tt1$likelihood) > 0.5 & length(grep("RNAi",tt1$id[1])) > 0) 
+  {
+    
+    Th.set <- data.frame( 'file'=character(length=1),
+                          'incapacitation'= numeric(length=1), 
+                          'Rvar'= numeric(length=1),
+                          stringsAsFactors = FALSE)
+    
+    incap.i <- slideThermo(xx=tt1$x,tt=tt1$Second)
+    
+    Th.set$Rvar <- slideRec(st <- incap.i, xx=tt1$x,tt=tt1$Second)
+    Th.set$incapacitation <- tt1$Second[incap.i]
+    Th.set$file <- tt1$id[1]
+    
+    ThermTol_HeatPlate <- rbind(ThermTol_HeatPlate, Th.set)
+  }
+  cat(cc,"\n")
+  cc<-cc+1
+}
 
-       if(incap >= length(therm.set$x) ){
-        res <- NA 
-      }else{
-        res<-slideRec(incap, xx=therm.set$x, tt = therm.set$coords )
-      }
-  
-  ThermTol_HeatPlate[,'incapacitation'] <-incap  
-  
+saveRDS(ThermTol_HeatPlate, file="Incap_processed.Rds")
+
+ss <- ThermTol_HeatPlate$file %>%
+  str_split("_",simplify=TRUE)
+
+ThermTol_HeatPlate$date <- ss[,1]
+ThermTol_HeatPlate$group <- ss[,3]
+ThermTol_HeatPlate$chamber <- ss[,4]
+
+ss2 <- ss[,2] %>%
+  str_split("-",simplify=TRUE)
+
+ThermTol_HeatPlate$rep <- ss2[,3]
+
+ss3 <- ss2[,2] %>%
+  str_split(fixed("."),simplify=TRUE)
+
+ThermTol_HeatPlate$genotype <- ss3[,1]
+ThermTol_HeatPlate$cross <- ss3[,2]
+
+
+saveRDS(ThermTol_HeatPlate, file="Incap_processed.Rds")
+

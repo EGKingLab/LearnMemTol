@@ -1,0 +1,26 @@
+---
+title: "RNAi_process"
+author: "Patricka Williams-Simon & Libby King"
+date: "4/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Read in processed data
+
+```{r}
+
+ThermDat <- readRDS(file="../ProcessedData/Incap_processed.Rds")
+str(ThermDat)
+
+```
+
+## Data Checking
+
+Use `unique()` to check groups, replicates, genotypes, etc. for issues. You will need a column that specifies which flies you want to compare so work toward getting that set up here and checking for any problems. Use `tally()` to count up how many you have in your groups to make sure that makes sense too. Etc.
+
+The raw file is BIG so I haven't uploaded it yet. Will when I am on campus. We can look at any traces if you think we need to. 
+
