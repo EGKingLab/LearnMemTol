@@ -7,6 +7,19 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(DESeq2)
+library(dplyr)
+library(stringr)
+library(sva)
+library(ggplot2)
+library(cowplot)
+library(colorspace)
+library(ggrepel)
+library(tidyverse)
+theme_set(theme_cowplot())
+
+source(file="../../../../../Functions/ggplot_theme.R")
 ```
 
 ## Read in processed data
@@ -15,12 +28,219 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ThermDat <- readRDS(file="../ProcessedData/Incap_processed.Rds")
 str(ThermDat)
+ThermDat[1:5,]
 
+#add a col set id 
+ThermDat$set_id<- paste(ThermDat$genotype, ThermDat$cross, sep="_")
+
+RNAi_backg <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_Bckg.xlsx")
+str(RNAi_backg)
+
+colnames(RNAi_backg) <-c("genotype", "backg_id", "Gname")
+
+ThermDat <- left_join(ThermDat, RNAi_backg, by="genotype")
 ```
 
 ## Data Checking
 
 Use `unique()` to check groups, replicates, genotypes, etc. for issues. You will need a column that specifies which flies you want to compare so work toward getting that set up here and checking for any problems. Use `tally()` to count up how many you have in your groups to make sure that makes sense too. Etc.
 
-The raw file is BIG so I haven't uploaded it yet. Will when I am on campus. We can look at any traces if you think we need to. 
 
+
+```{r}
+
+#removed individuals with incap time of 5 secs or less
+
+ThermDat<- ThermDat %>% filter(incapacitation > 5)
+
+p1<- ggplot(ThermDat, aes(x = incapacitation)) +
+  geom_histogram()
+
+
+#check number of individuals per genotype 
+RNAicounts <- ThermDat%>% group_by(set_id) %>% tally()
+
+hist(RNAicounts$n)
+
+#look at genotypes that have less that 30 and more than 50 individuals 
+RNAicounts[which(RNAicounts$n < 30),]
+RNAicounts[which(RNAicounts$n > 40),]
+
+
+ThermDat[which(ThermDat$incapacitation)]
+
+#cleaning up data. See notes below
+ThermDat[which(ThermDat$set_id=="60071_25752"), 'cross'] <-25750
+ThermDat[which(ThermDat$set_id=="33545_3954"), 'genotype'] <-33646
+
+ThermDat <- ThermDat %>% filter(!(set_id %in% c("32913_25750", "32913_3954", "32913_25750", "50656_51941")))
+
+str(ThermDat)
+ThermDat$set_id<- paste(ThermDat$genotype, ThermDat$cross, sep="_")
+
+
+unique(ThermDat$group)
+unique(Gene$set_id)
+unique(ThermDat$genotype)
+
+#sort data from min to max
+RNAiData_sort <- ThermDat[order(ThermDat$incapacitation),]
+
+RNAiData_sort[1:5,]
+```
+
+Dropped all lines with genotype 32913 because it didn't work well and we had an incomplete set.
+Dropped 50656 because there was only 2 individuals measured for TT. 
+Merged 60071-25750 and 60071-25752 because there was a typo in file naming and 60071-25752 is not a genotype. The file name column did not change. 
+Merged 33545_3954 and 33646_3954  because there was a typo in file naming and 33545_3954 is not a genotype.
+
+
+#calculate mean and SEM
+```{r}
+RNAi_Data <- ThermDat %>% 
+  group_by(set_id) %>% 
+  summarise(Incap_Mean = mean(incapacitation),
+            Incap_SEM = sd(incapacitation)/sqrt(length(incapacitation)),
+            N = length(incapacitation))
+
+which.min(RNAi_Data$N)
+mean(RNAi_Data$N)
+
+#Visulalize distribution with histogram for both mean and raw 
+RNAi_histo <- ggplot(RNAi_Data, aes(x = Incap_Mean)) +
+  geom_histogram()
+
+RNAi_Datahisto <- ggplot(ThermDat, aes(x = incapacitation)) +
+  geom_histogram()
+
+```
+
+#running Model
+
+For each gene compare to Gal4 crosses and background (P2 or P40)
+
+
+```{r}
+
+#get vector of focal genes
+ThermDat[1:5,]
+
+Glist<- unique(ThermDat$genotype)
+str(Glist)
+
+#remove background lines  from Glist 
+Glist<- Glist[which(!(Glist %in% c("36303", "36304")))]
+
+
+nn <- numeric(length=length(Glist))
+counter <- 1
+
+for(foc.gene in Glist)
+  {
+  
+#foc.gene <- 31167
+Gene <- ThermDat %>% filter(genotype ==foc.gene)
+
+Bk <- ThermDat %>% filter(genotype == ifelse(Gene$backg_id[1]=="attP2",36303,36304))
+
+Gene <- rbind(Gene, Bk)
+
+RNAi_mod <- lm(incapacitation ~ set_id, data= Gene)
+ summary(RNAi_mod)
+
+ str(RNAi_mod)
+ 
+ aa <- anova(RNAi_mod)
+nn[counter]<- aa[1,5]
+ Gene %>% 
+   group_by(set_id) %>%
+   dplyr::summarise(mean(incapacitation))
+ counter<-counter+1
+}
+
+ThermDat[1:5,]
+
+#adusted p-value 
+rr <- p.adjust(nn, method="BH")
+
+#merge padj to Glist 
+Glist <- cbind(Glist, rr)
+
+
+Glist <- as_data_frame(Glist,Glist = "unique")
+str(Glist)
+```
+
+
+Visualizing data 
+```{r}
+Gname<- unique(ThermDat$Gname)
+
+Glist <-cbind(Glist, Gname)
+
+
+
+foc.gene <- 51411
+FGene <- ThermDat %>% filter(genotype ==foc.gene)
+
+Bk <- ThermDat %>% filter(genotype == ifelse(FGene$backg_id[1]=="attP2",36303,36304))
+
+FGene <- rbind(FGene, Bk)
+
+
+Atpha_RNAi_plot <- ggplot(FGene, aes(set_id, incapacitation, color=set_id )) +
+  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
+  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'black', width=.3, size=0.5, alpha=1/2) +
+  ggtitle("Na pump α subunit (atpα)") +
+  guides(col=guide_legend("Group Mean ")) +
+  ylab("Incapacitation Time (sec)") +
+  xlab("RNAi Line") 
+  #my_theme
+
+
+foc.gene <- 50656
+FGene <- ThermDat %>% filter(genotype ==foc.gene)
+
+Bk <- ThermDat %>% filter(genotype == ifelse(FGene$backg_id[1]=="attP2",36303,36304))
+
+FGene <- rbind(FGene, Bk)
+
+
+dmr_RNAi_plot <- ggplot(FGene, aes(set_id, incapacitation, color=set_id )) +
+  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
+  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'black', width=.3, size=0.5, alpha=1/2) +
+  ggtitle("doublesex-Mab related 93B (dmr938)") +
+  guides(col=guide_legend("Group Mean ")) +
+  ylab("Incapacitation Time (sec)") +
+  xlab("RNAi Line") 
+  #my_theme
+
+
+foc.gene <- 35027
+FGene <- ThermDat %>% filter(genotype ==foc.gene)
+
+Bk <- ThermDat %>% filter(genotype == ifelse(FGene$backg_id[1]=="attP2",36303,36304))
+
+FGene <- rbind(FGene, Bk)
+
+
+Rho_RNAi_plot <- ggplot(FGene, aes(set_id, incapacitation, color=set_id )) +
+  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
+  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'black', width=.3, size=0.5, alpha=1/2) +
+  ggtitle("Rho GTPase activating protein at 93B (RhoGAP93B)") +
+  guides(col=guide_legend("Group Mean ")) +
+  ylab("Incapacitation Time (sec)") +
+  xlab("RNAi Line") 
+  #my_theme
+
+
+```
