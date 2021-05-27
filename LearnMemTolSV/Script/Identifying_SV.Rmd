@@ -35,7 +35,6 @@ ci.peak[[3]][6,]
 ci.peak[[3]][7,]
 
 
-
 #learnMem
 pp<-ci.peak[[1]]
 str(pp)
@@ -85,7 +84,9 @@ gene_map$V6 <- NULL
 
 str(gene_map)
 
-#check data for sig QTLs C1 and select each one
+#check data for sig QTLs C1 and select each trait
+
+#thermal tolerance
 ci.peak[[3]]
 
 #selecting only chromosome arm, and sig QTL CI
@@ -120,7 +121,7 @@ str(Q6_gene_map)
 
 
 
-
+#load SV data 
 sv_table <- read.table("../raw_data/master_table.new.final.txt",sep="\t", header=FALSE, stringsAsFactors = FALSE)
 
 str(sv_table)

@@ -116,6 +116,11 @@ ww <- which(rr.all$patRIL %in% rcd.list$patRIL)
 
 rr.rcd <- rr.all[ww,]
 
+ase.set$type <- rep("H",nrow(ase.set))
+ase.set$type[ase.set$hard=="A4"] <- "L"
+ase.set$sort <- c(seq(from=1,to=23,by=2),seq(from=2,to=24, by=2))
+ase.set <- ase.set[order(ase.set$sort),]
+
 rr.rcd.a4 <- subset(rr.rcd, hard == "A4")
 rr.rcd.a4 <- rr.rcd.a4[order(rr.rcd.a4$Incapacitation_Mean),]
 
