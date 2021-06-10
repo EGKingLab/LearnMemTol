@@ -128,6 +128,7 @@ rr.rcd.a4 <- rr.rcd.a4[order(rr.rcd.a4$Incapacitation_Mean),]
 rr.rcd.a5 <- subset(rr.rcd, hard == "A5")
 rr.rcd.a5 <- rr.rcd.a5[order(-rr.rcd.a5$Incapacitation_Mean),]
 
+
 ase.set <- rbind(rr.rcd.a4[sample(seq(1:12)),],rr.rcd.a5[sample(seq(1:12)),])
 
 ase.set$type <- rep("H",nrow(ase.set))
