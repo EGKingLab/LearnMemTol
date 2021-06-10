@@ -17,9 +17,10 @@ library(cowplot)
 library(colorspace)
 library(ggrepel)
 library(tidyverse)
+library(multcomp)
 theme_set(theme_cowplot())
 
-source(file="../../../../../Functions/ggplot_theme.R")
+source(file="../../../../../kingeg/Functions/ggplot_theme.R")
 ```
 
 ## Read in processed data
@@ -66,8 +67,6 @@ hist(RNAicounts$n)
 RNAicounts[which(RNAicounts$n < 30),]
 RNAicounts[which(RNAicounts$n > 40),]
 
-
-ThermDat[which(ThermDat$incapacitation)]
 
 #cleaning up data. See notes below
 ThermDat[which(ThermDat$set_id=="60071_25752"), 'cross'] <-25750
@@ -150,18 +149,84 @@ RNAi_mod <- lm(incapacitation ~ set_id, data= Gene)
 
  str(RNAi_mod)
  
- aa <- anova(RNAi_mod)
+ aa<-aov(RNAi_mod)
 nn[counter]<- aa[1,5]
  Gene %>% 
    group_by(set_id) %>%
    dplyr::summarise(mean(incapacitation))
  counter<-counter+1
+ 
 }
 
 ThermDat[1:5,]
 
+
+
+
 #adusted p-value 
 rr <- p.adjust(nn, method="BH")
+
+
+#finding significance for three genes within group 
+#RhoGAP93B
+foc.gene <- 35027
+Gene <- ThermDat %>% filter(genotype ==foc.gene)
+
+Bk <- ThermDat %>% filter(genotype == ifelse(Gene$backg_id[1]=="attP2",36303,36304))
+
+Gene <- rbind(Gene, Bk)
+
+RNAi_mod <- lm(incapacitation ~ set_id, data= Gene)
+ summary(RNAi_mod)
+
+ str(RNAi_mod)
+ 
+ aa<-aov(RNAi_mod)
+
+#post-hoc test 
+Rho<-TukeyHSD(aa)
+plot(Rho)
+
+
+#dmrt93B
+foc.gene <- 50656
+Gene <- ThermDat %>% filter(genotype ==foc.gene)
+
+Bk <- ThermDat %>% filter(genotype == ifelse(Gene$backg_id[1]=="attP2",36303,36304))
+
+Gene <- rbind(Gene, Bk)
+
+RNAi_mod <- lm(incapacitation ~ set_id, data= Gene)
+ summary(RNAi_mod)
+
+ str(RNAi_mod)
+ 
+ aa<-aov(RNAi_mod)
+
+#post-hoc test 
+dmrt<-TukeyHSD(aa)
+plot(dmrt)
+
+
+#atpalpha
+foc.gene <- 51411
+Gene <- ThermDat %>% filter(genotype ==foc.gene)
+
+Bk <- ThermDat %>% filter(genotype == ifelse(Gene$backg_id[1]=="attP2",36303,36304))
+
+Gene <- rbind(Gene, Bk)
+
+RNAi_mod <- lm(incapacitation ~ set_id, data= Gene)
+ summary(RNAi_mod)
+
+ str(RNAi_mod)
+ 
+ aa<-aov(RNAi_mod)
+
+#post-hoc test 
+atp<-TukeyHSD(aa)
+plot(atp)
+
 
 #merge padj to Glist 
 Glist <- cbind(Glist, rr)
