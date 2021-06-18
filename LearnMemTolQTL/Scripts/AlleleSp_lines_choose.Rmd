@@ -100,7 +100,6 @@ p1
 
 
 
-
 ```
 
 
@@ -147,6 +146,7 @@ p2 <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
 p2
 
 
+saveRDS(rr.rcd, file="../ProcessedData/Q6_list_RILs.Rds")
 
 
 
