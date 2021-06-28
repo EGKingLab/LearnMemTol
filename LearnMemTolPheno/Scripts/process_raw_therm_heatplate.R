@@ -1,11 +1,10 @@
 
-
 slideThermo <- function(xx, tt)
 {
   st <- 1
   steps <- 1
   width <- 60
-  tol <- 1
+  tol <- 15
   set <- 20
   # disp <- 20
   #dtol <-10
@@ -14,7 +13,8 @@ slideThermo <- function(xx, tt)
   counter <- 1
   while((set > tol) & (counter <= length(starts)))
   {
-    set <- var(xx[tt >= starts[counter] & tt < ends[counter]])
+    if(length(xx[tt >= starts[counter] & tt < ends[counter]]) > 1)
+    {set <- var(xx[tt >= starts[counter] & tt < ends[counter]])}
     st <- st+steps
     counter <- counter+1
   }
@@ -50,8 +50,9 @@ ThermTol_HeatPlate<-data.frame('file'=character(length=0),
                                'Rvar'= numeric(length=0),
                                stringsAsFactors = FALSE)
 
+proj <- "RNAi"
 
-TTdat <- readRDS(file="Combined_tracks.Rds")
+TTdat <- readRDS(file=paste0("../ProcessedData/Combined_tracks_",proj,".Rds"))
 TTdat <- as.data.table(TTdat)
 
 ffs <- unique(TTdat$id)
@@ -59,27 +60,33 @@ cc <- 1
 
 for(ff in ffs) {
   tt1 <- TTdat[TTdat$id==ff,]
-  if(mean(tt1$likelihood) > 0.5 & length(grep("RNAi",tt1$id[1])) > 0) 
+  
+  if(mean(tt1$likelihood) > 0.65) 
   {
-    
-    Th.set <- data.frame( 'file'=character(length=1),
-                          'incapacitation'= numeric(length=1), 
-                          'Rvar'= numeric(length=1),
-                          stringsAsFactors = FALSE)
-    
-    incap.i <- slideThermo(xx=tt1$x,tt=tt1$Second)
-    
-    Th.set$Rvar <- slideRec(st <- incap.i, xx=tt1$x,tt=tt1$Second)
-    Th.set$incapacitation <- tt1$Second[incap.i]
-    Th.set$file <- tt1$id[1]
-    
-    ThermTol_HeatPlate <- rbind(ThermTol_HeatPlate, Th.set)
+    if(nrow(tt1[(tt1$x < (max(tt1$x)-20)) & (tt1$x > (min(tt1$x)+20)),]) > 50)
+    {
+      
+      Th.set <- data.frame( 'file'=character(length=1),
+                            'incapacitation'= numeric(length=1), 
+                            'Rvar'= numeric(length=1),
+                            stringsAsFactors = FALSE)
+      
+      #remove low likelihood positions
+      tt1 <- tt1[tt1$likelihood >= 0.8,]
+      
+      incap.i <- slideThermo(xx=tt1$x,tt=tt1$Second)
+      
+      Th.set$Rvar <- slideRec(st <- incap.i, xx=tt1$x,tt=tt1$Second)
+      Th.set$incapacitation <- tt1$Second[incap.i]
+      Th.set$file <- tt1$id[1]
+      
+      ThermTol_HeatPlate <- rbind(ThermTol_HeatPlate, Th.set)
+    }
   }
   cat(cc,"\n")
   cc<-cc+1
 }
 
-saveRDS(ThermTol_HeatPlate, file="Incap_processed.Rds")
 
 ss <- ThermTol_HeatPlate$file %>%
   str_split("_",simplify=TRUE)
@@ -87,6 +94,7 @@ ss <- ThermTol_HeatPlate$file %>%
 ThermTol_HeatPlate$date <- ss[,1]
 ThermTol_HeatPlate$group <- ss[,3]
 ThermTol_HeatPlate$chamber <- ss[,4]
+
 
 ss2 <- ss[,2] %>%
   str_split("-",simplify=TRUE)
@@ -99,6 +107,7 @@ ss3 <- ss2[,2] %>%
 ThermTol_HeatPlate$genotype <- ss3[,1]
 ThermTol_HeatPlate$cross <- ss3[,2]
 
+ThermTol_HeatPlate <- subset(ThermTol_HeatPlate, chamber != 25)
 
-saveRDS(ThermTol_HeatPlate, file="Incap_processed.Rds")
+saveRDS(ThermTol_HeatPlate, file=paste0("../ProcessedData/Incap_processed_",proj,".Rds"))
 
