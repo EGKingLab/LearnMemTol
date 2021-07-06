@@ -22,6 +22,8 @@ source("../../Functions/ggplot_theme.R")
 load(file="../ProcessedData/L_MDATA.rda")
 load(file="../ProcessedData/T_TDATA.rda")
 
+str(T_TDATA)
+
 ```
 
 ##merge filies 
@@ -34,9 +36,9 @@ All_3_Traits_Data <- merge(L_MDATA, T_TDATA, by='patRIL')
 ##Find correlation between traits (Pearson's Correlation Test)
 
 ```{r}
-cor.test(All_3_Traits_Data$Learning_Mean,All_3_Traits_Data$Memory_Mean)
+Learn_Mem_cor <- cor.test(All_3_Traits_Data$Learning_Mean,All_3_Traits_Data$Memory_Mean)
 
-cor.test(All_3_Traits_Data$Learning_Mean,All_3_Traits_Data$Incapacitation_Mean)
+Learn_TT_cor<- cor.test(All_3_Traits_Data$Learning_Mean,All_3_Traits_Data$Incapacitation_Mean)
 
 ```
 
@@ -65,6 +67,35 @@ save(cor_Learn_Mem_plot, file="../Plots/Learn_Mem_Cor.rda")
 #To make figures into files, assign to an object and use ggsave
 
 ggsave(cor_Learn_Mem_plot, file="../Plots/Learn_Mem_Cor.pdf", width=3, height=3)
+
+
+
+
+####### Correlation between learning and thermal tolerance 
+
+#making scatter plots
+line_color<-'grey30'
+
+Learn_TT_cor_plot <- ggplot (All_3_Traits_Data, aes(x = Learning_Mean, y = Incapacitation_Mean))+
+  geom_segment(aes(x=Learning_Mean, xend=Learning_Mean, y=Memory_Mean-Incapacitation_SEM, yend=Incapacitation_Mean+Incapacitation_SEM), color=LM_cols[2], alpha=1/2)+
+  geom_segment(aes(x=Learning_Mean-Learning_SEM, xend=Learning_Mean + Learning_SEM, y=Incapacitation_Mean, yend=Memory_Mean), color=LM_cols[1], alpha=1/2)+
+  geom_point(alpha=1/2, size=1.5) +
+  geom_smooth(method = "lm", color = line_color, se = FALSE) +
+    xlab("Learning") +
+  ylab("Thermal Tolerance") +
+  my_theme
+
+
+#to view plot
+Learn_TT_cor_plot
+
+save(Learn_TT_cor_plot, file="../Plots/Learn_TT_Cor.rda")
+
+#To make figures into files, assign to an object and use ggsave
+
+ggsave(Learn_TT_cor_plot, file="../Plots/Learn_TT_Cor.pdf", width=3, height=3)
+
+
 
 ```
 

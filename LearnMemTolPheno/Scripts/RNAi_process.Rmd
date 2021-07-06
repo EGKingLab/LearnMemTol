@@ -18,6 +18,7 @@ library(colorspace)
 library(ggrepel)
 library(tidyverse)
 library(multcomp)
+library(readxl)
 theme_set(theme_cowplot())
 
 source(file="../../../../../kingeg/Functions/ggplot_theme.R")
@@ -27,7 +28,7 @@ source(file="../../../../../kingeg/Functions/ggplot_theme.R")
 
 ```{r}
 
-ThermDat <- readRDS(file="../ProcessedData/Incap_processed.Rds")
+ThermDat <- readRDS(file="../ProcessedData/Incap_processed_RNAi.Rds")
 str(ThermDat)
 ThermDat[1:5,]
 
@@ -51,11 +52,16 @@ Use `unique()` to check groups, replicates, genotypes, etc. for issues. You will
 ```{r}
 
 #removed individuals with incap time of 5 secs or less
-
 ThermDat<- ThermDat %>% filter(incapacitation > 5)
 
+str(ThermDat)
+
+#Visualize after filtering 
 p1<- ggplot(ThermDat, aes(x = incapacitation)) +
   geom_histogram()
+
+#l;ook at the indi
+ThermDat[which(ThermDat$incapacitation > 400),]
 
 
 #check number of individuals per genotype 
@@ -63,7 +69,7 @@ RNAicounts <- ThermDat%>% group_by(set_id) %>% tally()
 
 hist(RNAicounts$n)
 
-#look at genotypes that have less that 30 and more than 50 individuals 
+#look at genotypes that have less that 30 and more than 40 individuals 
 RNAicounts[which(RNAicounts$n < 30),]
 RNAicounts[which(RNAicounts$n > 40),]
 
@@ -85,7 +91,7 @@ unique(ThermDat$genotype)
 #sort data from min to max
 RNAiData_sort <- ThermDat[order(ThermDat$incapacitation),]
 
-RNAiData_sort[1:5,]
+RNAiData_sort[1959:1969,]
 ```
 
 Dropped all lines with genotype 32913 because it didn't work well and we had an incomplete set.
