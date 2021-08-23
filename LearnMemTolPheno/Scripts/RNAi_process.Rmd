@@ -35,8 +35,10 @@ ThermDat[1:5,]
 #add a col set id 
 ThermDat$set_id<- paste(ThermDat$genotype, ThermDat$cross, sep="_")
 
+
 RNAi_backg <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_Bckg.xlsx")
 str(RNAi_backg)
+RNAi_backg[1:5,]
 
 colnames(RNAi_backg) <-c("genotype", "backg_id", "Gname")
 
@@ -60,7 +62,7 @@ str(ThermDat)
 p1<- ggplot(ThermDat, aes(x = incapacitation)) +
   geom_histogram()
 
-#l;ook at the indi
+#look at the indi
 ThermDat[which(ThermDat$incapacitation > 400),]
 
 
@@ -68,6 +70,13 @@ ThermDat[which(ThermDat$incapacitation > 400),]
 RNAicounts <- ThermDat%>% group_by(set_id) %>% tally()
 
 hist(RNAicounts$n)
+
+RNAi_phenototal <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_PhenoTotal.xlsx")
+str(RNAi_phenototal)
+RNAi_phenototal[1:5,]
+
+hist(RNAi_phenototal$Total_Flies_Phenotyed)
+
 
 #look at genotypes that have less that 30 and more than 40 individuals 
 RNAicounts[which(RNAicounts$n < 30),]
