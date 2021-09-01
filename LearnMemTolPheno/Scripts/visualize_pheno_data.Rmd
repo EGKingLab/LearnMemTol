@@ -261,6 +261,11 @@ ggsave(c_plot, file="../Plots/Pheno_pattern_LM.pdf", width=3.5, height=7.5)
 
 ```{r}
 
+Torder <- rawdTT %>% group_by(patRIL) %>% summarise("Tmean"=mean(incapacitation))
+Torder <- Torder[order(Torder$Tmean),]
+
+rawdTT$Tname <- factor(as.character(rawdTT$patRIL), levels = Torder$patRIL)
+
 ThermTol_indi_points <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
   geom_point(size = 0.01, alpha = 1/8) +
   stat_summary(fun = mean,
@@ -275,7 +280,7 @@ ThermTol_indi_points <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
   theme(legend.position = "none",axis.ticks.x=element_blank()) +
   xlab("RILs") +
   ylab("Thermo Tolerance PI") +
-  ylim(c( -0.5, 601))+
+  #ylim(c( -0.5, 601))+
   theme(axis.text.x = element_blank()) +
   my_theme
 
