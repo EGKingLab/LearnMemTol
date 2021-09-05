@@ -42,6 +42,8 @@ slideRec <- function(st, xx, tt)
 
 library(tidyverse)
 library(data.table)
+library(readxl)
+
 
 
 #set as data frame ###change 
@@ -50,7 +52,7 @@ ThermTol_HeatPlate<-data.frame('file'=character(length=0),
                                'Rvar'= numeric(length=0),
                                stringsAsFactors = FALSE)
 
-proj <- "RNAi"
+proj <- "RNAi_2"
 
 TTdat <- readRDS(file=paste0("../ProcessedData/Combined_tracks_",proj,".Rds"))
 TTdat <- as.data.table(TTdat)
@@ -63,16 +65,14 @@ for(ff in ffs) {
   
   if(mean(tt1$likelihood) > 0.65) 
   {
-    if(nrow(tt1[(tt1$x < (max(tt1$x)-20)) & (tt1$x > (min(tt1$x)+20)),]) > 50)
-    {
-      
+    
       Th.set <- data.frame( 'file'=character(length=1),
                             'incapacitation'= numeric(length=1), 
                             'Rvar'= numeric(length=1),
                             stringsAsFactors = FALSE)
       
       #remove low likelihood positions
-      tt1 <- tt1[tt1$likelihood >= 0.8,]
+      tt1 <- tt1[tt1$likelihood >= 0.6,]
       
       incap.i <- slideThermo(xx=tt1$x,tt=tt1$Second)
       
@@ -81,12 +81,44 @@ for(ff in ffs) {
       Th.set$file <- tt1$id[1]
       
       ThermTol_HeatPlate <- rbind(ThermTol_HeatPlate, Th.set)
-    }
+    
+    
   }
-  cat(cc,"\n")
+  cat(cc,"\t")
   cc<-cc+1
 }
 
+#Add 07-2 rerun
+TT72 <- readRDS(file="../ProcessedData/2021-07-02b_Fly_tracks.Rds")
+TT72 <- bind_rows(TT72)
+
+ffs <- unique(TT72$id)
+
+for(ff in ffs) {
+  tt1 <- TT72[TT72$id==ff,]
+  
+if(mean(tt1$likelihood) > 0.65) 
+{
+  
+  Th.set <- data.frame( 'file'=character(length=1),
+                        'incapacitation'= numeric(length=1), 
+                        'Rvar'= numeric(length=1),
+                        stringsAsFactors = FALSE)
+  
+  #remove low likelihood positions
+  tt1 <- tt1[tt1$likelihood >= 0.6,]
+  
+  incap.i <- slideThermo(xx=tt1$x,tt=tt1$Second)
+  
+  #Th.set$Rvar <- slideRec(st <- incap.i, xx=tt1$x,tt=tt1$Second)
+  Th.set$incapacitation <- tt1$Second[incap.i]
+  Th.set$file <- tt1$id[1]
+  
+  ThermTol_HeatPlate <- rbind(ThermTol_HeatPlate, Th.set)
+  
+}
+}
+##07-2
 
 ss <- ThermTol_HeatPlate$file %>%
   str_split("_",simplify=TRUE)
@@ -107,7 +139,30 @@ ss3 <- ss2[,2] %>%
 ThermTol_HeatPlate$genotype <- ss3[,1]
 ThermTol_HeatPlate$cross <- ss3[,2]
 
-ThermTol_HeatPlate <- subset(ThermTol_HeatPlate, chamber != 25)
 
-saveRDS(ThermTol_HeatPlate, file=paste0("../ProcessedData/Incap_processed_",proj,".Rds"))
+#saveRDS(ThermTol_HeatPlate, file=paste0("../ProcessedData/Incap_processed_",proj,".Rds"))
 
+
+chambers <- read_csv(file="../ProcessedData/HeatPlate_autotrack/Chambers_RNAi_round1.csv")
+chambers$FileName <- str_split(chambers$FileName,"_s", simplify=TRUE)[,1]
+
+chambers$file <- paste0(chambers$FileName,"_",chambers$Chamber)
+
+RNAi1 <- left_join(chambers,ThermTol_HeatPlate, by="file")
+RNAi1 <- subset(RNAi1, Chamber != 25)
+RNAi1 <- subset(RNAi1, FileName != "2021-04-06_RNAi-32871.3954-2_group1")
+
+filt <- RNAi1[which(is.na(RNAi1$incapacitation)),]
+
+
+chambers <- read_excel(path="../ProcessedData/HeatPlate_autotrack/RNAi_Val2_Chamber_positions.xlsx")
+
+chambers$file <- paste0(chambers$FileName,"_",chambers$Chamber)
+
+RNAi2 <- left_join(chambers,ThermTol_HeatPlate, by="file")
+RNAi2 <- subset(RNAi2, Chamber != 25)
+
+filt <- RNAi2[which(is.na(RNAi2$incapacitation)),]
+
+write_csv(RNAi1, file="../ProcessedData/RNAi1_tracked_data.csv")
+write_csv(RNAi2, file="../ProcessedData/RNAi2_tracked_data.csv")
