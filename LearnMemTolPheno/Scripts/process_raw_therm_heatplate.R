@@ -89,35 +89,36 @@ for(ff in ffs) {
 }
 
 #Add 07-2 rerun
-TT72 <- readRDS(file="../ProcessedData/2021-07-02b_Fly_tracks.Rds")
-TT72 <- bind_rows(TT72)
+#commented after incorporated into combined
+#TT72 <- readRDS(file="../ProcessedData/2021-07-02b_Fly_tracks.Rds")
+#TT72 <- bind_rows(TT72)
 
-ffs <- unique(TT72$id)
+#ffs <- unique(TT72$id)
 
-for(ff in ffs) {
-  tt1 <- TT72[TT72$id==ff,]
-  
-if(mean(tt1$likelihood) > 0.65) 
-{
-  
-  Th.set <- data.frame( 'file'=character(length=1),
-                        'incapacitation'= numeric(length=1), 
-                        'Rvar'= numeric(length=1),
-                        stringsAsFactors = FALSE)
-  
-  #remove low likelihood positions
-  tt1 <- tt1[tt1$likelihood >= 0.6,]
-  
-  incap.i <- slideThermo(xx=tt1$x,tt=tt1$Second)
-  
-  #Th.set$Rvar <- slideRec(st <- incap.i, xx=tt1$x,tt=tt1$Second)
-  Th.set$incapacitation <- tt1$Second[incap.i]
-  Th.set$file <- tt1$id[1]
-  
-  ThermTol_HeatPlate <- rbind(ThermTol_HeatPlate, Th.set)
-  
-}
-}
+#for(ff in ffs) {
+#  tt1 <- TT72[TT72$id==ff,]
+#   
+# if(mean(tt1$likelihood) > 0.65) 
+# {
+#   
+#   Th.set <- data.frame( 'file'=character(length=1),
+#                         'incapacitation'= numeric(length=1), 
+#                         'Rvar'= numeric(length=1),
+#                         stringsAsFactors = FALSE)
+#   
+#   #remove low likelihood positions
+#   tt1 <- tt1[tt1$likelihood >= 0.6,]
+#   
+#   incap.i <- slideThermo(xx=tt1$x,tt=tt1$Second)
+#   
+#   #Th.set$Rvar <- slideRec(st <- incap.i, xx=tt1$x,tt=tt1$Second)
+#   Th.set$incapacitation <- tt1$Second[incap.i]
+#   Th.set$file <- tt1$id[1]
+#   
+#   ThermTol_HeatPlate <- rbind(ThermTol_HeatPlate, Th.set)
+#   
+# }
+# }
 ##07-2
 
 ss <- ThermTol_HeatPlate$file %>%
@@ -140,7 +141,7 @@ ThermTol_HeatPlate$genotype <- ss3[,1]
 ThermTol_HeatPlate$cross <- ss3[,2]
 
 
-#saveRDS(ThermTol_HeatPlate, file=paste0("../ProcessedData/Incap_processed_",proj,".Rds"))
+saveRDS(ThermTol_HeatPlate, file=paste0("../ProcessedData/Incap_processed_",proj,".Rds"))
 
 
 chambers <- read_csv(file="../ProcessedData/HeatPlate_autotrack/Chambers_RNAi_round1.csv")
@@ -166,3 +167,7 @@ filt <- RNAi2[which(is.na(RNAi2$incapacitation)),]
 
 write_csv(RNAi1, file="../ProcessedData/RNAi1_tracked_data.csv")
 write_csv(RNAi2, file="../ProcessedData/RNAi2_tracked_data.csv")
+
+
+
+
