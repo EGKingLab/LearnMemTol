@@ -76,7 +76,9 @@ for(ff in ffs) {
       
       incap.i <- slideThermo(xx=tt1$x,tt=tt1$Second)
       
-      Th.set$Rvar <- slideRec(st <- incap.i, xx=tt1$x,tt=tt1$Second)
+      Th.set$Rvar <- max(tt1[(nrow(tt1)-50):nrow(tt1),'x']) - min(tt1[(nrow(tt1)-50):nrow(tt1),'x'])
+      
+      #Th.set$Rvar <- slideRec(st <- incap.i, xx=tt1$x,tt=tt1$Second)
       Th.set$incapacitation <- tt1$Second[incap.i]
       Th.set$file <- tt1$id[1]
       
