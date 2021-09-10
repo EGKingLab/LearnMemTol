@@ -32,8 +32,18 @@ ThermDat <- readRDS(file="../ProcessedData/Incap_processed_RNAi.Rds")
 str(ThermDat)
 ThermDat[1:5,]
 
+ThermDat1 <- read.csv(file="../ProcessedData/RNAi1_tracked_data.csv")
+str(ThermDat1)
+ThermDat[1:5,]
+
+ThermDat2 <- read.csv(file="../ProcessedData/RNAi2_tracked_data.csv")
+str(ThermDat2)
+ThermDat[1:5,]
+
 #add a col set id 
 ThermDat$set_id<- paste(ThermDat$genotype, ThermDat$cross, sep="_")
+ThermDat1$set_id<- paste(ThermDat1$genotype, ThermDat1$cross, sep="_")
+ThermDat2$set_id<- paste(ThermDat2$genotype, ThermDat2$cross, sep="_")
 
 
 RNAi_backg <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_Bckg.xlsx")
@@ -55,12 +65,25 @@ Use `unique()` to check groups, replicates, genotypes, etc. for issues. You will
 
 #removed individuals with incap time of 5 secs or less
 ThermDat<- ThermDat %>% filter(incapacitation > 5)
-
 str(ThermDat)
+
+ThermDat1<-ThermDat1 %>% filter(incapacitation > 5)
+str(ThermDat1)
+
+ThermDat2<-ThermDat2 %>% filter(incapacitation > 5)
+str(ThermDat2)
 
 #Visualize after filtering 
 p1<- ggplot(ThermDat, aes(x = incapacitation)) +
   geom_histogram()
+
+
+p2<- ggplot(ThermDat1, aes(x = incapacitation)) +
+  geom_histogram()
+
+p3<- ggplot(ThermDat2, aes(x = incapacitation)) +
+  geom_histogram()
+
 
 #look at the indi
 ThermDat[which(ThermDat$incapacitation > 400),]
@@ -68,39 +91,89 @@ ThermDat[which(ThermDat$incapacitation > 400),]
 
 #check number of individuals per genotype 
 RNAicounts <- ThermDat%>% group_by(set_id) %>% tally()
+RNAicounts1 <- ThermDat1%>% group_by(set_id) %>% tally()
+RNAicounts2 <- ThermDat2%>% group_by(set_id) %>% tally()
 
-hist(RNAicounts$n)
-
-RNAi_phenototal <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_PhenoTotal.xlsx")
-str(RNAi_phenototal)
-RNAi_phenototal[1:5,]
-
-hist(RNAi_phenototal$Total_Flies_Phenotyed)
+#visualize 
+hist(RNAicounts1$n)
+hist(RNAicounts2$n)
 
 
-#look at genotypes that have less that 30 and more than 40 individuals 
-RNAicounts[which(RNAicounts$n < 30),]
-RNAicounts[which(RNAicounts$n > 40),]
+#identify crosses with more/ less individuals than expected
+RNAicounts1[which(RNAicounts1$n > 35),]
+RNAicounts2[which(RNAicounts2$n > 30),]
+RNAicounts2[which(RNAicounts2$n < 20),]
+
+#check for duplicates in data set
+dupsRNAi1 <- which(duplicated(ThermDat1, MARGIN=1, incomparables = FALSE ))
+dupsRNAi2 <- which(duplicated(ThermDat2, MARGIN=1, incomparables = FALSE ))
+
+dupsRNAi2<-ThermDat2[112:121,]
+dupsRNAi2[1:2,]
+
+
+save(dupsRNAi2, file="../ProcessedData/DupsRNAi2.rda")
+
+
+#read in data sheet with pheno total for RNAi2
+RNAi2_ch <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_Val2_Chamber_positions.xlsx")
+RNAi2_ch$file <- paste0(RNAi2_ch$FileName,"_", RNAi2_ch$Chamber)
+
+#confirm where files were duplicated files from top to bottom
+which(duplicated(RNAi2_ch$file))
+
+# confirm where files were duplicated files from bottom to top
+which(duplicated(RNAi2_ch$file, fromLast=TRUE))
+RNAi2_ch[which(duplicated(RNAi2_ch$file)),]
+
+#remove duplicated rows 
+ThermDat2<- ThermDat2[-c(111, 112, 113, 114, 104, 115, 116, 117, 118, 119, 120, 171), ]
+
+#confirm duplicates were removed 
+dupsRNAi2 <- which(duplicated(ThermDat2, MARGIN=1, incomparables = FALSE ))
+
+
+#confirm the total number phenhotyped
+RNAi2_phenototal <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_PhenoTotal.xlsx")
+str(RNAi2_phenototal)
+RNAi2_phenototal[1:5,]
+hist(RNAi2_phenototal$Total_Flies_Phenotyed)
+
 
 
 #cleaning up data. See notes below
-ThermDat[which(ThermDat$set_id=="60071_25752"), 'cross'] <-25750
-ThermDat[which(ThermDat$set_id=="33545_3954"), 'genotype'] <-33646
+#ThermDat[which(ThermDat$set_id=="60071_25752"), 'cross'] <-25750
+#ThermDat[which(ThermDat$set_id=="33545_3954"), 'genotype'] <-33646
 
-ThermDat <- ThermDat %>% filter(!(set_id %in% c("32913_25750", "32913_3954", "32913_25750", "50656_51941")))
+#ThermDat <- ThermDat %>% filter(!(set_id %in% c("32913_25750", "32913_3954", "32913_25750", "50656_51941")))
 
-str(ThermDat)
+
 ThermDat$set_id<- paste(ThermDat$genotype, ThermDat$cross, sep="_")
 
 
 unique(ThermDat$group)
-unique(Gene$set_id)
 unique(ThermDat$genotype)
 
 #sort data from min to max
 RNAiData_sort <- ThermDat[order(ThermDat$incapacitation),]
+RNAiData_sort1 <- ThermDat1[order(ThermDat1$incapacitation),]
+RNAiData_sort2 <- ThermDat2[order(ThermDat2$incapacitation),]
 
-RNAiData_sort[1959:1969,]
+
+#look at distrubution of data
+hist(ThermDat1$incapacitation)
+str(ThermDat1)
+
+hist(ThermDat2$incapacitation)
+str(ThermDat2)
+
+
+
+#identify outliers
+RNAiData_sort1[1664:1684,]
+RNAiData_sort2[1:10,]
+
+
 ```
 
 Dropped all lines with genotype 32913 because it didn't work well and we had an incomplete set.
@@ -138,6 +211,7 @@ For each gene compare to Gal4 crosses and background (P2 or P40)
 
 #get vector of focal genes
 ThermDat[1:5,]
+ThermDat1[1:5,]
 
 Glist<- unique(ThermDat$genotype)
 str(Glist)
