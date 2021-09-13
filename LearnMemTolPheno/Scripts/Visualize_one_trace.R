@@ -1,7 +1,7 @@
 
 
 TTdat <- readRDS(file="../ProcessedData/Combined_tracks_RNAi_2.Rds")
-ff <- "2021-06-16_RNAi-50656.25750-1_group1_21"
+ff <- "2021-03-23_RNAi-51511.51941-1_group1_17"
 
 
 
@@ -14,6 +14,6 @@ plot(tt1$Second, tt1$x)
 
 ggplot(tt1, aes(Second, x, color=likelihood)) +
   geom_point()
-
+  
 
 
