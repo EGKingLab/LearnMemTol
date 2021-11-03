@@ -1,8 +1,11 @@
 
 
 TTdat <- readRDS(file="../ProcessedData/Combined_tracks_RNAi_2.Rds")
-ff <- "2021-03-23_RNAi-51511.51941-1_group1_17"
+str(TTdat)
+TTdat[1:5,]
+ff <- "2021-07-01_RNAi-50656.25750-3_group1"
 
+TTdat <- read.csv(file="../ProcessedData/RNAi1_tracked_data.csv")
 
 
 tt1 <- TTdat[TTdat$id==ff,]

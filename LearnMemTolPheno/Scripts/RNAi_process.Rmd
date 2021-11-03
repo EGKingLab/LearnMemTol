@@ -24,26 +24,19 @@ theme_set(theme_cowplot())
 source(file="../../../../../kingeg/Functions/ggplot_theme.R")
 ```
 
+#This script is to analyse RNAi lines that were measured for thermal tolerance using the hot plate.
+
 ## Read in processed data
 
 ```{r}
-
-ThermDat <- readRDS(file="../ProcessedData/Incap_processed_RNAi.Rds")
-str(ThermDat)
-ThermDat[1:5,]
-
 ThermDat1 <- read.csv(file="../ProcessedData/RNAi1_tracked_data.csv")
 str(ThermDat1)
-ThermDat[1:5,]
+ThermDat1[1:5,]
+ThermDat1$genotype  <- as.character(ThermDat1$genotype)
 
-ThermDat2 <- read.csv(file="../ProcessedData/RNAi2_tracked_data.csv")
-str(ThermDat2)
-ThermDat[1:5,]
 
 #add a col set id 
-ThermDat$set_id<- paste(ThermDat$genotype, ThermDat$cross, sep="_")
 ThermDat1$set_id<- paste(ThermDat1$genotype, ThermDat1$cross, sep="_")
-ThermDat2$set_id<- paste(ThermDat2$genotype, ThermDat2$cross, sep="_")
 
 
 RNAi_backg <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_Bckg.xlsx")
@@ -52,7 +45,10 @@ RNAi_backg[1:5,]
 
 colnames(RNAi_backg) <-c("genotype", "backg_id", "Gname")
 
-ThermDat <- left_join(ThermDat, RNAi_backg, by="genotype")
+
+ThermDat1 <- left_join(ThermDat1, RNAi_backg, by="genotype")
+str(ThermDat1)
+ThermDat2 <- left_join(ThermDat2, RNAi_backg, by="genotype")
 ```
 
 ## Data Checking
@@ -64,8 +60,6 @@ Use `unique()` to check groups, replicates, genotypes, etc. for issues. You will
 ```{r}
 
 #removed individuals with incap time of 5 secs or less
-ThermDat<- ThermDat %>% filter(incapacitation > 5)
-str(ThermDat)
 
 ThermDat1<-ThermDat1 %>% filter(incapacitation > 5)
 str(ThermDat1)
@@ -74,23 +68,20 @@ ThermDat2<-ThermDat2 %>% filter(incapacitation > 5)
 str(ThermDat2)
 
 #Visualize after filtering 
-p1<- ggplot(ThermDat, aes(x = incapacitation)) +
+
+p1<- ggplot(ThermDat1, aes(x = incapacitation)) +
   geom_histogram()
 
-
-p2<- ggplot(ThermDat1, aes(x = incapacitation)) +
-  geom_histogram()
-
-p3<- ggplot(ThermDat2, aes(x = incapacitation)) +
+p2<- ggplot(ThermDat2, aes(x = incapacitation)) +
   geom_histogram()
 
 
 #look at the indi
-ThermDat[which(ThermDat$incapacitation > 400),]
+ThermDat1[which(ThermDat1$incapacitation > 300),]
+ThermDat2[which(ThermDat2$incapacitation > 300),]
 
 
 #check number of individuals per genotype 
-RNAicounts <- ThermDat%>% group_by(set_id) %>% tally()
 RNAicounts1 <- ThermDat1%>% group_by(set_id) %>% tally()
 RNAicounts2 <- ThermDat2%>% group_by(set_id) %>% tally()
 
@@ -100,23 +91,41 @@ hist(RNAicounts2$n)
 
 
 #identify crosses with more/ less individuals than expected
-RNAicounts1[which(RNAicounts1$n > 35),]
-RNAicounts2[which(RNAicounts2$n > 30),]
-RNAicounts2[which(RNAicounts2$n < 20),]
+RNAicounts1[which(RNAicounts1$n > 30),]
+RNAicounts1[which(RNAicounts1$n < 30),]
+RNAicounts2[which(RNAicounts2$n < 25),]
+
+#cleaning up data. See notes below
+
+#replaced mislabeled genotypes.
+ThermDat1[which(ThermDat1$set_id=="60071_25752"), 'cross'] <-25750
+ThermDat1[which(ThermDat1$set_id=="33545_3954"), 'genotype'] <-33646
+
+#removed genotype with low number of individuals pehptyped.
+ThermDat1 <- ThermDat1 %>% filter(!(set_id %in% c("32913_25750", "32913_3954", "32913_25750")))
+
+
+ThermDat1$set_id<- paste(ThermDat1$genotype, ThermDat1$cross, sep="_")
+
+
+unique(ThermDat1$group)
+unique(ThermDat1$genotype)
+
+#check to be sure data was removed form list by rerunniung the code above RNAicounts1 <- ThermDat1%>% group_by(set_id) %>% tally()
+
 
 #check for duplicates in data set
 dupsRNAi1 <- which(duplicated(ThermDat1, MARGIN=1, incomparables = FALSE ))
 dupsRNAi2 <- which(duplicated(ThermDat2, MARGIN=1, incomparables = FALSE ))
 
-dupsRNAi2<-ThermDat2[112:121,]
-dupsRNAi2[1:2,]
+dupsRNAi2<-ThermDat2[171,]
 
 
 save(dupsRNAi2, file="../ProcessedData/DupsRNAi2.rda")
 
 
 #read in data sheet with pheno total for RNAi2
-RNAi2_ch <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_Val2_Chamber_positions.xlsx")
+RNAi2_ch <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_Val2_Chmb_positions.xlsx")
 RNAi2_ch$file <- paste0(RNAi2_ch$FileName,"_", RNAi2_ch$Chamber)
 
 #confirm where files were duplicated files from top to bottom
@@ -127,13 +136,13 @@ which(duplicated(RNAi2_ch$file, fromLast=TRUE))
 RNAi2_ch[which(duplicated(RNAi2_ch$file)),]
 
 #remove duplicated rows 
-ThermDat2<- ThermDat2[-c(111, 112, 113, 114, 104, 115, 116, 117, 118, 119, 120, 171), ]
+ThermDat2<- ThermDat2[-c(171), ]
 
 #confirm duplicates were removed 
 dupsRNAi2 <- which(duplicated(ThermDat2, MARGIN=1, incomparables = FALSE ))
 
 
-#confirm the total number phenhotyped
+#confirm the total number phenotyped
 RNAi2_phenototal <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_PhenoTotal.xlsx")
 str(RNAi2_phenototal)
 RNAi2_phenototal[1:5,]
@@ -142,20 +151,12 @@ hist(RNAi2_phenototal$Total_Flies_Phenotyed)
 
 
 #cleaning up data. See notes below
-#ThermDat[which(ThermDat$set_id=="60071_25752"), 'cross'] <-25750
-#ThermDat[which(ThermDat$set_id=="33545_3954"), 'genotype'] <-33646
-
-#ThermDat <- ThermDat %>% filter(!(set_id %in% c("32913_25750", "32913_3954", "32913_25750", "50656_51941")))
+ThermDat1[which(ThermDat1$set_id=="60071_25752"), 'cross'] <-25750
+ThermDat1[which(ThermDat1$set_id=="33545_3954"), 'genotype'] <-33646
 
 
-ThermDat$set_id<- paste(ThermDat$genotype, ThermDat$cross, sep="_")
-
-
-unique(ThermDat$group)
-unique(ThermDat$genotype)
 
 #sort data from min to max
-RNAiData_sort <- ThermDat[order(ThermDat$incapacitation),]
 RNAiData_sort1 <- ThermDat1[order(ThermDat1$incapacitation),]
 RNAiData_sort2 <- ThermDat2[order(ThermDat2$incapacitation),]
 
@@ -176,28 +177,39 @@ RNAiData_sort2[1:10,]
 
 ```
 
-Dropped all lines with genotype 32913 because it didn't work well and we had an incomplete set.
-Dropped 50656 because there was only 2 individuals measured for TT. 
+Dropped all lines with genotype 32913 because the crossed produced a low number of individuals therefore we were not able to meet the minimum number for phenontyping. 
+###Dropped 50656 because there was only 2 individuals measured for TT.### 
 Merged 60071-25750 and 60071-25752 because there was a typo in file naming and 60071-25752 is not a genotype. The file name column did not change. 
 Merged 33545_3954 and 33646_3954  because there was a typo in file naming and 33545_3954 is not a genotype.
+
+In ThermDat2, I removed line *171* because it was duplicated. (11/01/21)
 
 
 #calculate mean and SEM
 ```{r}
-RNAi_Data <- ThermDat %>% 
+RNAi_Data1 <- ThermDat1 %>% 
   group_by(set_id) %>% 
   summarise(Incap_Mean = mean(incapacitation),
             Incap_SEM = sd(incapacitation)/sqrt(length(incapacitation)),
             N = length(incapacitation))
 
-which.min(RNAi_Data$N)
-mean(RNAi_Data$N)
+which.min(RNAi_Data1$N)
+mean(RNAi_Data1$N)
+
+RNAi_Data2 <- ThermDat2 %>% 
+  group_by(set_id) %>% 
+  summarise(Incap_Mean = mean(incapacitation),
+            Incap_SEM = sd(incapacitation)/sqrt(length(incapacitation)),
+            N = length(incapacitation))
+
+which.min(RNAi_Data2$N)
+mean(RNAi_Data2$N)
 
 #Visulalize distribution with histogram for both mean and raw 
-RNAi_histo <- ggplot(RNAi_Data, aes(x = Incap_Mean)) +
+RNAi_histo1 <- ggplot(RNAi_Data1, aes(x = Incap_Mean)) +
   geom_histogram()
 
-RNAi_Datahisto <- ggplot(ThermDat, aes(x = incapacitation)) +
+RNAi_Datahisto1 <- ggplot(ThermDat1, aes(x = incapacitation)) +
   geom_histogram()
 
 ```
@@ -210,67 +222,78 @@ For each gene compare to Gal4 crosses and background (P2 or P40)
 ```{r}
 
 #get vector of focal genes
-ThermDat[1:5,]
 ThermDat1[1:5,]
+ThermDat2[1:5,]
 
-Glist<- unique(ThermDat$genotype)
-str(Glist)
+Glist1<- unique(ThermDat1$genotype)
+str(Glist1)
+Glist2<- unique(ThermDat2$genotype)
+str(Glist1)
 
 #remove background lines  from Glist 
-Glist<- Glist[which(!(Glist %in% c("36303", "36304")))]
+Glist1<- Glist1[which(!(Glist1 %in% c("36303", "36304")))]
+Glist2<- Glist2[which(!(Glist2 %in% c("36303", "36304")))]
 
 
-nn <- numeric(length=length(Glist))
+nn1<- numeric(length=length(Glist1))
+nn2 <- numeric(length=length(Glist2))
+
 counter <- 1
 
-for(foc.gene in Glist)
+
+#performing lm and ANOVA
+for(foc.gene in Glist1)
   {
   
 #foc.gene <- 31167
-Gene <- ThermDat %>% filter(genotype ==foc.gene)
+Gene1 <- ThermDat1 %>% filter(genotype ==foc.gene)
 
-Bk <- ThermDat %>% filter(genotype == ifelse(Gene$backg_id[1]=="attP2",36303,36304))
+Bk <- ThermDat1 %>% filter(genotype == ifelse(Gene1$backg_id[1]=="attP2",36303,36304))
 
-Gene <- rbind(Gene, Bk)
+Gene1 <- rbind(Gene1, Bk)
 
-RNAi_mod <- lm(incapacitation ~ set_id, data= Gene)
- summary(RNAi_mod)
+RNAi_mod1 <- lm(incapacitation ~ set_id, data= Gene1)
+ summary(RNAi_mod1)
 
- str(RNAi_mod)
+ str(RNAi_mod1)
  
- aa<-aov(RNAi_mod)
-nn[counter]<- aa[1,5]
- Gene %>% 
+ aa1<-aov(RNAi_mod1)
+ pp<- summary(aa1)
+ str(pp)
+ pp<-pp[[1]] 
+ pp[1,5]
+ 
+nn1[counter]<- pp[1,5]
+ 
+Gene1 %>% 
    group_by(set_id) %>%
    dplyr::summarise(mean(incapacitation))
  counter<-counter+1
  
 }
 
-ThermDat[1:5,]
-
-
-
 
 #adusted p-value 
-rr <- p.adjust(nn, method="BH")
+rr <- p.adjust(nn1, method="BH")
 
 
 #finding significance for three genes within group 
 #RhoGAP93B
 foc.gene <- 35027
-Gene <- ThermDat %>% filter(genotype ==foc.gene)
+Gene1 <- ThermDat1 %>% filter(genotype ==foc.gene)
 
-Bk <- ThermDat %>% filter(genotype == ifelse(Gene$backg_id[1]=="attP2",36303,36304))
+Bk <- ThermDat1 %>% filter(genotype == ifelse(Gene1$backg_id[1]=="attP2",36303,36304))
 
-Gene <- rbind(Gene, Bk)
+Gene1 <- rbind(Gene1, Bk)
 
-RNAi_mod <- lm(incapacitation ~ set_id, data= Gene)
- summary(RNAi_mod)
+RNAi_mod1 <- lm(incapacitation ~ set_id, data= Gene1)
+ summary(RNAi_mod1)
 
- str(RNAi_mod)
+ str(RNAi_mod1)
  
- aa<-aov(RNAi_mod)
+ aa1<-aov(RNAi_mod1)
+summary(aa1)
+
 
 #post-hoc test 
 Rho<-TukeyHSD(aa)
@@ -279,18 +302,20 @@ plot(Rho)
 
 #dmrt93B
 foc.gene <- 50656
-Gene <- ThermDat %>% filter(genotype ==foc.gene)
+Gene1 <- ThermDat1 %>% filter(genotype ==foc.gene)
 
-Bk <- ThermDat %>% filter(genotype == ifelse(Gene$backg_id[1]=="attP2",36303,36304))
+Bk <- ThermDat1 %>% filter(genotype == ifelse(Gene1$backg_id[1]=="attP2",36303,36304))
 
-Gene <- rbind(Gene, Bk)
+Gene1 <- rbind(Gene1, Bk)
 
-RNAi_mod <- lm(incapacitation ~ set_id, data= Gene)
- summary(RNAi_mod)
+RNAi_mod1 <- lm(incapacitation ~ set_id, data= Gene1)
+ summary(RNAi_mod1)
 
- str(RNAi_mod)
+ str(RNAi_mod1)
  
- aa<-aov(RNAi_mod)
+ aa1 <-aov(RNAi_mod1)
+summary(aa1)
+
 
 #post-hoc test 
 dmrt<-TukeyHSD(aa)
@@ -299,21 +324,22 @@ plot(dmrt)
 
 #atpalpha
 foc.gene <- 51411
-Gene <- ThermDat %>% filter(genotype ==foc.gene)
+Gene1 <- ThermDat1 %>% filter(genotype ==foc.gene)
 
-Bk <- ThermDat %>% filter(genotype == ifelse(Gene$backg_id[1]=="attP2",36303,36304))
+Bk <- ThermDat1 %>% filter(genotype == ifelse(Gene1$backg_id[1]=="attP2",36303,36304))
 
-Gene <- rbind(Gene, Bk)
+Gene1 <- rbind(Gene1, Bk)
 
-RNAi_mod <- lm(incapacitation ~ set_id, data= Gene)
- summary(RNAi_mod)
+RNAi_mod1 <- lm(incapacitation ~ set_id, data= Gene1)
+ summary(RNAi_mod1)
 
- str(RNAi_mod)
+ str(RNAi_mod1)
  
- aa<-aov(RNAi_mod)
+ aa1<-aov(RNAi_mod1)
+ summary(aa1)
 
 #post-hoc test 
-atp<-TukeyHSD(aa)
+atp<-TukeyHSD(aa1)
 plot(atp)
 
 
@@ -335,14 +361,14 @@ Glist <-cbind(Glist, Gname)
 
 
 foc.gene <- 51411
-FGene <- ThermDat %>% filter(genotype ==foc.gene)
+FGene1 <- ThermDat1 %>% filter(genotype ==foc.gene)
 
-Bk <- ThermDat %>% filter(genotype == ifelse(FGene$backg_id[1]=="attP2",36303,36304))
+Bk <- ThermDat1 %>% filter(genotype == ifelse(FGene1$backg_id[1]=="attP2",36303,36304))
 
-FGene <- rbind(FGene, Bk)
+FGene1 <- rbind(FGene1, Bk)
 
 
-Atpha_RNAi_plot <- ggplot(FGene, aes(set_id, incapacitation, color=set_id )) +
+Atpha_RNAi_plot <- ggplot(FGene1, aes(set_id, incapacitation, color=set_id )) +
   geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
   stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
   stat_summary(fun.data = mean_se, 
@@ -395,6 +421,13 @@ Rho_RNAi_plot <- ggplot(FGene, aes(set_id, incapacitation, color=set_id )) +
   ylab("Incapacitation Time (sec)") +
   xlab("RNAi Line") 
   #my_theme
+
+
+```
+
+#Rephenoped three significant genes
+#We refer to this dataset has "2"
+```{r}
 
 
 ```

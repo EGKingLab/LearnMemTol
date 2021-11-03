@@ -1,0 +1,205 @@
+---
+title: "RNAi_Sig_Genes"
+author: "Patricka Williams-Simon"
+date: "11/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## This script is to analyse a subset of RNAi genes that was re-phenotyped for thermal tolerance.
+## We refer to this dataset as RNAi2
+
+## load file 
+```{r cars}
+ThermDat2 <- read.csv(file="../ProcessedData/RNAi2_tracked_data.csv")
+str(ThermDat2)
+ThermDat2[1:5,]
+ThermDat2$genotype  <- as.character(ThermDat2$genotype)
+
+#add a col set id 
+ThermDat2$set_id<- paste(ThermDat2$genotype, ThermDat2$cross, sep="_")
+
+
+#load dataset with background/ crosses information
+RNAi_backg <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_Bckg.xlsx")
+str(RNAi_backg)
+RNAi_backg[1:5,]
+
+#assign column names
+colnames(RNAi_backg) <-c("genotype", "backg_id", "Gname")
+
+#combine data sets
+ThermDat2 <- left_join(ThermDat2, RNAi_backg, by="genotype")
+
+```
+
+## Data Checking
+
+Use `unique()` to check groups, replicates, genotypes, etc. for issues. You will need a column that specifies which flies you want to compare so work toward getting that set up here and checking for any problems. Use `tally()` to count up how many you have in your groups to make sure that makes sense too. Etc.
+
+
+```{r}
+
+
+#removed individuals with incap times of 5 secs or less
+ThermDat2<-ThermDat2 %>% filter(incapacitation > 5)
+str(ThermDat2)
+
+#Visualize after filtering 
+p1<- ggplot(ThermDat2, aes(x = incapacitation)) +
+  geom_histogram()
+
+
+#look at the individuals that have scores higher than 300 secs
+ThermDat2[which(ThermDat2$incapacitation > 300),]
+
+
+#check number of individuals per genotype 
+RNAicounts2 <- ThermDat2%>% group_by(set_id) %>% tally()
+
+#visualize 
+hist(RNAicounts2$n)
+
+
+#identify crosses with more/ less individuals than expected
+RNAicounts2[which(RNAicounts2$n < 25),]
+
+
+#check for duplicates in data set
+dupsRNAi2 <- which(duplicated(ThermDat2, MARGIN=1, incomparables = FALSE ))
+RNAi2_ch[which(duplicated(RNAi2_ch$file)),]
+
+
+save(dupsRNAi2, file="../ProcessedData/DupsRNAi2.rda")
+
+
+#read in data sheet with expected pheno total
+RNAi2_ch <- read_excel("../ProcessedData/HeatPlate_autotrack/RNAi_Val2_Chmb_positions.xlsx")
+RNAi2_ch$file <- paste0(RNAi2_ch$FileName,"_", RNAi2_ch$Chamber)
+
+#confirm where files were duplicated files from top to bottom
+which(duplicated(RNAi2_ch$file))
+
+# confirm where files were duplicated files from bottom to top
+which(duplicated(RNAi2_ch$file, fromLast=TRUE))
+RNAi2_ch[which(duplicated(RNAi2_ch$file)),]
+
+#remove duplicated rows 
+ThermDat2<- ThermDat2[-c(171), ]
+
+#confirm duplicates were removed, if removed the output should read integer(0) 
+dupsRNAi2 <- which(duplicated(ThermDat2, MARGIN=1, incomparables = FALSE ))
+
+
+#sort data from min to max
+RNAiData_sort2 <- ThermDat2[order(ThermDat2$incapacitation),]
+
+
+#look at distrubution of data
+hist(ThermDat2$incapacitation)
+str(ThermDat2)
+
+#identify outliers
+RNAiData_sort2[1:10,]
+
+```
+
+#running Model
+
+For each gene compare to Gal4 crosses and background (P2 or P40)
+
+```{r}
+
+#get vector of focal genes
+ThermDat2[1:5,]
+
+
+Glist2<- unique(ThermDat2$genotype)
+str(Glist2)
+
+#remove background lines  from Glist 
+Glist2<- Glist2[which(!(Glist2 %in% c("36303", "36304")))]
+
+nn2 <- numeric(length=length(Glist2))
+
+counter <- 1
+
+
+#performing lm and ANOVA in a for loop
+
+for(foc.gene in Glist2)
+  {
+  
+Gene2 <- ThermDat2 %>% filter(genotype ==foc.gene)
+Gene2[1:5,]
+
+Bk <- ThermDat2 %>% filter(genotype == ifelse(Gene2$backg_id.x[1]=="attP2",36303,36304))
+
+Gene2 <- rbind(Gene2, Bk)
+
+RNAi_mod2 <- lm(incapacitation ~ set_id, data= Gene2)
+ summary(RNAi_mod2)
+
+ str(RNAi_mod2)
+ 
+ aa2<-aov(RNAi_mod2)
+ pp<- summary(aa2)
+ str(pp)
+ pp<-pp[[1]] 
+ pp[1,5]
+ 
+nn2[counter]<- pp[1,5]
+ 
+Gene2 %>% 
+   group_by(set_id) %>%
+   dplyr::summarise(mean(incapacitation))
+ counter<-counter+1
+ 
+}
+
+#view which genes are significant
+nn2
+
+#post-hoc test 
+aa2_sig<-TukeyHSD(aa2)
+plot(aa2_sig)
+
+#adusted p-value 
+rr <- p.adjust(nn2, method="BH")
+
+
+#merge files 
+Glist2 <- cbind(Glist2, rr)
+
+
+```
+
+###Visualizing data 
+```{r}
+
+foc.gene <- 51411
+FGene2 <- ThermDat2 %>% filter(genotype ==foc.gene)
+
+Bk <- ThermDat2 %>% filter(genotype == ifelse(FGene2$backg_id.x[1]=="attP2",36303,36304))
+
+FGene2 <- rbind(FGene2, Bk)
+
+
+Atpha_RNAi_plot2 <- ggplot(FGene2, aes(set_id, incapacitation, color=set_id )) +
+  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
+  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'black', width=.3, size=0.5, alpha=1/2) +
+  ggtitle("Na pump α subunit (atpα) - 2") +
+  guides(col=guide_legend("Group Mean ")) +
+  ylab("Incapacitation Time (sec)") +
+  xlab("RNAi Line") 
+  #my_theme
+
+
+
+```
