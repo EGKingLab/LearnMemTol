@@ -7,6 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readxl)
 ```
 
 ## This script is to analyse a subset of RNAi genes that was re-phenotyped for thermal tolerance.
@@ -56,6 +58,10 @@ p1<- ggplot(ThermDat2, aes(x = incapacitation)) +
 #look at the individuals that have scores higher than 300 secs
 ThermDat2[which(ThermDat2$incapacitation > 300),]
 
+
+ThermDat2 %>% group_by(chamber) %>% summarize(mean(incapacitation))
+ch_mod <- aov(incapacitation ~ chamber, data=ThermDat2)
+summary(ch_mod)
 
 #check number of individuals per genotype 
 RNAicounts2 <- ThermDat2%>% group_by(set_id) %>% tally()
@@ -136,7 +142,7 @@ for(foc.gene in Glist2)
 Gene2 <- ThermDat2 %>% filter(genotype ==foc.gene)
 Gene2[1:5,]
 
-Bk <- ThermDat2 %>% filter(genotype == ifelse(Gene2$backg_id.x[1]=="attP2",36303,36304))
+Bk <- ThermDat2 %>% filter(genotype == ifelse(Gene2$backg_id[1]=="attP2",36303,36304))
 
 Gene2 <- rbind(Gene2, Bk)
 
@@ -174,6 +180,10 @@ rr <- p.adjust(nn2, method="BH")
 #merge files 
 Glist2 <- cbind(Glist2, rr)
 
+#####################note#############
+#instead of Tukey's I think we should do planned comparisons - so just compare the correct background to the matched RNAi cross (e.g. 36304_25750 compared to 51411_25750). Use the multicomp package and the function ghlt - you can specify which comparisons to do - look at the examples in the help file and try google too
+
+
 
 ```
 
@@ -183,7 +193,7 @@ Glist2 <- cbind(Glist2, rr)
 foc.gene <- 51411
 FGene2 <- ThermDat2 %>% filter(genotype ==foc.gene)
 
-Bk <- ThermDat2 %>% filter(genotype == ifelse(FGene2$backg_id.x[1]=="attP2",36303,36304))
+Bk <- ThermDat2 %>% filter(genotype == ifelse(FGene2$backg_id[1]=="attP2",36303,36304))
 
 FGene2 <- rbind(FGene2, Bk)
 
@@ -200,6 +210,32 @@ Atpha_RNAi_plot2 <- ggplot(FGene2, aes(set_id, incapacitation, color=set_id )) +
   xlab("RNAi Line") 
   #my_theme
 
+# I am worried about the date for this one:
+#check means
+FGene2 %>% filter(set_id=="51411_25750") %>% group_by(Date) %>% summarise(mean(incapacitation))
 
+#or plot color by date
+
+Atpha_RNAi_plot2 <- ggplot(FGene2, aes(set_id, incapacitation, shape=set_id , color=Date)) +
+  geom_point(position = position_jitter(width = 0.4)) +
+  #stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
+  #stat_summary(fun.data = mean_se, 
+  #             geom = "errorbar", 
+  #             color = 'black', width=.3, size=0.5, alpha=1/2) +
+  ggtitle("Na pump α subunit (atpα) - 2") +
+  guides(col=guide_legend("Group Mean ")) +
+  ylab("Incapacitation Time (sec)") +
+  xlab("RNAi Line") 
+
+Atpha_RNAi_plot2
 
 ```
+
+
+Here is what needs to be done next:
+- make a table of means per each group for both RNA1 and RNA2 (for your main genes of interest only)
+- make a plot for each with date color coded to see if there are others we need to investigate for both RNA1 and RNA2
+- look at each pair of plots to see if our rounds are consistant 
+- perform specific planned comparisons for RNA2
+- then we can make final decisions on what/how to present
+
