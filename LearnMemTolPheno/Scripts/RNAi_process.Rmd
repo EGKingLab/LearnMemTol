@@ -425,9 +425,5 @@ Rho_RNAi_plot <- ggplot(FGene, aes(set_id, incapacitation, color=set_id )) +
 
 ```
 
-#Rephenoped three significant genes
-#We refer to this dataset has "2"
-```{r}
-
 
 ```

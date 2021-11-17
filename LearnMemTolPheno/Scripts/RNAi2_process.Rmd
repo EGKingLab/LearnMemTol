@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
+library(multcomp)
 ```
 
 ## This script is to analyse a subset of RNAi genes that was re-phenotyped for thermal tolerance.
@@ -148,7 +149,8 @@ Gene2 <- rbind(Gene2, Bk)
 
 RNAi_mod2 <- lm(incapacitation ~ set_id, data= Gene2)
  summary(RNAi_mod2)
-
+ 
+ 
  str(RNAi_mod2)
  
  aa2<-aov(RNAi_mod2)
@@ -170,8 +172,20 @@ Gene2 %>%
 nn2
 
 #post-hoc test 
-aa2_sig<-TukeyHSD(aa2)
-plot(aa2_sig)
+#aa2_sig<-TukeyHSD(aa2)
+#plot(aa2_sig)
+
+#finding significance using multiple comparison 
+aa2_sig <- glht(aa2, 
+          linfct = mcp (tension = "Tukey"))
+
+glht(RNAi_mod2, linfct = mcp(tension = "Tukey"))
+
+
+glht(RNAi_mod2, linfct = mcp (tension= Glist2))
+
+aa2_sig <- glht(RNAi_mod2, 
+          linfct = mcp (tension = Glist2))
 
 #adusted p-value 
 rr <- p.adjust(nn2, method="BH")
