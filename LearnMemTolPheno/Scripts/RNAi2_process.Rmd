@@ -36,6 +36,7 @@ colnames(RNAi_backg) <-c("genotype", "backg_id", "Gname")
 
 #combine data sets
 ThermDat2 <- left_join(ThermDat2, RNAi_backg, by="genotype")
+ThermDat2[1:5,]
 
 ```
 
@@ -46,10 +47,10 @@ Use `unique()` to check groups, replicates, genotypes, etc. for issues. You will
 
 ```{r}
 
-
 #removed individuals with incap times of 5 secs or less
 ThermDat2<-ThermDat2 %>% filter(incapacitation > 5)
 str(ThermDat2)
+ThermDat[1:30,]
 
 #Visualize after filtering 
 p1<- ggplot(ThermDat2, aes(x = incapacitation)) +
@@ -138,7 +139,7 @@ counter <- 1
 #performing lm and ANOVA in a for loop
 
 for(foc.gene in Glist2)
-  {
+ {
   
 Gene2 <- ThermDat2 %>% filter(genotype ==foc.gene)
 Gene2[1:5,]
@@ -147,13 +148,15 @@ Bk <- ThermDat2 %>% filter(genotype == ifelse(Gene2$backg_id[1]=="attP2",36303,3
 
 Gene2 <- rbind(Gene2, Bk)
 
+
+#run Lm 
 RNAi_mod2 <- lm(incapacitation ~ set_id, data= Gene2)
  summary(RNAi_mod2)
- 
- 
  str(RNAi_mod2)
  
- aa2<-aov(RNAi_mod2)
+
+#run ANOVA 
+aa2<-aov(RNAi_mod2)
  pp<- summary(aa2)
  str(pp)
  pp<-pp[[1]] 
@@ -171,13 +174,46 @@ Gene2 %>%
 #view which genes are significant
 nn2
 
-#post-hoc test 
-#aa2_sig<-TukeyHSD(aa2)
-#plot(aa2_sig)
 
-#finding significance using multiple comparison 
-aa2_sig <- glht(aa2, 
-          linfct = mcp (tension = "Tukey"))
+ #####
+ 
+##define coefficients of linear function directly
+#  K <- diag(length(coef(RNAi_mod2)))[-1,]
+#  rownames(K) <- names(coef(RNAi_mod2))[-1]
+ # K
+ 
+### set up general linear hypothesis
+  glht(RNAi_mod2, linfct = K)
+  
+  
+  #####finding significance using multiple comparison 
+  ### multiple comparison procedures
+  
+aa2_mulcomp <- glht(RNAi_mod2, 
+          linfct = mcp (set_id = "Tukey"))
+
+aa2$set_id <- as.factor(aa2$set_id)
+RNAi_mod2$set_id <- as.factor(RNAi_mod2$set_id)
+
+#post-hoc test 
+aa2_sig<-TukeyHSD(aa2)
+plot(aa2_sig)
+
+#####finding significance using multiple comparison 
+aa2_mulcomp <- glht(aa2, 
+          linfct = mcp (set_id = "Tukey"))
+
+aa2_mulcomp <- glht(aa2, 
+          linfct = mcp)
+
+data.frame(nn2)
+
+
+glht(aa2, linfct = c("36304_25750-25750_NA = 0",
+                        "36304_3954-25750_NA = 0",
+                        "36304_NA-25750_NA = 0",
+                        "36304_3954-36304_25750 = 0",
+                        "36304_NA-36304_3954 = 0"))
 
 glht(RNAi_mod2, linfct = mcp(tension = "Tukey"))
 

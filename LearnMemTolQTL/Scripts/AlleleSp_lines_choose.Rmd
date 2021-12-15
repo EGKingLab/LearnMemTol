@@ -23,6 +23,7 @@ set.seed(108155)
 # Identify lines for Allele Specific Expression Project
 
 Goal is to find lines that are in the high & low haplotype group for thermal tolerance at our focal peak
+hello 
 
 ### Get data
 
