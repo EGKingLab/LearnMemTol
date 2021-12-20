@@ -147,6 +147,7 @@ Gene2[1:5,]
 Bk <- ThermDat2 %>% filter(genotype == ifelse(Gene2$backg_id[1]=="attP2",36303,36304))
 
 Gene2 <- rbind(Gene2, Bk)
+Gene2$set_id <- as.factor(Gene2$set_id)
 
 
 #run Lm 
@@ -183,7 +184,26 @@ nn2
  # K
  
 ### set up general linear hypothesis
-  glht(RNAi_mod2, linfct = K)
+
+foc.gene <- Glist2[1]
+Gene2 <- ThermDat2 %>% filter(genotype ==foc.gene)
+Bk <- ThermDat2 %>% filter(genotype == ifelse(Gene2$backg_id[1]=="attP2",36303,36304))
+Gene2 <- rbind(Gene2, Bk)
+
+test_id <- data.frame("set_id"=unique(Gene2$set_id), "simp"= c("a","b","c","d","e"))
+Gene2 <- merge(Gene2, test_id, by="set_id", all=TRUE)
+
+#run Lm 
+Gene2$set_id <- as.factor(Gene2$set_id)
+Gene2$simp <- as.factor(Gene2$simp)
+RNAi_mod2 <- aov(incapacitation ~ simp, data= Gene2)
+
+#shows all
+glht(RNAi_mod2, linfct = mcp(simp = "Tukey"))
+
+#set up ones we want
+compare_genes <- c("a - c = 0", "b - d = 0")
+glht(RNAi_mod2, linfct = mcp(simp = compare_genes))
   
   
   #####finding significance using multiple comparison 

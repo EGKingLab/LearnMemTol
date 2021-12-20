@@ -139,6 +139,10 @@ N.B. All output scripts were copied to Lewis where the RNAseq analysis was proce
 
 A record of notes in the style of a lab notebook
 
+### Dec 20, 2021
+
+Working on multiple comparisons procedures for the RNAi data. The underscore is causing issues in specifying which comparisons so we will change to symbolic names. -EGK
+
 
 ### April 21, 2021
 Today, Libby and I started writing code to analysis the hot plate data: 
