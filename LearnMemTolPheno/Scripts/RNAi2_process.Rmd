@@ -81,7 +81,7 @@ dupsRNAi2 <- which(duplicated(ThermDat2, MARGIN=1, incomparables = FALSE ))
 RNAi2_ch[which(duplicated(RNAi2_ch$file)),]
 
 
-save(dupsRNAi2, file="../ProcessedData/DupsRNAi2.rda")
+#save(dupsRNAi2, file="../ProcessedData/DupsRNAi2.rda")
 
 
 #read in data sheet with expected pheno total

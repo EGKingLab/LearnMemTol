@@ -31,6 +31,9 @@ ThermDat2 <- left_join(ThermDat2, RNAi_backg, by="genotype")
 ThermDat_all <- rbind(ThermDat1[,c("file", "Chamber","incapacitation","date","group","rep","genotype","cross","set_id","backg_id","Gname")], 
                       ThermDat2[,c("file", "Chamber","incapacitation","date","group","rep","genotype","cross","set_id","backg_id","Gname")])
 
+
+#write_csv(ThermDat_all, file="../ProcessedData/Combined_RNAi_tracked.csv")
+
 TTmeans <- ThermDat_all %>% 
   group_by(set_id) %>%
   summarise(MeanI = mean(incapacitation))
