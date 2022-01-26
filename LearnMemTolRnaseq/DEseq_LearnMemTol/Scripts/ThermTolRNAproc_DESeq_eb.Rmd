@@ -166,11 +166,15 @@ TT_dds_01 <- DESeqDataSetFromMatrix(countData = TTgenes,
 
 
 TTlrt_con_deseq <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + pool)
+save(TTlrt_con_deseq, file = "../Data/TTdds_condition.Rda")
+
 TTlrt_con <- results(TTlrt_con_deseq)
 save(TTlrt_con, file = "../Data/TTlrt_condiiton.Rda")
 
 
 TTlrt_pool_deseq <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + condition)
+save(TTlrt_pool_deseq, file = "../Data/TTdds_pool.Rda")
+
 TTlrt_pool <- results(TTlrt_pool_deseq)
 save(TTlrt_pool, file = "../Data/TTlrt_pool.Rda")
 
@@ -180,6 +184,8 @@ TT_dds_02 <- DESeqDataSetFromMatrix(countData = TTgenes,
                                  design = ~ SV1 + SV2 + batch + pool*condition)
 
 TTlrt_inter_deseq <- DESeq(TT_dds_02, test="LRT", reduced=~ SV1 + SV2 + batch + pool + condition)
+save(TTlrt_inter_deseq, file = "../Data/TTdds_inter.Rda")
+
 TT_inter <- results(TTlrt_inter_deseq)
 save(TT_inter, file = "../Data/TTlrt_inter_deseq.Rda")
 
