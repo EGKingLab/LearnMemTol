@@ -25,10 +25,31 @@ gene_map_table$startp <- as.numeric(temp.s1[,1])
 
 gene_map_table$stopp <- as.numeric(str_split(temp.s1[,2],fixed("("),simplify = TRUE)[,1])
 
+load(file ="../../../LearnMemTolQTL/ProcessedData/Peaks_wCIs.rda")
 
-plotCounts(TTlrt_pool_deseq, gene="FBgn0011672", intgroup=c("pool","condition"))
+lowc <- ci.peak$Tolsqrtvariable[which.max(ci.peak$Tolsqrtvariable$LL), 'lpR6']
+highc <- ci.peak$Tolsqrtvariable[which.max(ci.peak$Tolsqrtvariable$LL), 'upR6']
 
-plotCounts(TTlrt_pool_deseq, gene="FBgn0038851", intgroup=c("pool","condition"))
 
-plotCounts(TTlrt_pool_deseq, gene="FBgn0025865", intgroup=c("pool","condition"))
+gglist <- subset(gene_map_table, chr=="3R" & startp <= highc & stopp >=lowc)
+
+
+
+#loop plots
+#output all
+
+
+pdf(file="../Plots/Ind_genes_TT_peak.pdf", width=16, height = 24)
+par(mfrow=c(6,4))
+
+for(ii in 1:nrow(gglist))
+{
+
+  
+plotCounts(TTlrt_pool_deseq, gene=gglist$FBgn[ii], intgroup=c("pool","condition"), main=gglist$gname[ii])
+
+}
+
+dev.off()
+
 
