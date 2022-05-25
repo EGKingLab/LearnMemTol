@@ -1,5 +1,12 @@
 library(DSPRqtl)
+library(tidyverse)
+library(cowplot)
+library(viridis)
 source("../../Functions/mappingfunctions.R")
+source(file="../../Functions/ggplot_theme.R")
+theme_set(theme_cowplot())
+
+
 
 
 ##Load datasets
@@ -60,6 +67,27 @@ Phen.Ls <- unlist(lapply(Phen.Mods, function(xx) (xx - LL0)))
 plot(Phen.Ls, type='l')
 lines(obs.LL[,3], col='blue')
 
+compD <- tibble("Position" = c(positions$Gaxis,positions$Gaxis),
+                "LOD" = c(obs.LL[,3],Phen.Ls),
+                "Scan"=c(rep("Raw",nrow(obs.LL)), rep("Q6 Corrected",length(Phen.Ls))))
+
+top <- max(obs.LL$Tolsqrtvariable)
+
+p1 <- ggplot(compD, aes(x=Position, y=LOD, color=Scan)) +
+  geom_rect(xmin=66.3,ymin=-10,xmax=120.3,ymax=top+10,fill='aliceblue',color='aliceblue')+
+  geom_rect(xmin=174,ymin=-10,xmax=221,ymax=top+10,fill='aliceblue',color='aliceblue')+
+  scale_x_continuous(breaks=c(0,66.3,120,174,221,277,33.15,98.3,145,205,249), 
+                     labels=c(0,"66  0",54,"108  0",47,103,'\nX','\n2L','\n2R','\n3L','\n3R'),limits = c(-0.01,max(compD$Position)+25))+
+  geom_line(alpha=0.6) +
+  theme(axis.ticks.x=element_blank())+
+  xlab("Position (cM)") +
+  scale_color_viridis(discrete = TRUE)+
+  my_theme
+
+p1
+
+
+
 
 pp<-myGenos[['phenotype']]
 
@@ -82,7 +110,27 @@ Phen.Mods<-lapply(gg, function(mat) logLik(lm(pp[,"Tolsqrtvariable"] ~ pp[,'subp
 Phen.Ls <- unlist(lapply(Phen.Mods, function(xx) (xx - LL0)))
 
 
-plot(obs.LL[,3], type='l')
-lines(Phen.Ls, col='blue')
 
-# Cox hazard??
+compD <- tibble("Position" = c(positions$Gaxis,positions$Gaxis),
+                "LOD" = c(obs.LL[,3],Phen.Ls),
+                "Scan"=c(rep("Raw",nrow(obs.LL)), rep("Subpop",length(Phen.Ls))))
+
+top <- max(obs.LL$Tolsqrtvariable)
+
+p2 <- ggplot(compD, aes(x=Position, y=LOD, color=Scan)) +
+  geom_rect(xmin=66.3,ymin=-10,xmax=120.3,ymax=top+10,fill='aliceblue',color='aliceblue')+
+  geom_rect(xmin=174,ymin=-10,xmax=221,ymax=top+10,fill='aliceblue',color='aliceblue')+
+  scale_x_continuous(breaks=c(0,66.3,120,174,221,277,33.15,98.3,145,205,249), 
+                     labels=c(0,"66  0",54,"108  0",47,103,'\nX','\n2L','\n2R','\n3L','\n3R'),limits = c(-0.01,max(compD$Position)+25))+
+  geom_line(alpha=0.6) +
+  theme(axis.ticks.x=element_blank())+
+  xlab("Position (cM)") +
+  scale_color_viridis(discrete = TRUE)+
+  my_theme
+
+p2
+
+pall <- plot_grid(p1,p2, labels=c("a.","b."), nrow=2)
+
+ggsave(pall, width = 6.5, height = 5, filename = "../Plots/TT_additional.pdf")
+
