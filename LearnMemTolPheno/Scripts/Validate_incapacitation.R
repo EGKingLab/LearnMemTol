@@ -1,7 +1,7 @@
 library(ggplot2)
 library(cowplot)
 
-therm.dat <- read.csv(file ="../Data/Thermotolerance_test.csv", header=TRUE, stringsAsFactors = FALSE)
+therm.dat <- read.csv(file ="../ProcessedData/Thermotolerance_test.csv", header=TRUE, stringsAsFactors = FALSE)
 
 #drop NAs
 therm.dat <- therm.dat[-which(is.na(therm.dat$Chamber)),]
@@ -46,7 +46,9 @@ therm.dat.new <- rbind(therm.dat.new, tester)
 
 
 
-load("../Data/Incapacitation.rda")
+#load("../ProcessedData/Incapacitation.rda")
+ThermTol <- read.table(file= "../ProcessedData/ThermalTol_processed.txt", sep="\t", header=TRUE)
+
 ThermTol$group <- as.numeric(ThermTol$group)
 
 #ThermTol <- subset(ThermTol, group < 9)
