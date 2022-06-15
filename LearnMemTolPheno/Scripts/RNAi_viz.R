@@ -114,8 +114,8 @@ p2 <- ggplot(attP40, aes(Gname, incapacitation, color=Type)) +
   stat_summary(fun = mean, geom = "point",shape=16, size = 2, color = "coral") +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.05,
                color = "coral", size = 0.7) +
-  geom_hline(yintercept=mu_pan, color=viridis(4)[1],lty=2) +
-  geom_hline(yintercept=mu_neuro, color=viridis(4)[2], lty=2) +
+  geom_hline(yintercept=mu_pan_40, color=viridis(4)[1],lty=2) +
+  geom_hline(yintercept=mu_neuro_40, color=viridis(4)[2], lty=2) +
   theme(axis.text.x=element_text(angle=90, hjust=1)) +
   xlab("id")+
   scale_color_viridis(discrete = TRUE) +
