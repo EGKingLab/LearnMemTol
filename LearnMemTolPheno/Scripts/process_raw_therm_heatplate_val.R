@@ -58,6 +58,9 @@ ThermTol_HeatPlate<-data.frame('file'=character(length=0),
                                'Rvar'= numeric(length=0),
                                stringsAsFactors = FALSE)
 
+
+
+
 proj <- "VAL"
 
 TTdat <- readRDS(file=paste0("../ProcessedData/HeatPlate_autotrack/Combined_tracks_",proj,".Rds"))
@@ -151,68 +154,22 @@ all.equal(alldat$chamber.x, as.numeric(alldat$chamber.y))
 
 filt <- alldat[which(is.na(alldat$incapacitation)),]
 
-write_csv(filt, file="../ProcessedData/Val_nomatch.csv")
+#write_csv(filt, file="../ProcessedData/Val_nomatch.csv")
 
 
+alldat_src <- full_join(chambers,ThermTol_HeatPlate, by="file")
 
-#check for problem tracking
+inlist <- alldat_src[which(is.na(alldat_src$chamber.y)),]
+indat <- alldat_src[which(is.na(alldat_src$chamber.x)),]
+indat <- subset(indat, chamber.y != 25)
 
-plot(RNAi1$Rvar, RNAi1$incapacitation)
+fname_inlist <- table(inlist$filename)
 
-plot(RNAi2$Rvar, RNAi2$incapacitation)
+inlist[inlist$filename==names(fname_inlist[15]),"file"]
 
+#2021-01-21_VAL-11465-2_group1 - massive highlight, need to drop
+#2021-02-03_VAL-11239-2_group1 & 2021-02-18_VAL-A3_group1-2 - very bright, need to drop
+#2021-02-11_VAL-11037-2_group1 & 2021-02-11_VAL-12043-2_group1  & 2021-02-15_VAL-11305-2_group1- camera off
 
-R1_c <- subset(RNAi1, Rvar >75)
-R2_c <- subset(RNAi2, Rvar >75)
-
-proj <- "RNAi_1"
-TTdat <- readRDS(file=paste0("../ProcessedData/Combined_tracks_",proj,".Rds"))
-TTdat <- as.data.table(TTdat)
-ThermTol_HeatPlate <- readRDS(file=paste0("../ProcessedData/Incap_processed_",proj,".Rds"))
-
-pdf(file="../Plots/RNA1_score.pdf",width=8, height=12)
-par(mfrow=c(3,2))
-
-for(ff in R1_c$file)
-{
-  tt1 <- TTdat[TTdat$id==ff,]
-  tt1 <- tt1[tt1$likelihood >= 0.6,]
-  plot(tt1$Second, tt1$x, main=ff)
-  abline(v=ThermTol_HeatPlate[ThermTol_HeatPlate$file==ff,'incapacitation'])
-}
-
-dev.off()
-
-proj <- "RNAi_2"
-TTdat <- readRDS(file=paste0("../ProcessedData/Combined_tracks_",proj,".Rds"))
-TTdat <- as.data.table(TTdat)
-
-pdf(file="../Plots/RNA2_score.pdf",width=8, height=12)
-par(mfrow=c(3,2))
-
-for(ff in R2_c$file)
-{
-tt1 <- TTdat[TTdat$id==ff,]
-tt1 <- tt1[tt1$likelihood >= 0.6,]
-plot(tt1$Second, tt1$x, main=ff)
-abline(v=ThermTol_HeatPlate[ThermTol_HeatPlate$file==ff,'incapacitation'])
-}
-
-dev.off()
-
-
-#check random set
-pdf(file="../Plots/rand_score.pdf",width=8, height=12)
-par(mfrow=c(3,2))
-
-for(ff in sample(c(RNAi1$file,RNAi2$file),6*4))
-{
-  tt1 <- TTdat[TTdat$id==ff,]
-  tt1 <- tt1[tt1$likelihood >= 0.6,]
-  plot(tt1$Second, tt1$x, main=ff)
-  abline(v=ThermTol_HeatPlate[ThermTol_HeatPlate$file==ff,'incapacitation'])
-}
-
-dev.off()
-
-
+#2021-02-09_VAL-12097-2_group2 - low probs for some reason - bright?
+#2021-02-15_VAl-12243-2 - dropped because of project name
