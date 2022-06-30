@@ -64,6 +64,8 @@ ThermTol_HeatPlate<-data.frame('file'=character(length=0),
 proj <- "VAL"
 
 TTdat <- readRDS(file=paste0("../ProcessedData/HeatPlate_autotrack/Combined_tracks_",proj,".Rds"))
+extdat <- readRDS(file="../ProcessedData/2021-02-15_VAl-12243-2_group1_Fly_tracks.Rds")
+TTdat <- rbind(TTdat,extdat)
 TTdat <- as.data.table(TTdat)
 
 ffs <- unique(TTdat$id)
@@ -141,7 +143,6 @@ ss_chamb <- ThermTol_HeatPlate$file %>%
 
 ThermTol_HeatPlate$chamber <- ss_chamb[,2]
 
-#saveRDS(ThermTol_HeatPlate, file=paste0("../ProcessedData/Incap_processed_",proj,".Rds"))
 
 chambers <- read_excel(path="../ProcessedData/HeatPlate_autotrack/VAL_alldata.xlsx")
 
@@ -152,9 +153,14 @@ alldat <- left_join(chambers,ThermTol_HeatPlate, by="file")
 which(alldat$chamber.x==25)
 all.equal(alldat$chamber.x, as.numeric(alldat$chamber.y))
 
+alldat <- alldat[is.na(alldat$incapacitation)==FALSE,]
+
+saveRDS(alldat, file=paste0("../ProcessedData/Incap_processed_",proj,".Rds"))
+
+
 filt <- alldat[which(is.na(alldat$incapacitation)),]
 
-#write_csv(filt, file="../ProcessedData/Val_nomatch.csv")
+write_csv(filt, file="../ProcessedData/Val_nomatch.csv")
 
 
 alldat_src <- full_join(chambers,ThermTol_HeatPlate, by="file")
@@ -172,4 +178,4 @@ inlist[inlist$filename==names(fname_inlist[15]),"file"]
 #2021-02-11_VAL-11037-2_group1 & 2021-02-11_VAL-12043-2_group1  & 2021-02-15_VAL-11305-2_group1- camera off
 
 #2021-02-09_VAL-12097-2_group2 - low probs for some reason - bright?
-#2021-02-15_VAl-12243-2 - dropped because of project name
+#2021-02-15_VAl-12243-2 - dropped because of project name - will read in separately
