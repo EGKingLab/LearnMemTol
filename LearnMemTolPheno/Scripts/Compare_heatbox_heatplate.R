@@ -12,6 +12,8 @@ blM <- tt_box %>% group_by(patRIL) %>%
   summarise("Mtol" = mean(incapacitation))
 blM$genotype <- as.character(blM$patRIL)
 
+cts <- tt_box %>% group_by(patRIL) %>% tally() 
+
 allM <- inner_join(plM, blM, by="genotype")
 
 cor(allM$Mtol.x, allM$Mtol.y)
