@@ -97,7 +97,7 @@ p1 <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
 
 p1
 
-#write.table(sort(rr.list[,"patRIL"]),file= #"../ProcessedData/HL_thermQTL_lines.txt", row.names=FALSE)
+write.table(rr.list,file= "../ProcessedData/HL_thermQTL_lines.txt", row.names=FALSE, sep="\t")
 
 
 
