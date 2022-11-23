@@ -1,3 +1,4 @@
+library(nlme)
 library(tidyverse)
 library(cowplot)
 theme_set(theme_cowplot())
@@ -9,6 +10,7 @@ tt_plate <- readRDS("../ProcessedData/Incap_processed_VAL.Rds")
 tt_plate <- tt_plate[which(!(tt_plate$genotype %in% "11228")),]
 tt_plate <- subset(tt_plate, incapacitation >5 & incapacitation < 400)
 
+genos <- unique(tt_plate$genotype)
 
 tt_box <- read.table("../ProcessedData/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
 
@@ -16,10 +18,10 @@ hap_code <- read.table(file="../../LearnMemTolQTL/ProcessedData/HL_thermQTL_line
 hap_code$genotype <- as.character(hap_code$patRIL)
 
 plM <- tt_plate %>% group_by(genotype) %>%
-  summarise("Mtol" = mean(incapacitation))
+  summarise("Mtol" = median(incapacitation))
 
 blM <- tt_box %>% group_by(patRIL) %>%
-  summarise("Mtol" = mean(incapacitation))
+  summarise("Mtol" = median(incapacitation))
 blM$genotype <- as.character(blM$patRIL)
 
 cts <- tt_box %>% group_by(patRIL) %>% tally() 
@@ -35,6 +37,8 @@ p1
 
 wideAll <- inner_join(plM, blM, by="genotype")
 wideAll <- inner_join(hap_code, wideAll, by="genotype")
+ww_exclude <- c("11316", "11360","11465","12097","12316")
+wideAll <- wideAll[-which(wideAll$genotype %in% ww_exclude),]
 cor(wideAll$Mtol.x, wideAll$Mtol.y)
 
 mms <- data.frame("Mtol.x"=c(mean(wideAll[wideAll$hard=="A4","Mtol.x"]),
@@ -51,7 +55,9 @@ sds <- data.frame("Mtol.x"=c(sd(wideAll[wideAll$hard=="A4","Mtol.x"]),
 wideAll$Haplotype <- wideAll$hard
 p2 <- ggplot(wideAll, aes(Mtol.x, Mtol.y, color=Haplotype)) +
   geom_point(size = 2) +
-  geom_point(data=mms, size=5, pch=1) +
+  #geom_point(data=mms, size=5, pch=1) +
+  #geom_abline(slope=1, intercept=0) +
+  geom_label(label=wideAll$genotype) + 
   xlab("Heat Plate Score") +
   ylab("Heat Box Score")
 p2
@@ -62,7 +68,7 @@ p2 <- ggplot(wideAll, aes(Mtol.y, Mtol.x, color=hard)) +
 p2
 
 ggeno <- unique(tt_plate$genotype)
-hist(as.numeric(tt_plate[tt_plate$genotype=="12316","incapacitation",drop=TRUE]),20)
+hist(as.numeric(tt_plate[tt_plate$genotype=="12169","incapacitation",drop=TRUE]),20)
 hist(tt_plate$incapacitation, 100)
 
 
@@ -84,5 +90,22 @@ aa <- aov(incapacitation ~ genotype + date, data=tt_plate)
 summary(aa)
 
 
+tt_plate_hap <- inner_join(hap_code[,c("genotype","hard")],tt_plate, by="genotype")
+aa <- lme(incapacitation ~ hard, random = ~ 1|genotype, data=tt_plate_hap)
+summary(aa)
 
+date_sum <- tt_plate %>%
+  group_by(date) %>%
+  summarise(date_mean = mean(incapacitation))
+
+date_sum %>%
+  ggplot(aes(date, date_mean)) +
+  geom_point()
+
+p4 <- ggplot(tt_plate, aes(date, incapacitation, color=genotype)) +
+  geom_point(alpha=1/2) +
+  theme(legend.position="none") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+p4
 
