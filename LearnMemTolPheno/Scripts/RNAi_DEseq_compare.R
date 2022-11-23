@@ -4,7 +4,6 @@ library(viridis)
 library(cowplot)
 library(DESeq2)
 library(ggrepel)
-library(paletteer)
 
 theme_set(theme_cowplot())
 source(file="../../Functions/ggplot_theme.R")
@@ -87,9 +86,21 @@ alldat <- left_join(TTmeans, TTpool_sig_genes, by="FBgn")
 alldat$labelpos <- 75
 
 #make color palette for genes - diverge for each
-#order by log fold change
-#add fold change value to top with color by sig - make this
-#add label to fold change
+maxn <- alldat %>% group_by(Gene) %>% tally() %>% summarise("mn"=max(n))
+col_r <- viridis(maxn$mn/2)
+alldat$rnaicol <- col_r[1]
+
+for(gg in unique(alldat$Gene)) 
+  {
+    ggs <- unique(alldat[alldat$Gene==gg,"genotype"])
+    for(ii in 1:nrow(ggs))
+    {
+    alldat$rnaicol[alldat$Gene==gg & alldat$genotype==ggs[ii,"genotype", drop=TRUE]] <- col_r[ii]
+    }
+  }
+
+
+
 alldat$GeneID <- factor(alldat$Gene) 
 alldat$GeneID <- reorder(alldat$GeneID, alldat$log2FoldChange)
 
@@ -99,13 +110,18 @@ alldat$desig[alldat$padj < 0.01] <- "red"
 
 
 
-ggplot(alldat, aes(GeneID,Difference, shape=Type)) +
-  geom_point() +
-  ylim(c(-130, 75)) +
-  geom_vline(xintercept=9.5, color="grey50")+ z
+p1 <- ggplot(alldat, aes(GeneID,Difference, shape=Type)) +
+  geom_point(size = 3, alpha = 0.8, color=alldat$rnaicol) +
+  geom_vline(xintercept=9.5, color="grey50")+
   geom_hline(yintercept=0, color="grey50")+
   geom_vline(xintercept=seq(1,14), lty=3, color="grey50")+
-  geom_label(aes(GeneID, labelpos, label=round(log2FoldChange,2)), color=alldat$desig) +
+  geom_label(aes(GeneID, labelpos, label=round(log2FoldChange,2)), color=alldat$desig, size=2.5, label.padding = unit(0.1, "lines")) +
+  scale_y_continuous(breaks=c(-100,-50,0,50,75), labels=c("-100","-50","0","50",expression("log"[2]*"(FC)")), limits=(c(-130,80))) + 
   theme(axis.text.x=element_text(angle=90, hjust=1)) +
-  ylab("Difference")
+  ylab("Effect on Average\nIncapacitation") +
+  scale_shape_discrete(name="Driver Type",
+                      breaks=c("all cells", "neuro_1"),
+                      labels=c("all cells", "neurons only")) +
+  my_theme
   
+ggsave(p1, filename = "../Plots/RNAi_DEseq.pdf", height=3,width=6.5)
