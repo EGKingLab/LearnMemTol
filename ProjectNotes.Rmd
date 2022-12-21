@@ -5,6 +5,34 @@ date: "4/19/2018"
 output: html_document
 ---
 
+## Instructions for reproducing analyses
+
+identify_peaks.R identifies peaks and calculates peak information. Outputs a list of our three phenotypes containing a data.frame with the following columns with one QTL per row:
+"chr" - the chromosome where the QTL is located
+"Ppos" - the physical position of the QTL in R5 coordinates
+"Gpos" - the genetic position of the QTL in cM
+"Gaxis" - the genetic position on a long scale (chromosomes stacked)
+"LL" - the LOD score at the peak
+"lp" - the lower bound physical position in R5 coordinates for the BCI
+"up" - the upper bound physical position in R5 coordinates for the BCI
+"lpchr" - the lower bound chromosome for the BCI
+"upchr" - the upper bound chromosome for the BCI
+"lg" - the lower bound genetic position for the BCI
+"ug" - the uppper bound genetic position for the BCI
+"ulod" - the LOD score at the upper bound
+"llod" - the LOD score at the lower bound 
+"chrR6" - the chromosome in R6 coordinates
+"PposR6" - the physical position of the QTL in R6 coordinates
+"lpR6" the lower bound physical position in R6 coordinates for the BCI
+"upR6" - the upper bound physical position in R6 coordinates for the BCI
+"chrN" - the chromosome number without L & R 
+"A1" - "A8" - the haplotype effect estimates (haplotype means at the QTL)
+"A1se" - "A8se" - the standard errors of the haplotype effect estimates
+"A2se"  
+"A1N" - "A8N" - the number of RILs with each haplotype genotype at the QTL location   
+"L1" - "L8" - the number of RILs in the "low pool" with each haplotype genotype
+"H1" - "H8" - the number of RILs in the "high pool" with each haplotype genotype  
+
 # Table of Contents
 
 ## To do
