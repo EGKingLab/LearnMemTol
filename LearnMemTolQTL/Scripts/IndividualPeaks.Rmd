@@ -144,7 +144,7 @@ cc<-cc+1
 ci.peak[[kk]]<-list.peak
 }
 
-save(ci.peak, file ="../ProcessedData/Peaks_wCIs.rda")
+#save(ci.peak, file ="../ProcessedData/Peaks_wCIs.rda")
 
 
 ```
@@ -298,7 +298,7 @@ for(rowN in 1:nrow(ci.peak$Tolsqrtvariable))
   
 }
 
-save(ThermTol.list,file="../ProcessedData/TT_genes_under_peak.rda")
+#save(ThermTol.list,file="../ProcessedData/TT_genes_under_peak.rda")
 
 ```
 
@@ -346,7 +346,7 @@ ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
 learn.list[[jj]] <- ll.all
 }
 
-save(learn.list,file="../ProcessedData/Learn_genes_under_peak.rda")
+#save(learn.list,file="../ProcessedData/Learn_genes_under_peak.rda")
 
 
 #memory
@@ -377,7 +377,7 @@ ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
 Mem.list[[jj]] <- ll.all
 }
 
-save(Mem.list,file="../ProcessedData/Mem_genes_under_peak.rda")
+#save(Mem.list,file="../ProcessedData/Mem_genes_under_peak.rda")
 
 
 #Thermal Tolerence 
@@ -409,7 +409,7 @@ ll.all <- merge(ll.all, cors.tt, by='FBgn', all.x=TRUE)
 ThermTol.list[[jj]] <- ll.all
 }
 
-save(ThermTol.list,file="../ProcessedData/ThermTol_genes_under_peak.rda")
+#save(ThermTol.list,file="../ProcessedData/ThermTol_genes_under_peak.rda")
 
 
 ```

@@ -130,7 +130,7 @@ p2 <- ggplot(compD, aes(x=Position, y=LOD, color=Scan)) +
 
 p2
 
-pall <- plot_grid(p1,p2, labels=c("a.","b."), nrow=2)
+pall <- plot_grid(p2,p1, labels=c("a.","b."), nrow=2)
 
 ggsave(pall, width = 6.5, height = 5, filename = "../Plots/TT_additional.pdf")
 

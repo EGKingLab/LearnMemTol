@@ -6,6 +6,7 @@ theme_set(theme_cowplot())
 tt_plate <- readRDS("../ProcessedData/Incap_processed_VAL.Rds")
 # looks like 2021-01-28_VAL-11228-2_group1_segmentation did not get to temp - plate elevated??
 #will drop 11228 because data only from one day then
+#will drop outlier values too
 
 tt_plate <- tt_plate[which(!(tt_plate$genotype %in% "11228")),]
 tt_plate <- subset(tt_plate, incapacitation >5 & incapacitation < 400)

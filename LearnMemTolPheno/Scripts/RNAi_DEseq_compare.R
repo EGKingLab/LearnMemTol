@@ -117,7 +117,7 @@ p1 <- ggplot(alldat, aes(GeneID,Difference, shape=Type)) +
   geom_vline(xintercept=seq(1,14), lty=3, color="grey50")+
   geom_label(aes(GeneID, labelpos, label=round(log2FoldChange,2)), color=alldat$desig, size=2.5, label.padding = unit(0.1, "lines")) +
   scale_y_continuous(breaks=c(-100,-50,0,50,75), labels=c("-100","-50","0","50",expression("log"[2]*"(FC)")), limits=(c(-130,80))) + 
-  theme(axis.text.x=element_text(angle=90, hjust=1)) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5)) +
   ylab("Effect on Average\nIncapacitation") +
   scale_shape_discrete(name="Driver Type",
                       breaks=c("all cells", "neuro_1"),

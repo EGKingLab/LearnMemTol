@@ -1,5 +1,7 @@
 library(ggplot2)
 library(cowplot)
+theme_set(theme_cowplot())
+source("../../Functions/ggplot_theme.R")
 
 therm.dat <- read.csv(file ="../ProcessedData/Thermotolerance_test.csv", header=TRUE, stringsAsFactors = FALSE)
 
@@ -51,26 +53,34 @@ ThermTol <- read.table(file= "../ProcessedData/ThermalTol_processed.txt", sep="\
 
 ThermTol$group <- as.numeric(ThermTol$group)
 
-#ThermTol <- subset(ThermTol, group < 9)
-
 ThermTol$uid <- paste(ThermTol$patRIL,".",ThermTol$chamber, ".", ThermTol$group,sep="")
 
 therm.dat.new$uid <- paste(therm.dat.new$PatRIL,".",therm.dat.new$Chamber, ".", therm.dat.new$Group,sep="")
 
 #drop problem values
+length(which(therm.dat.new$Thermotolerance>700))
+#only 3
+
 therm.dat.new <- subset(therm.dat.new, Thermotolerance < 700)
 
 all <- merge(ThermTol[,c('uid','incapacitation')],therm.dat.new[,c('uid','Thermotolerance')])
 
 cor(all$incapacitation, all$Thermotolerance)
 
-ggplot(all, aes(x=incapacitation, y = Thermotolerance)) +
-  geom_point(alpha=1/5) +
+p1 <- ggplot(all, aes(x=incapacitation, y = Thermotolerance)) +
+  geom_point(alpha=1/5, size = 0.5) +
   xlab('Code Assigned') +
-  ylab('Human Assigned')
+  ylab('Human Assigned') + 
+  my_theme
+
+p1
+
+ggsave(p1, file="../Plots/HeatBox_Human_Val.pdf", width=3, height=2)
 
 colnames(all)<-c('uid','code','human')
 all$Diff<-abs(all$code - all$human)
 
 all <- all[order(-all$Diff),]
 write.table(all, "../Data/Validation.txt", sep="\t", row.names=FALSE)
+
+
