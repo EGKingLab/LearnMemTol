@@ -34,12 +34,9 @@ vignettes/*.pdf
 .Rproj.user
 
 #big files
-myGenos.rda
-Perm_LODS_FDR.rda
 *.gtf
 *.ctab
 *.fastq.gz
-TTdat.sva.Rda
 *.Rda
 *.rda
 *.Rds
