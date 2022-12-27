@@ -54,7 +54,7 @@ LL_Mem <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0),
                       'group'=character(length=0),
                       'file'=character(length=0), stringsAsFactors = FALSE)
 
-basef <- "../Raw_Data/LearnMem_founder/"
+basef <- "../Raw_Data/LearnMem_founders/"
 folds <-list.files(basef)
 
 fcheck <- data.frame("file"=character(length=0),"rows"=numeric(length=0), stringsAsFactors=FALSE)

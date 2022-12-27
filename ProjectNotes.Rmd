@@ -43,23 +43,33 @@ identify_peaks.R identifies peaks and calculates peak information. Outputs a lis
 -Fetch data from repository (zenodo)- when done, update .pl and process raw scripts
 
 ### Functions
-1. mappingfunctions.R () holds some basic functions used for QTL mapping
-2. ggplot_theme holds the plotting theme for publication format
+1. `Functions/mappingfunctions.R` holds some basic functions used for QTL mapping
+2. `Functions/h2_functs.R` holds functions for calculating heritability and genetic correlations with a linear model and jackknife method
+3. `Functions/ggplot_theme.R` holds the plotting theme for publication format
 
-### Phenotype steps are in LearnMemTolPheno folder
+### Phenotype steps are in `LearnMemTolPheno` folder
+
 1. Process raw data for learning, memory, and thermal tolerance
   - Learning and Memory
-      - Processed data from HeatCalc is parsed using a perl script (heatcalcRead_LearnMem.pl) and outputs: HeatProc_Learn.txt
-        -use 'perl myscript.pl > myoutput.txt 2> myerror.txt &' in terminal 
-      - Raw .asc files are processed using an R script (process_raw_learnmem.R) to identify any other issues (see Step 2)
+      - Processed data from HeatCalc is parsed using a perl script (`heatcalcRead_LearnMem.pl`) and outputs: `ProcessedData/HeatProc_Learn.txt`
+        -use `perl myscript.pl > myoutput.txt 2> myerror.txt &` in terminal 
+      - Raw `.asc` files are processed using an R script (`process_raw_learnmem.R`) to identify any other issues (see Step 2) and outputs `/ProcessedData/Learn_raw.rda`
   - Thermal tolerance
-      - Raw .asc files are processed using an R script (process_raw_therm.R) to identify issues and calculate thermal tolerance for each individual
-      - Validation of thermotolerance method is validate_incapacitation.R      
+      - Raw `.asc` files are processed using an R script (`process_raw_therm.R`) to identify issues and calculate thermal tolerance for each individual and outputs `ProcessedData/Incapacitation.rda`
+      - Validation of the automated thermotolerance method for the heat box is `validate_incapacitation.R`      
 
-2. Raw data and processed data are checked using check_raw_data.Rmd. Notes within this script.
+2. Raw data and processed data are checked using `check_raw_data.Rmd`. Notes within this script for inputs. Outputs the following:
+  - `ThermalTol_processed.txt`
+  - `LearnMem_processed.txt`
+These are cleaned datasets ready for next steps. 
 
-3. Processing_Pheno_data get line means etc.
-4. Visualize_pheno_data makes phenotype plots
+3. `Validate_incapacitation.R` compares human scored and automated incapacitation scores from the heatbox. Input is `ProcessedData/ThermalTol_processed.txt` and `ProcessedData/Thermotolerance_test.csv`. and Makes a plot: `Plots/HeatBox_Human_Val.pdf` and outputs the paired data: `ProcessedData/Validation.txt` 
+
+4. `Processing_Pheno_data.Rmd` gets line means and does basic visualizations. Outputs: `ProcessedData/L_MDATA.rda` and `ProcessedData/T_TDATA.rda`
+
+5. `visualize_pheno_data.Rmd` makes several phenotype plots for the RIL data. See script for additional output plots.
+
+6. Additional script `correlation_between_traits` analyzes the relationship between thermal tolerance, learning, and memory and makes some scatterplots. These are not included in the publication. 
 
 ### QTL mapping is in LearnMemTolQTL
 

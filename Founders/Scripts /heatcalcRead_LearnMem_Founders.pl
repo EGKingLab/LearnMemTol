@@ -9,7 +9,7 @@ open(AC, ">../Processed_Data/HeatProc_ActFound.txt");
 print AC "patRIL","\t","chamber","\t","Pre","\t","Learning","\t","Memory","\n";
 
 
-my $directory = '/home/pwilliams/MyGitHub/LearnMemTol/Founders/Raw_Data/LearnMem_founders';
+my $directory = '../Raw_Data/LearnMem_founders';
 
     opendir (DIR, $directory) or die ("Can't open!");
     

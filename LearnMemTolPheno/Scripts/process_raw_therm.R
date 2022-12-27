@@ -61,7 +61,7 @@ ThermTol_found <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(len
                       'group'=character(length=0),
                       'file'=character(length=0), stringsAsFactors = FALSE)
 
-basef <- "/home/pwilliams/DSPR/RawData/Founders_Incapacitation_/"
+basef <- "../RawData/Incapacitation/"
 folds <-list.files(basef)
 
 fcheck <- data.frame("file"=character(length=0),"rows"=numeric(length=0), stringsAsFactors=FALSE)

@@ -2,14 +2,14 @@ use warnings;
 use strict;
 
 
-open(OF, ">../Data/HeatProc_Learn.txt");
+open(OF, ">../ProcessedData/HeatProc_Learn.txt");
 print OF "patRIL","\t","chamber","\t","Pre","\t","Learning","\t","Memory","\t","file","\n";
 
-open(AC, ">../Data/HeatProc_Activity.txt");
+open(AC, ">../ProcessedData/HeatProc_Activity.txt");
 print AC "patRIL","\t","chamber","\t","Pre","\t","Learning","\t","Memory","\n";
 
 
-my $directory = '/home/pwilliams/DSPR/RawData/Main_Heat_Calc_2';
+my $directory = '../RawData/Main_Heat_Calc_2';
 
     opendir (DIR, $directory) or die ("Can't open!");
     

@@ -15,7 +15,7 @@ library(nlme)
 
 ## Read in Data
 
-There are three files. The raw data for Thermal Tolerance, the raw data for Learning and Memory, and the Learning and Memory data processed through HeatCalc. 
+There are four files. The raw data for Thermal Tolerance, the raw data for Learning and Memory, the Learning and Memory data processed through HeatCalc, and activity measurements from the acclimation period. 
 
 ```{r}
 #raw learning and memory data
@@ -36,6 +36,7 @@ load(file="../ProcessedData/Incapacitation.rda")
 
 
 #dates
+#rda containing the date information for all RILs and groups
 load(file="../ProcessedData/Learn_Dates.rda") #named set
 dd.g <- table(set[,c('patRIL','group')])
 #5-2 is duplicate, 6 -2 is just 6

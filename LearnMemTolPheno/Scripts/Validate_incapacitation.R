@@ -48,7 +48,6 @@ therm.dat.new <- rbind(therm.dat.new, tester)
 
 
 
-#load("../ProcessedData/Incapacitation.rda")
 ThermTol <- read.table(file= "../ProcessedData/ThermalTol_processed.txt", sep="\t", header=TRUE)
 
 ThermTol$group <- as.numeric(ThermTol$group)
@@ -81,6 +80,6 @@ colnames(all)<-c('uid','code','human')
 all$Diff<-abs(all$code - all$human)
 
 all <- all[order(-all$Diff),]
-write.table(all, "../Data/Validation.txt", sep="\t", row.names=FALSE)
+write.table(all, "../ProcessedData/Validation.txt", sep="\t", row.names=FALSE)
 
 

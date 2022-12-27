@@ -54,7 +54,7 @@ LL_Mem <-data.frame('patRIL'= numeric(length=0) , 'chamber'= numeric(length=0),
                       'group'=character(length=0),
                       'file'=character(length=0), stringsAsFactors = FALSE)
 
-basef <- "/home/pwilliams/DSPR/RawData/Learn_Mem_Raw/"
+basef <- "../RawData/Learn_Mem_Raw/"
 folds <-list.files(basef)
 
 fcheck <- data.frame("file"=character(length=0),"rows"=numeric(length=0), stringsAsFactors=FALSE)
@@ -151,5 +151,5 @@ LL_Mem.good<-LL_Mem[-ww,]
 
 nums <- table(LL_Mem.good$patRIL)
 
-#12127
+
 
