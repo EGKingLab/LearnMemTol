@@ -1,0 +1,102 @@
+---
+title: "Processing_TTPheno_Founders"
+author: "Patricka Williams-Simon"
+date: "2/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(readxl)
+library(ggplot2)
+library(DSPRqtl)
+library(DSPRqtlDataA)
+library(tidyverse)
+library(colorblindr)
+library(cowplot)
+
+theme_set(theme_cowplot())
+
+source(file="../../Functions/ggplot_theme.R")
+```
+
+## Read in ThermTol Founders raw data and check
+```{r}
+load(file="../ProcessedData/Incapacitation_Founder.rda")
+
+```
+
+
+## Find means, SEMs and percentiles for trait
+
+```{r}
+
+#calculate mean and SEM for incapacitation 
+TTFoundDATA <- ThermTol %>% 
+  group_by(patRIL) %>% 
+  summarise(Incapacitation_Mean = mean(incapacitation),
+            Incapacitation_SEM = sd(incapacitation)/sqrt(length(incapacitation)),
+            N = length(incapacitation))
+
+
+#find percentile
+TTFoundDATA$Percentile<- ecdf(TTFoundDATA$Incapacitation_Mean)(TTFoundDATA$Incapacitation_Mean)
+
+
+
+TTFoundDATA$Range = max(ThermTol$incapacitation, na.rm=TRUE) - min(ThermTol$incapacitation, na.rm=TRUE)
+
+```
+
+
+
+## Visualize data
+
+```{r}
+#Make histogram LearnMem
+TTFoundhisto <- ggplot(TTFoundDATA, aes(x = Incapacitation_Mean)) +
+  geom_histogram()
+
+#View graph
+TTFoundhisto
+
+```
+
+
+## Check dataset
+
+```{r}
+
+#look at dataset 
+TTFoundDATA
+
+#Identify minimum mean 
+TTFoundDATA[which.min(TTFoundDATA$Incapacitation_Mean),]
+
+
+
+#Sort and save from decreasing to increasing means 
+TTFoundDATA_sort <- TTFoundDATA[order(TTFoundDATA$Incapacitation_Mean),]
+
+
+#change patRIL names first 
+ThermTol$Founder <- str_split(ThermTol$patRIL, "_", simplify =TRUE)[,1]
+
+#visualize data set
+
+TT_Founders_pheno <- ggplot(ThermTol, aes(Founder, incapacitation)) +
+  geom_point(position = position_jitter(width = 0.3, seed = 3572), alpha = 1/4) +
+  stat_summary(fun = mean, geom = "point", size = 2, color="firebrick3", alpha=0.8) + 
+stat_summary(fun.data = mean_se, 
+               geom = "errorbar", 
+               color = 'firebrick3', width=0.3, linewidth=0.5) +
+  ylab("Incapacitation Score") +
+  xlab("Founder ID") +
+  scale_color_OkabeIto() +
+  my_theme
+
+TT_Founders_pheno
+
+saveRDS(TT_Founders_pheno, file="../Plots/Fig3b.Rds")
+
+```
+

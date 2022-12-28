@@ -26,6 +26,8 @@ str(rawdLM)
 
 rawdTT <- read.table("../ProcessedData/ThermalTol_processed.txt",sep="\t", header=TRUE, stringsAsFactors = FALSE)
 str(rawdTT)
+rawdTT <- rawdTT[-which(rawdTT$incapacitation<=0),]
+
 
 #make mean graphs
 load(file="../ProcessedData/L_MDATA.rda")
@@ -50,49 +52,8 @@ write.table(RIL_rna, file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/RILs_i
 
 ```{r}
 rawdLM$Lname <- with(rawdLM, reorder(patRIL, Learning, function(x) mean(x)))
-levels(rawdLM$Lname) <- c(levels(rawdLM$Lname),'axhold1','axhold2')
 rawdLM$Mname <- with(rawdLM, reorder(patRIL, Memory, function(x) mean(x)))
-levels(rawdLM$Mname) <- c(levels(rawdLM$Mname),'axhold1','axhold2')
 rawdTT$Tname <- with(rawdTT, reorder(patRIL, incapacitation, function(x) mean(x)))
-levels(rawdTT$Tname) <- c(levels(rawdTT$Tname),'axhold1','axhold2')
-
-
-#LM
-rr.temp <- rawdLM[1,]
-rr.temp[,1:6] <- NA
-rr.temp[,7:8] <- 'axhold1'
-
-rawdLM <- rbind(rawdLM, rr.temp)
-
-rr.temp <- rawdLM[1,]
-rr.temp[,1:6] <- NA
-rr.temp[,7:8] <- 'axhold2'
-
-rawdLM <- rbind(rawdLM, rr.temp)
-
-
-#TT
-rr.temp <- rawdTT[1,]
-rr.temp[,1:6] <- NA
-rr.temp[,7:8] <- 'axhold1'
-
-rawdTT <- rbind(rawdTT, rr.temp)
-
-rr.temp <- rawdTT[1,]
-rr.temp[,1:6] <- NA
-rr.temp[,7:8] <- 'axhold2'
-
-rawdTT <- rbind(rawdTT, rr.temp)
-
-
-rawdTT[which.min(rawdTT$incapacitation),]
-rawdTT[rawdTT$patRIL==11097,'incapacitation']
-rawdTT[which.max(rawdTT$incapacitation),]
-rawdTT[rawdTT$patRIL==11002,'incapacitation']
-
-rawdTT[rawdTT$incapacitation=="600", 'patRIL']
-
-
 
 ```
 
@@ -110,7 +71,7 @@ LH.rna <- unique(LH.rna, MARGIN=1)
 
 Learn_indi_points <- ggplot(rawdLM, aes(x = Lname, y = Learning)) +
   geom_point(size = 0.01, alpha = 1/8) +
-  stat_summary(fun.y = mean,
+  stat_summary(fun = mean,
                position = position_dodge(width = 0.5),
                geom = "point",
                color = "red",
@@ -261,11 +222,6 @@ ggsave(c_plot, file="../Plots/Pheno_pattern_LM.pdf", width=3.5, height=7.5)
 
 ```{r}
 
-Torder <- rawdTT %>% group_by(patRIL) %>% summarise("Tmean"=mean(incapacitation))
-Torder <- Torder[order(Torder$Tmean),]
-
-rawdTT$Tname <- factor(as.character(rawdTT$patRIL), levels = Torder$patRIL)
-
 ThermTol_indi_points <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
   geom_point(size = 0.01, alpha = 1/8) +
   stat_summary(fun = mean,
@@ -275,7 +231,7 @@ ThermTol_indi_points <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
                size = 0.01, alpha = 1/2) +
   stat_summary(fun.data = mean_se, 
                geom = "errorbar", 
-               color = 'red', width=0, size=0.3, alpha=1/2) +
+               color = 'red', width=0, linewidth=0.3, alpha=1/2) +
   theme_half_open() +
   theme(legend.position = "none",axis.ticks.x=element_blank()) +
   xlab("RILs") +
@@ -302,8 +258,10 @@ TL.rna <- rawdTT[rawdTT$patRIL %in% TL.rna$patRIL,c('Tname','patRIL')]
 TL.rna <- unique(TL.rna, MARGIN=1)
 TH.rna <- rawdTT[rawdTT$patRIL %in% TH.rna$patRIL,c('Tname','patRIL')]
 TH.rna <- unique(TH.rna, MARGIN=1)
+TH.rna$color <- "darkorchid"
+TL.rna$color <- "darkcyan"
 
-rawdTT <- rawdTT[-which(rawdTT$incapacitation<=0),]
+rna.all <- rbind(TL.rna, TH.rna)
 
 ThermTol_indi_points_2 <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
   geom_point(size = 0.01, alpha = 1/8) +
@@ -315,25 +273,17 @@ ThermTol_indi_points_2 <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
   stat_summary(fun.data = mean_se, 
                geom = "errorbar", 
                color = 'red', width=0, size=0.3, alpha=1/2) +
-  geom_point(data=TL.rna, 
+  geom_point(data=rna.all, 
              aes(x=Tname, y=-10), 
-             pch=17, alpha = 0.6, color='darkcyan', size = 1) +
-  geom_text_repel(data=TL.rna, 
+             pch=17, alpha = 0.6, color=rna.all$color, size = 1) +
+  geom_text_repel(data=rna.all, 
              aes(x=Tname, y= -10, label=patRIL), 
-            size = 3 , direction="x", nudge_y = -100,
-            angle = 270, color='darkcyan', segment.size = 0.2, box.padding=0.25) +
-  
-  geom_point(data=TH.rna, 
-             mapping=aes(x=Tname, y=-10), 
-             pch=17, alpha= 0.6, color='darkorchid', size = 1) +
-  geom_text_repel(data=TH.rna, 
-             aes(x=Tname, y= -10, label=patRIL), 
-            size = 3, direction="x", nudge_y = -150 ,vjust = 0, 
-            angle = 270, color='darkorchid', segment.size = 0.2,box.padding = 0.25) +
+            size = 2 , direction="x", nudge_y = -100,
+            angle = 270, color=rna.all$color, segment.size = 0.2, box.padding=0.25, seed = 267, max.overlaps=14) +
   theme(legend.position = "none",axis.ticks.x=element_blank()) +
   xlab("RILs") +
-  ylab("Thermo Tolerance PI") +
-  ylim(c( -200.00, 601))+
+  ylab("Incapacitation Score (seconds)") +
+  scale_y_continuous(breaks = c(0,200,400,600), limits=c(-150, 601))+
   theme(axis.text.x = element_blank()) +
   my_theme
 
@@ -341,7 +291,7 @@ ThermTol_indi_points_2 <- ggplot(rawdTT, aes(x = Tname, y = incapacitation)) +
  ThermTol_indi_points_2
 
 #to save plot
-ggsave(ThermTol_indi_points, file="../Plots/ThermTol_indi_points_2.pdf", width=4, height=4)
+ggsave(ThermTol_indi_points_2, file="../Plots/Fig2.pdf", width=3.5, height=3)
 
 ```
 
