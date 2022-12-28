@@ -7,31 +7,7 @@ output: html_document
 
 ## Instructions for reproducing analyses
 
-identify_peaks.R identifies peaks and calculates peak information. Outputs a list of our three phenotypes containing a data.frame with the following columns with one QTL per row:
-"chr" - the chromosome where the QTL is located
-"Ppos" - the physical position of the QTL in R5 coordinates
-"Gpos" - the genetic position of the QTL in cM
-"Gaxis" - the genetic position on a long scale (chromosomes stacked)
-"LL" - the LOD score at the peak
-"lp" - the lower bound physical position in R5 coordinates for the BCI
-"up" - the upper bound physical position in R5 coordinates for the BCI
-"lpchr" - the lower bound chromosome for the BCI
-"upchr" - the upper bound chromosome for the BCI
-"lg" - the lower bound genetic position for the BCI
-"ug" - the uppper bound genetic position for the BCI
-"ulod" - the LOD score at the upper bound
-"llod" - the LOD score at the lower bound 
-"chrR6" - the chromosome in R6 coordinates
-"PposR6" - the physical position of the QTL in R6 coordinates
-"lpR6" the lower bound physical position in R6 coordinates for the BCI
-"upR6" - the upper bound physical position in R6 coordinates for the BCI
-"chrN" - the chromosome number without L & R 
-"A1" - "A8" - the haplotype effect estimates (haplotype means at the QTL)
-"A1se" - "A8se" - the standard errors of the haplotype effect estimates
-"A2se"  
-"A1N" - "A8N" - the number of RILs with each haplotype genotype at the QTL location   
-"L1" - "L8" - the number of RILs in the "low pool" with each haplotype genotype
-"H1" - "H8" - the number of RILs in the "high pool" with each haplotype genotype  
+ 
 
 # Table of Contents
 
@@ -74,16 +50,41 @@ These are cleaned datasets ready for next steps.
 
 ### QTL mapping and peak analysis: in LearnMemTolQTL
 
-1. mapping_perms performs the QTL mapping and permutations and calculation of FDR and FWER
-2. identify_peaks finds each QTL peak and saves it in a list.
-3. genes_under_peaks.R  looks at the DE genes from RNAseq (see below) to see which DE genes are under each peak
-4. visualize_genome_scan.Rmd plots the genome scan
-5. GeneSums.Rmd looks at FlyBase summaries for the genes in each interval
-6. individualpeaks.Rmd plots each peak separately
-7. Visualize_Peak_Intervals.Rmd plots each peak interval with the DE genes
+1. `h2_rg.Rmd` calculates heritabilities and genetic correlations
+2. `mapping_perms` performs the QTL mapping and permutations and calculation of FDR and FWER, generating several rda files holding the results
+2. `identify_peaks` finds each QTL peak and saves it in a list. `IndividualPeaks.Rmd` incorporates additional datasets to make a large summary list. There are notes within the file. The list contains our three phenotypes containing a data.frame with the following columns with one QTL per row:
+  - "chr" - the chromosome where the QTL is located
+  - "Ppos" - the physical position of the QTL in R5 coordinates
+  - "Gpos" - the genetic position of the QTL in cM
+  - "Gaxis" - the genetic position on a long scale (chromosomes stacked)
+  - "LL" - the LOD score at the peak
+  - "lp" - the lower bound physical position in R5 coordinates for the BCI
+  - "up" - the upper bound physical position in R5 coordinates for the BCI
+  - "lpchr" - the lower bound chromosome for the BCI
+  - "upchr" - the upper bound chromosome for the BCI
+  - "lg" - the lower bound genetic position for the BCI
+  - "ug" - the uppper bound genetic position for the BCI
+  - "ulod" - the LOD score at the upper bound
+  - "llod" - the LOD score at the lower bound 
+  - "chrR6" - the chromosome in R6 coordinates
+  - "PposR6" - the physical position of the QTL in R6 coordinates
+- "lpR6" the lower bound physical position in R6 coordinates for the BCI
+  - "upR6" - the upper bound physical position in R6 coordinates for the BCI
+  - "chrN" - the chromosome number without L & R 
+"A1" - "A8" - the haplotype effect estimates (haplotype means at the QTL)
+  - "A1se" - "A8se" - the standard errors of the haplotype effect estimates
+  - "A1N" - "A8N" - the number of RILs with each haplotype genotype at the QTL location   
+- "L1" - "L8" - the number of RILs in the "low pool" with each haplotype genotype
+- "H1" - "H8" - the number of RILs in the "high pool" with each haplotype genotype 
+3.  `QTL_effects_visualization_LM.Rmd` makes the plots of the haplotype effects at each QTL for learning and memory phenotypes. `TT-founder-effect.Rmd` constructs these plots for thermal tolerance data. Makes Figure 3c and Figure S (fixme)
+4. `visualize_genome_scan.Rmd` plots the genome scan and makes a composite figure - Figure 3. 
+4. `genes_under_peaks.R`  looks at the differentially expressed genes from RNAseq (see below) to identify which DE genes are under each peak. And `GeneSums.Rmd` collates some of the gene summary data from FlyBase.
+6. `individualpeaks.Rmd` plots each peak separately
+7. `Visualize_Peak_Intervals.Rmd` plots each peak interval with the DE genes. [fixme]
+8. `ThermTol_additional_mapping.R` performs a genome scan after correcting for the large Q6 peak and one including subpopulation in the model to compare to our genome scan. Creates figures S[fixme]
 
 
-### Scripts to process the RNAseq data was first created on Nivalis (lab server).
+### Scripts to process the RNAseq data 
 1.Set_up_commands_masterpipeline.R is the master script that outputs 8 separate scripts for processing RNAseq data. both he mastr scripts and the outputs are saved under home/DSPR/Scripts/rna-seq_processing_data. 
 
 Output sripts are named: 

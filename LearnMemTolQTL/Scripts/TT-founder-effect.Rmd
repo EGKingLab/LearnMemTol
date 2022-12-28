@@ -1,5 +1,5 @@
 ---
-title: "TT-founder-effect-Q6"
+title: "TT-founder-effect"
 author: "Patricka Williams-Simon"
 date: "9/10/2020"
 output: html_document
@@ -18,9 +18,9 @@ source(file="../../Functions/ggplot_theme.R")
 
 set.seed(108155)
 ```
-# Identify founders at Q6 
+# Identify founders at QTLs 
 
-Goal is to identify the founders effect at Q6 for thermal tolerance. This data will be used to identify which RILs have low or high haplotype at Q6.
+Goal is to identify the founders effect at the QTLs for thermal tolerance. This data will be used to identify which RILs have low or high haplotype at Q6 and other peaks.
 
 
 ### Get data
@@ -64,17 +64,18 @@ T_all <- merge(T_TDATA, geno[,c('ril','hard','hprob')], by.x="patRIL",by.y='ril'
 
 
 #visualize
-Q6_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
-  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
-  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
-  stat_summary(fun.data = mean_se, 
+Q6_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean)) +
+  geom_point(position = position_jitter(width = 0.3, seed = 3572), alpha = 1/4) +
+  stat_summary(fun = mean, geom = "point", size = 2, color="firebrick3", alpha=0.8) + 
+stat_summary(fun.data = mean_se, 
                geom = "errorbar", 
-               color = 'black', width=.3, size=0.5, alpha=1/2) +
-  guides(col=guide_legend("Founder Mean")) +
-  ylab("Incapacitation Mean") +
-  xlab("Founders") +
+               color = 'firebrick3', width=0.3, linewidth=0.5) +
+  ylab("Incapacitation Score") +
+  xlab("RIL Founder Haplotype ID at Q6") +
+  ylim(c(0,450)) +
   my_theme
 
+saveRDS(Q6_eff_plot, file = "../Plots/Fig3c.Rds")
 ggsave(Q6_eff_plot, filename="../Plots/Q6_eff_plot.pdf", width=6, height=6)
 
 

@@ -91,7 +91,7 @@ stat_summary(fun.data = mean_se,
                color = 'firebrick3', width=0.3, linewidth=0.5) +
   ylab("Incapacitation Score") +
   xlab("Founder ID") +
-  scale_color_OkabeIto() +
+    ylim(c(0,450)) + 
   my_theme
 
 TT_Founders_pheno

@@ -376,7 +376,7 @@ ggsave(pall, file="../Plots/All_ind_peaks.pdf", width=8, height=6)
 ```
 
 
-#Thermal Tolrenace visulization
+#Thermal Tolernace visulization
 ```{r}
 
 #pool
