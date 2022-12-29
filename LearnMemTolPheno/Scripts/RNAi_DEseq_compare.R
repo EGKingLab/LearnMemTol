@@ -114,7 +114,7 @@ p1 <- ggplot(alldat, aes(GeneID,Difference, shape=Type)) +
   geom_vline(xintercept=6.5, color="grey50")+
   geom_hline(yintercept=0, color="grey50")+
   geom_vline(xintercept=seq(1,14), lty=3, color="grey50")+
-  geom_label(aes(GeneID, labelpos, label=round(FC_Pool_Overall,2)), color=alldat$desig, size=2.5, label.padding = unit(0.1, "lines")) +
+  geom_label(aes(GeneID, labelpos, label=round(FC_Pool_Overall,2)), color=alldat$desig, size=3, label.padding = unit(0.1, "lines")) +
   scale_y_continuous(breaks=c(-100,-50,0,50,75), labels=c("-100","-50","0","50",expression("log"[2]*"(FC)")), limits=(c(-130,80))) + 
   theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5)) +
   ylab("Effect on Average\nIncapacitation") +
@@ -123,4 +123,4 @@ p1 <- ggplot(alldat, aes(GeneID,Difference, shape=Type)) +
                       labels=c("all cells", "neurons only")) +
   my_theme
   
-ggsave(p1, filename = "../Plots/Fig5.pdf", height=3,width=6.5)
+ggsave(p1, filename = "../Plots/Fig5.pdf", height=3,width=7.5)
