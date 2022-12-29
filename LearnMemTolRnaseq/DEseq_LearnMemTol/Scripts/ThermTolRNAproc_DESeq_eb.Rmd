@@ -172,7 +172,12 @@ TTlrt_con <- results(TTlrt_con_deseq)
 save(TTlrt_con, file = "../Data/TTlrt_condiiton.Rda")
 
 
-TTlrt_pool_deseq <- DESeq(TT_dds_01, test="LRT", reduced=~ SV1 + SV2 + batch + condition)
+TT_dds_02 <- DESeqDataSetFromMatrix(countData = TTgenes, 
+                                   colData = TTpheno, 
+                                   design = ~ SV1 + SV2 + batch + condition + pool)
+
+TTlrt_pool_deseq <- DESeq(TT_dds_02, test="LRT", reduced=~ SV1 + SV2 + batch + condition)
+
 save(TTlrt_pool_deseq, file = "../Data/TTdds_pool.Rda")
 
 TTlrt_pool <- results(TTlrt_pool_deseq)
@@ -204,6 +209,29 @@ TTlrt_All  <- results(TTlrt_All_deseq )
 
 resultsNames(TTlrt_All_deseq)
 
+```
+
+## Get fold changes for each pair, LRT for pool and condition
+
+```{r}
+
+#get p values using likelihood ratio test for pool, condition, and interaction. Make an object for each so we can get the p-values later
+
+
+#get fold changes for each pair of combinations. 
+#Overall pool, condition
+#pool in EACH condition, condition in EACH pool
+#need to set up contrasts with a combined variable pool_condition
+#then run DESeqDataSetFromMatrix with the combined variable INSTEAD of pool + condition (don't need to run interaction model)
+#use lfcShrink to get each fold change for each combo
+#H_Incu vs L_Incu
+#H_RT vs L_RT
+#H_Incu vs H_RT
+#L_Incu vs L_RT
+
+#step 3
+#Make one data frame to hold the FCs for the combos, the  p val for pool, condition, interaction for each gene
+
 
 
 #fold change for pool and condition
@@ -222,8 +250,6 @@ FC_HLRT <- lfcShrink(TTlrt_All_deseq, contrast=c("pool_con","H_RT","L_RT"), type
 
 # put into a dataframe
 #note we will not keep lfcSE, stat, or pvalue (only LFC & padj)
-#note copied FoldChangeAll.rda from Libby's space
-####load(file='../Data/FoldChangeAll.da')
 
 #start it with one & rename as appropriate
 FC_All <- as.data.frame(FCcon[,c("baseMean","log2FoldChange","padj")])
@@ -248,30 +274,6 @@ FC_All$padj_CondRT_HvL <- FC_HLRT$padj
 FC_All$padj_Interaction_Overall <- TT_inter$padj
 
 save(FC_All, file="../Data/FoldChangeAll.Rda")
-load(file="../Data/FoldChangeAll.Rda")
-
-```
-
-## Get fold changes for each pair, LRT for pool and condition
-
-```{r}
-
-#get p values using likelihood ratio test for pool, condition, and interaction. Make an object for each so we can get the p-values later
-
-
-#get fold changes for each pair of combinations. 
-#Overall pool, condition
-#pool in EACH condition, condition in EACH pool
-#need to set up contrasts with a combined variable pool_condition
-#then run DESeqDataSetFromMatrix with the combined variable INSTEAD of pool + condition (don't need to run interaction model)
-#use lfcShrink to get each fold change for each combo
-#H_Incu vs L_Incu
-#H_RT vs L_RT
-#H_Incu vs H_RT
-#L_Incu vs L_RT
-
-#step 3
-#Make one data frame to hold the FCs for the combos, the  p val for pool, condition, interaction for each gene
 
 
 ```

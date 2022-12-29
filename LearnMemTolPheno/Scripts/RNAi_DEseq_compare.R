@@ -47,9 +47,8 @@ TTmeans$Difference[TTmeans$backg_id=="attP40" & TTmeans$Type=="neuro_1"]<- TTmea
 
 
 
-load("../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/TTlrt_pool.Rda")
-TTlrt_pool$FBgn <- rownames(TTlrt_pool)
-TTpool_sig_genes <- as.data.frame(TTlrt_pool)
+load(file="../../LearnMemTolRnaseq/DEseq_LearnMemTol/Data/FoldChangeAll.Rda")
+FC_All$FBgn <- rownames(FC_All)
 
 gene_map_table <- read_lines(file = "../../LearnMemTolQTL/ProcessedData/gene_map_table_fb_2018_04.tsv",
                              skip = 6) %>% 
@@ -82,7 +81,7 @@ sm.tab2 <- inner_join(TTmeans, gglist[,c("gname","FBgn")], by=c("Gene"="gname"))
 
 TTmeans <- rbind(sm.tab[,colnames(sm.tab2)], sm.tab2)
 
-alldat <- left_join(TTmeans, TTpool_sig_genes, by="FBgn")
+alldat <- left_join(TTmeans, FC_All, by="FBgn")
 alldat$labelpos <- 75
 
 #make color palette for genes - diverge for each
@@ -102,20 +101,20 @@ for(gg in unique(alldat$Gene))
 
 
 alldat$GeneID <- factor(alldat$Gene) 
-alldat$GeneID <- reorder(alldat$GeneID, alldat$log2FoldChange)
+alldat$GeneID <- reorder(alldat$GeneID, alldat$FC_Pool_Overall)
 
 alldat$desig <- "black"
-alldat$desig[alldat$padj < 0.05] <- "darkred"
-alldat$desig[alldat$padj < 0.01] <- "red"
+alldat$desig[alldat$padj_Pool_Overall < 0.05] <- "darkred"
+alldat$desig[alldat$padj_Pool_Overall < 0.01] <- "red"
 
 
 
 p1 <- ggplot(alldat, aes(GeneID,Difference, shape=Type)) +
   geom_point(size = 3, alpha = 0.8, color=alldat$rnaicol) +
-  geom_vline(xintercept=9.5, color="grey50")+
+  geom_vline(xintercept=6.5, color="grey50")+
   geom_hline(yintercept=0, color="grey50")+
   geom_vline(xintercept=seq(1,14), lty=3, color="grey50")+
-  geom_label(aes(GeneID, labelpos, label=round(log2FoldChange,2)), color=alldat$desig, size=2.5, label.padding = unit(0.1, "lines")) +
+  geom_label(aes(GeneID, labelpos, label=round(FC_Pool_Overall,2)), color=alldat$desig, size=2.5, label.padding = unit(0.1, "lines")) +
   scale_y_continuous(breaks=c(-100,-50,0,50,75), labels=c("-100","-50","0","50",expression("log"[2]*"(FC)")), limits=(c(-130,80))) + 
   theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5)) +
   ylab("Effect on Average\nIncapacitation") +
@@ -124,4 +123,4 @@ p1 <- ggplot(alldat, aes(GeneID,Difference, shape=Type)) +
                       labels=c("all cells", "neurons only")) +
   my_theme
   
-ggsave(p1, filename = "../Plots/RNAi_DEseq.pdf", height=3,width=6.5)
+ggsave(p1, filename = "../Plots/Fig5.pdf", height=3,width=6.5)

@@ -48,7 +48,7 @@ These are cleaned datasets ready for next steps.
 
 6. Additional script `correlation_between_traits` analyzes the relationship between thermal tolerance, learning, and memory and makes some scatterplots. These are not included in the publication. 
 
-### QTL mapping and peak analysis: in LearnMemTolQTL
+### QTL mapping and peak analysis: in `LearnMemTolQTL` folder
 
 1. `h2_rg.Rmd` calculates heritabilities and genetic correlations
 2. `mapping_perms` performs the QTL mapping and permutations and calculation of FDR and FWER, generating several rda files holding the results
@@ -84,94 +84,33 @@ These are cleaned datasets ready for next steps.
 8. `ThermTol_additional_mapping.R` performs a genome scan after correcting for the large Q6 peak and one including subpopulation in the model to compare to our genome scan. Creates figures S[fixme]
 
 
-### Scripts to process the RNAseq data 
-1.Set_up_commands_masterpipeline.R is the master script that outputs 8 separate scripts for processing RNAseq data. both he mastr scripts and the outputs are saved under home/DSPR/Scripts/rna-seq_processing_data. 
+### RNAseq analysis: in `LearnMemTolRnaseq` folder
+
+### The alignment and assembly steps are in `LearnMemTolRnaseq/RNAseq_Processing_LearnMemTol`
+
+1.Set_up_commands_masterpipeline.R is the master script that outputs 8 separate scripts for processing RNAseq data. It sets up scripts to run the RNA-Seq data on a cluster using SLURM. It will require adaptation for your own system and file paths.
 
 Output sripts are named: 
-S01_Trim_LearnMemRNA.txt - trims data
-S02_QC_LearnMemRNA.txt - performs quality control
-S03_Align_LearnMemRNA.txt - aligns data to the fly genome 
-S04_SamtoBam_LearnMemRNA.txt - converts file from .sam to .bam
-SO5_MergeBam_LearnMemRNA.txt - merges bam files
-SO6_Assemble_LearnmemRNA.txt - assembles data
-#S07_CompareRef_LearnMemRNA.txt - compares data to reference genome 
-S08_Abundances_LearnMemRNA.txt - finds abundances
-####
-S08_Abundances_LearnMemRNA_pl.txt - creates a list of abundances to be used by Perl. 
-S08_Abundances_LearnMemRNA_eb.txt - finds abundances (Stringtie shorter version. This step only identifies genes that are already known. No novel genes are detected.)
-S08_Abundances_LearnMemRNA.txt - finds abundances including novel transcripts
+
+ - S01_Trim_LearnMemRNA.txt: trims data
+ - S02_QC_LearnMemRNA.txt: performs quality control
+ - S03_Align_LearnMemRNA.txt: aligns data to the fly genome 
+ - S04_SamtoBam_LearnMemRNA.txt: converts file from .sam to .bam
+ - SO5_MergeBam_LearnMemRNA.txt: merges bam files
+ - SO6_Assemble_LearnmemRNA.txt: assembles data
+
+ - S08_Abundances_LearnMemRNA_eb.txt - finds abundances (Stringtie shorter version. This step only identifies genes that are already known. No novel genes are detected.)
+
+or
+
+ - S08_Abundances_LearnMemRNA.txt - finds abundances including novel transcripts
 
 
-N.B. All output scripts were copied to Lewis where the RNAseq analysis was processed. 
+### Differential Expression Analysis is in `LearnMemTolRnaseq/DEseq_LearnMemTol`
 
-###Raw data (from Rapid Genomes) were transfered into a file list and is saved /home/pwilliams/DSPR/Scripts/rna-seq_processing_data/filelist.rda
-
-
-
-### RNA-seq Analysis in LearnMemTolQTL, within this folder there is a trim and quality control folder, the tuxedo pipeline analysis floder, and the differential expression folder.
-
-### Trim and quality control (this step of the Rna-seq ananlysis was processed in Lewis.) /home/MyGitHub/LearnMemTol/LearnMemTolRnaseq/Trim_QC_LearnMemTol/Scripts.
-
-## Trimming (ref:https://cutadapt.readthedocs.io/en/stable/guide.html )
-1. S01_Trim_LearnMemRNA.txt - trims data. File is stored on Lewis under "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_raw/S01_Trim_LearnMemRNA.txt/"
-2. S01_sbatch_trimRNA.sh - sbatch file that runs job array on S01_Trim_LearnMemRNA.txt.   "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_raw/S01_sbatch_trimRNA.sh". To run sbatch file on the Lewis terminal use, sbatch --array=1-228 sbatch_trimRNA.sh
-3. Generated .fastqc files are outputted into  "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_trimmed/"
-
-## Qulaity Control (ref: https://dnacore.missouri.edu/PDF/FastQC_Manual.pdf)
-1. S02_QC_LearnMemRNA.txt - performs quality control on trimmed files. File is stored "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_trimmed/"
-2. S02_sbacth_QC.sh - runs job array on S02_QC_LearnMemRNA.txt "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_trimmed/S02_sbatch_QC.sh". To run sbatch file on the Lewis terminal use, sbatch --array=1-228 sbatch_QC.sh
-3. Generated .fastq.gz files are outputted into "/storage/hpc/group/kinglab/Patricka/Learn_Mem/fastqc_files/"
-
-###TuxPipeline_LearnMemTol (ref: https://www.nature.com/articles/nprot.2016.095)
-
-##HISAT - Aligns transcripts to fly genome
-1. S03_Align_LearnMemRNA.txt. File is stored "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_trimmed/sbatch_Align_LearnMem.sh"
-2. S03_sbatch_Align_LearnMem.sh - runs job array on S03_Align_LearnMemRNA.txt. file is stored "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_trimmed/S03_sbatch_Align_LearnMem.sh".To run sbatch file on Lewis use, sbatch --array=1-228 sbatch_Align_LearnMem.sh
-3. Generated .sam files are outputted into "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_aligned/"
-
-##Samtools sort  - sorts and converts .sam files into .bam, so that they are usable by                stringtie.
-1. S04_SamtoBam_LearnMemRNA.txt. File is stored "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_aligned/S04_SamToBam_LearnMemRNA.txt"
-2. S04_sbatch_convertsambamRNA.sh, runs a job array on S04_SamtoBam_LearnMemRNA.txt. File is stored on lewis,  "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_aligned/S04_sbatch_convertsambamRNA.sh"
-3.Generated .bam files are saved to "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/"
-
-
-## Samtools merge - merges bam files.
-1. S05_MergeBam_LearnMemRNA.txt. File is saved "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/S05_MergeBam_LearnMemRNA.txt"
-2. S05_sbatch_mergebamRNA.sh, runs job array on S05_MergeBam_LearnMemRNA.txt. File is saved "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/S05_sbatch_mergebamRNA.sh". To run sbatch file on Lewis use, sbatch --array=1-114 sbatch_mergebamRNA.sh
-3. Geberated files are saved to "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/"
-
-## Stringtie - assembles transcripts to genome.
-1. SO6_Assemble_LearnmemRNA.txt. File is saved "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/S06_Assemble_LearnMemRNA.txt"
-2. S06_sbatch_assembleRNA.sh runs job array on SO6_Assemble_LearnmemRNA.txt "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_bam/S06_sbatch_assembleRNA.sh"
-3. Generated files are outputted into "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_assemble/"
-
-##S07_CompareRef_LearnMemRNA.txt - compares data to reference genome
-
-## Stringtie (shorter version) - finds abundances
-1. S08_Abundances_LearnMemRNA_eb.txt "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_stringtie_eb/S08_Abundances_LearnMemRNA_eb.txt"
-2. S08_sbatch_abundancesRNA_eb.sh runs job array on S08_Abundances_LearnMemRNA_eb.txt "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_stringtie_eb/S08_sbatch_abundancesRNA_eb.sh"
-3. Generated files are saved here "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_stringtie_eb/rna-seq_ballgown_eb/"
-4.S08_Abundances_LearnMemRNA_pl.txt - creates a list of abundances to be used by Perl.
-
-### after this step, in the shorter version of stringtie pipeline, the data is exported to the DEseq pipeline to continue analysis using DEseq count data. 
-
-
-#####still working on this section
-## Stringtie (longer version) - finds abundances
-1.S08_Abundances_LearnMemRNA.txt "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_stringtie_eb/S08_Abundances_LearnMemRNA.txt"
-2, S08_sbatch_abundancesRNA.sh runs job array on S08_Abundances_LearnMemRNA.txt "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_stringtie_eb/sbatch_abundancesRNA.sh"
-3. Generated files are saved here "/storage/hpc/group/kinglab/Patricka/Learn_Mem/rna-seq_data_ballgown/" 
-
-
-### DEseq_LearnMemTol/Scripts
-
-1. prepDEseq.py takes the output form S08_Abundances_LearnMemRNA_pl.txt, stringtie (shorter version) and converts it into a usual version for the DEseq pipeline.
-2. LearnMem_RNAproc_DESeq_eb.Rmd runs the DEseq analysis pipeline on the learning and memory RNAseq data.
-3. ThermTolRNAproc_DESeq_eb.Rmd runs the DEseq analysis pipeline on the thermal tolerance RNAseq data.
-4. Visualize_LMRNA_Data.Rmd and Visualize_TTRNA_Data.Rmd both plot graphs for learning, memorry, and thermal tolerance.
-
-
-###Ballgown - identifies Defrentially expressed genes for the longer version of the stringtie. This step in the analysis was done on Navalis (lab server) /home/pwilliams/DSPR/Scripts/rna-seq_processing_data/ballgown_processing.R 
+1. `prepDEseq.py` takes the output form S08_Abundances_LearnMemRNA_pl.txt, stringtie (shorter version) and converts it into a usual version for the DEseq pipeline.
+2. `LearnMem_RNAproc_DESeq_eb.Rmd` and `ThermTolRNAproc_DEseq_eb.Rmd` runs the DEseq analysis pipeline on the different high and low cohorts for the RNAseq data (learning and memory and thermal tolerance respectively). Additional notes in this script. Output data is in `Data`
+3. `Visualize_LMRNA_Data.Rmd` (for learning and memory) and `Visualize_TTRNA_Data.Rmd` (for thermal tolerance) create MA and volcano plots. This script creates Figure 4. 
 
 
 
