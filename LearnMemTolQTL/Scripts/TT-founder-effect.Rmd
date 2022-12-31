@@ -36,8 +36,6 @@ load(file ="../ProcessedData/Peaks_wCIs.rda")
 
 ### Get haplotype id for each RIL
 
-
-
 ```{r}
 #haplotype data at a given position
 
@@ -72,7 +70,6 @@ stat_summary(fun.data = mean_se,
                color = 'firebrick3', width=0.3, linewidth=0.5) +
   ylab("Incapacitation Score") +
   xlab("RIL Founder Haplotype ID at Q6") +
-  ylim(c(0,450)) +
   my_theme
 
 saveRDS(Q6_eff_plot, file = "../Plots/Fig3c.Rds")
@@ -81,197 +78,62 @@ ggsave(Q6_eff_plot, filename="../Plots/Q6_eff_plot.pdf", width=6, height=6)
 
 ```
 
-### make effect plots for all QTLs (Q2-Q7)
+### make effect plots for all QTLs (Q1-Q8)
 
 ```{r}
 
-#Q2
-tt.foc <- tt.peaks[2,]
+QQ <- vector(mode="list", length=nrow(tt.peaks))
 
-objname<-paste("A_",tt.foc$chr,"_",tt.foc$Ppos,sep="")
-data(list=objname)
-geno <- get(objname)
-geno <- geno[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
+for(qq in 1:nrow(tt.peaks))
+{
+  tt.foc <- tt.peaks[qq,]
 
-geno$ril <- as.integer(geno$ril)
+  objname<-paste("A_",tt.foc$chr,"_",tt.foc$Ppos,sep="")
+  data(list=objname)
+  geno <- get(objname)
+  geno <- geno[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
 
-geno$hard <- paste0("A",apply(geno[,2:9], 1, which.max))
-geno$hprob <- apply(geno[,2:9], 1, max)
+  geno$ril <- as.integer(geno$ril)
 
+  geno$hard <- paste0("A",apply(geno[,2:9], 1, which.max))
+  geno$hprob <- apply(geno[,2:9], 1, max)
+  
+  gcounts <- geno %>%
+    group_by(hard) %>% tally()
 
-T_all <- merge(T_TDATA, geno[,c('ril','hard','hprob')], by.x="patRIL",by.y='ril')
+  T_all <- merge(T_TDATA, geno[,c('ril','hard','hprob')],
+                 by.x="patRIL",by.y='ril')
+  
+  
 
-#visualize
-Q2_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
-  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
-  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
+  #visualize
+  QQ[[qq]] <- T_all %>%
+    filter(hard %in% gcounts$hard[gcounts$n >= 4]) %>%
+    ggplot(aes(hard, Incapacitation_Mean)) +
+    geom_point(position = position_jitter(width = 0.3, seed = 3572), alpha = 1/4) +
+    stat_summary(fun = mean, geom = "point", size = 2, color="firebrick3", alpha=0.8) + 
   stat_summary(fun.data = mean_se, 
                geom = "errorbar", 
-               color = 'black', width=.3, size=0.5, alpha=1/2) +
-  guides(col=guide_legend("Founder Mean")) +
-  ylab("Incapacitation Mean") +
-  xlab("Founders") +
-  theme(legend.position="right")
-   my_theme
+               color = 'firebrick3', width=0.3, linewidth=0.5) +
+    ylab("Incapacitation Score") +
+    xlab(paste0("RIL Founder Haplotype ID at Q",qq)) +
+    my_theme
+    
+    if(qq %in% c(2,4,6,8))
+    {
+      QQ[[qq]] <- QQ[[qq]] +
+        theme(axis.title.y=element_blank())
+    }
+}
 
-
-#Q3
-tt.foc <- tt.peaks[3,]
-
-objname<-paste("A_",tt.foc$chr,"_",tt.foc$Ppos,sep="")
-data(list=objname)
-geno <- get(objname)
-geno <- geno[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
-
-geno$ril <- as.integer(geno$ril)
-
-geno$hard <- paste0("A",apply(geno[,2:9], 1, which.max))
-geno$hprob <- apply(geno[,2:9], 1, max)
-
-
-T_all <- merge(T_TDATA, geno[,c('ril','hard','hprob')], by.x="patRIL",by.y='ril')
-
-#visualize
-Q3_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
-  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
-  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
-  stat_summary(fun.data = mean_se, 
-               geom = "errorbar", 
-               color = 'black', width=.3, size=0.5, alpha=1/2) +
-  guides(col=guide_legend("Founder Mean")) +
-  ylab("Incapacitation Mean") +
-  xlab("Founders") +
-  theme(legend.position="right")
-  my_theme
-
-#Q4
-tt.foc <- tt.peaks[4,]
-
-objname<-paste("A_",tt.foc$chr,"_",tt.foc$Ppos,sep="")
-data(list=objname)
-geno <- get(objname)
-geno <- geno[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
-
-geno$ril <- as.integer(geno$ril)
-
-geno$hard <- paste0("A",apply(geno[,2:9], 1, which.max))
-geno$hprob <- apply(geno[,2:9], 1, max)
-
-
-T_all <- merge(T_TDATA, geno[,c('ril','hard','hprob')], by.x="patRIL",by.y='ril')
-
-#visualize
-Q4_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
-  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
-  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
-  stat_summary(fun.data = mean_se, 
-               geom = "errorbar", 
-               color = 'black', width=.3, size=0.5, alpha=1/2) +
-  guides(col=guide_legend("Founder Mean")) +
-  ylab("Incapacitation Mean") +
-  xlab("Founders") +
-  theme(legend.position="right")
-  my_theme
-
-#Q5
-tt.foc <- tt.peaks[5,]
-
-objname<-paste("A_",tt.foc$chr,"_",tt.foc$Ppos,sep="")
-data(list=objname)
-geno <- get(objname)
-geno <- geno[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
-
-geno$ril <- as.integer(geno$ril)
-
-geno$hard <- paste0("A",apply(geno[,2:9], 1, which.max))
-geno$hprob <- apply(geno[,2:9], 1, max)
-
-
-T_all <- merge(T_TDATA, geno[,c('ril','hard','hprob')], by.x="patRIL",by.y='ril')
-
-#visualize
-Q5_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
-  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
-  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
-  stat_summary(fun.data = mean_se, 
-               geom = "errorbar", 
-               color = 'black', width=.3, size=0.5, alpha=1/2) +
-  guides(col=guide_legend("Founder Mean")) +
-  ylab("Incapacitation Mean") +
-  xlab("Founders") +
-  theme(legend.position="right")
-  my_theme
-
-#Q7
-tt.foc <- tt.peaks[7,]
-
-objname<-paste("A_",tt.foc$chr,"_",tt.foc$Ppos,sep="")
-data(list=objname)
-geno <- get(objname)
-geno <- geno[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
-
-geno$ril <- as.integer(geno$ril)
-
-geno$hard <- paste0("A",apply(geno[,2:9], 1, which.max))
-geno$hprob <- apply(geno[,2:9], 1, max)
-
-
-T_all <- merge(T_TDATA, geno[,c('ril','hard','hprob')], by.x="patRIL",by.y='ril')
-
-#visualize
-Q7_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
-  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
-  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
-  stat_summary(fun.data = mean_se, 
-               geom = "errorbar", 
-               color = 'black', width=.3, size=0.5, alpha=1/2) +
-  guides(col=guide_legend("Founder Mean")) +
-  ylab("Incapacitation Mean") +
-  xlab("Founders") +
-  theme(legend.position="right") 
-  my_theme
-
-
-#Q8
-tt.foc <- tt.peaks[8,]
-
-objname<-paste("A_",tt.foc$chr,"_",tt.foc$Ppos,sep="")
-data(list=objname)
-geno <- get(objname)
-geno <- geno[,c("ril", "AA1","AA2","AA3","AA4","AA5","AA6","AA7","AA8")]
-
-geno$ril <- as.integer(geno$ril)
-
-geno$hard <- paste0("A",apply(geno[,2:9], 1, which.max))
-geno$hprob <- apply(geno[,2:9], 1, max)
-
-
-T_all <- merge(T_TDATA, geno[,c('ril','hard','hprob')], by.x="patRIL",by.y='ril')
-
-#visualize
-Q8_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean, color=hard)) +
-  geom_point(position = position_jitter(width = 0.4), alpha = 1/4) +
-  stat_summary(fun = mean, geom = "point", pch = 12, size = 5) +
-  stat_summary(fun.data = mean_se, 
-               geom = "errorbar", 
-               color = 'black', width=.3, size=0.5, alpha=1/2) +
-  guides(col=guide_legend("Founders Mean")) +
-  ylab("Incapacitation Mean") +
-  xlab("Founders") +
-  theme(legend.position="right")
-  my_theme
 
 
 #merge all he graphs into one plot
 
-plot.list <- list(Q2_eff_plot, Q3_eff_plot, Q4_eff_plot, Q5_eff_plot, Q6_eff_plot, Q7_eff_plot, Q8_eff_plot)
+pall <- plot_grid(plotlist = QQ, ncol = 2,  axis="l", labels = LETTERS[1:8], label_size = 10, hjust = -0.2, vjust = 1)
 
+ggsave(pall, file="../Plots/FigS4.pdf",width=7.5,height=8)
 
-TT_eff_plots <- plot_grid(plotlist=plot.list, nrow=3, ncol=2,labels = c("A.Q2","B.Q3","C.Q4","D.Q5","F.Q7", "G.Q8"), align="hv", axis="tl", label_size=8)
-
-
-
-ggsave(TT_eff_plots, filename="../Plots/TT_eff_plots.pdf", width=10, height=9)
 
 
 ```

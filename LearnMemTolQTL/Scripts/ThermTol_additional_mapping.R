@@ -115,6 +115,8 @@ compD <- tibble("Position" = c(positions$Gaxis,positions$Gaxis),
                 "LOD" = c(obs.LL[,3],Phen.Ls),
                 "Scan"=c(rep("Raw",nrow(obs.LL)), rep("Subpop",length(Phen.Ls))))
 
+compD$Scan <- factor(compD$Scan, levels = c("Subpop","Raw"))
+
 top <- max(obs.LL$Tolsqrtvariable)
 
 p2 <- ggplot(compD, aes(x=Position, y=LOD, color=Scan)) +
@@ -130,7 +132,7 @@ p2 <- ggplot(compD, aes(x=Position, y=LOD, color=Scan)) +
 
 p2
 
-pall <- plot_grid(p2,p1, labels=c("a.","b."), nrow=2)
+pall <- plot_grid(p2,p1, labels=c("A.","B."), nrow=2)
 
 ggsave(pall, width = 6.5, height = 5, filename = "../Plots/TT_additional.pdf")
 
