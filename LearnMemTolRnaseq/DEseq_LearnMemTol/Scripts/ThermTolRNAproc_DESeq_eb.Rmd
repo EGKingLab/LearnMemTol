@@ -151,6 +151,8 @@ all(rownames(TTpheno) == colnames(TTgenes))
 TTpheno$pool_con<- paste(TTpheno$pool,"_",TTpheno$condition, sep="")
 TTpheno$pool_con <- as.factor(TTpheno$pool_con)
 
+saveRDS(TTpheno, file="../Data/Pheno_data_withBatch.Rds")
+
 ```
 
 #Model with surrogate variables, batch, pool, and condition

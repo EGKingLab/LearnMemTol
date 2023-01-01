@@ -205,21 +205,27 @@ ggsave(allplot, file="../Plots/Fig4.pdf",width=7.5,height=5)
 ```{r}
 
 load("../Data/TTdds_deseq.Rda")
-str(TTdds_deseq)
+phenodat <- readRDS(file="../Data/Pheno_data_withBatch.Rds")
 
-rlogtransTTdds_deseq <- rlogTransformation(TTdds_deseq, blind=TRUE) #time intensive
-vstransTTdds_deseq <- varianceStabilizingTransformation(TTdds_deseq, blind = TRUE)
+rlogtransTTdds_deseq <- rlogTransformation(TTdds_deseq, blind=TRUE) 
 
-dev.off()
+uncor.pca <- plotPCA(rlogtransTTdds_deseq, intgroup=c("condition", "pool"), returnData=TRUE)
 
-PcaPoolCon <- print(plotPCA(rlogtransTTdds_deseq, intgroup=c("pool", "condition")))
-PcaPool <- plotPCA(rlogtransTTdds_deseq, intgroup=c("pool"), returnData=FALSE)
+percentVar <- round(100 * attr(uncor.pca, "percentVar"))
 
-TTallPCA <- plot_grid(PcaPoolCon,PcaPool,nrow=2,ncol=2,labels = c('A.', 'B.'), rel_widths = c(1,1), label_size = 10)
+ll <- ggplot(uncor.pca, aes(PC1, PC2, color=pool, shape=condition)) +
+  geom_point(size=4, alpha = 0.6) + 
+  theme(axis.title = element_text(size = 9),
+                text = element_text(size = 9))+
+  xlab(paste0("PC1: ", percentVar[1],"% variance")) + 
+  ylab(paste0("PC2: ", percentVar[2],"% variance")) + 
+  #coord_cartesian(xlim = c(-130, 130)) +
+  #coord_cartesian(ylim = c(-100, 100), xlim=c(-110,150)) +
+  my_theme
+ll
 
-ggsave(PcaPoolCon, file="../Plots/PcaPoolCon.pdf", width=10, height=4) 
-ggsave(PcaCon, file="../Plots/PcaPoolCon.pdf", width=10, height=4) 
-ggsave(TTallPCAplot, file="../Plots/TTallPCAplot.pdf", width=10, height=4) 
+ggsave(filename="../Plots/FigS5.pdf", width= 4,height=3)
 
+```
 
 
