@@ -10,6 +10,7 @@ library(tidyverse)
 library(cowplot)
 library(ggrepel)
 source(file="../../Functions/ggplot_theme.R")
+theme_set(theme_cowplot())
 ```
 
 ## Figure out candidate genes
@@ -379,379 +380,102 @@ ggsave(pall, file="../Plots/All_ind_peaks.pdf", width=8, height=6)
 #Thermal Tolernace visulization
 ```{r}
 
-#pool
-
 load(file="../ProcessedData/TT_genes_under_peak.rda")
 str(ThermTol.list)
 load(file ="../ProcessedData/Peaks_wCIs.rda")
 
-
-#visualize genes within Q6 pool
-zz=6
-
-tt.set <- ThermTol.list[[zz]]
-tt.set[which.max(abs(tt.set$l2F_pool)),]
-tt.set[which.min(tt.set$padj_pool),]
-
-ci.peak.set <- ci.peak[[3]][zz,]
-
-tt.set.s <- tt.set[is.na(tt.set$l2F_pool)==FALSE,]
-tt.set.s$sig <- 'N'
-tt.set.s$sig[tt.set.s$padj_pool<=0.05]<-'Y'
-tt.set.s$midM <- (tt.set.s$startp + (tt.set.s$stopp - tt.set.s$startp)/2)/1e6
-tt.set.s$labelrep <- tt.set.s$gname
-tt.set.s$labelrep[tt.set.s$sig=='N']<-""
-
-pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
-
-Q6 <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
-  geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','l2F_pool'],yend=tt.set.s[tt.set.s$sig=='Y','l2F_pool'], color='grey50', size=segsize)+
-  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
-  geom_point(color='red2', alpha=1/6, size=2)+
-  geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, l2F_pool), size=2 + 0.5, color='red2')+
-  geom_hline(yintercept = 0, lty=1, color='grey80')+
-  geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=5, color='grey80') +
-  geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=5, color='grey80') +
-  geom_text_repel(data = tt.set.s, show.legend = FALSE,  fontface='italic', size=5, segment.size=txseg.size, min.segment.length = 0) +
-        ylab(expression("log"[2]*"(FC)")) +
-    xlab(paste("Position (Mbp)", sep="")) +
-  theme_half_open() +
-  my_theme +
-  theme(legend.position="none")+
-  ylim(c(-4,3))
-  
-
-Q6
-
-ggsave(Q6, file="../Plots/Q6_pool_genes.pdf", width=8, height=6)
+txsize <-2
+ptsize <- 0.8
+segsize <- 1
+txseg.size <- 0.25
+labsize <- 2
 
 
-#visualize genes within Q6 condition
-zz=6
+ttpool.plot.list <- vector(mode='list', length=nrow(ci.peak[["Tolsqrtvariable"]])) 
 
-tt.set <- ThermTol.list[[zz]]
-tt.set[which.max(abs(tt.set$l2F_con)),]
-tt.set[which.min(tt.set$padj_con),]
-
-ci.peak.set <- ci.peak[[3]][zz,]
-
-tt.set.s <- tt.set[is.na(tt.set$l2F_con)==FALSE,]
-tt.set.s$sig <- 'N'
-tt.set.s$sig[tt.set.s$padj_con<=0.05]<-'Y'
-tt.set.s$midM <- (tt.set.s$startp + (tt.set.s$stopp - tt.set.s$startp)/2)/1e6
-tt.set.s$labelrep <- tt.set.s$gname
-tt.set.s$labelrep[tt.set.s$sig=='N']<-""
-
-#to subset a specific coloumn
-  Fctt.set.s <-tt.set.s[c(2,8)]
- 
-
-pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
-
-Q6_con <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_con, label=labelrep))+
-  geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','l2F_con'],yend=tt.set.s[tt.set.s$sig=='Y','l2F_con'], color='grey50', size=segsize)+
-  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
-  geom_point(color='red2', alpha=1/6, size=2)+
-  geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, l2F_pool), size=2 + 0.5, color='red2')+
-  geom_hline(yintercept = 0, lty=1, color='grey80')+
-  geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=5, color='grey80') +
-  geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=5, color='grey80') +
-  geom_text_repel(data = tt.set.s, show.legend = FALSE,  fontface='italic', size=5, segment.size=txseg.size, min.segment.length = 0) +
-        ylab(expression("log"[2]*"(FC)")) +
-    xlab(paste("Position (Mbp)", sep="")) +
-  theme_half_open() +
-  my_theme +
-  theme(legend.position="none")+
-  ylim(c(-4,3))
-  
-
-Q6_con
-
-ggsave(Q6_con, file="../Plots/Q6_con_genes.pdf", width=8, height=6)
-
-
-
-
-#Q6 all three conditions
-zz=6
-
-tt.set<- ThermTol.list[[zz]]
-tt.set[which.max(abs(tt.set$l2F_pool)),]
-tt.set[which.min(tt.set$padj_pool),]
-
-ci.peak.set <- ci.peak[[3]][zz,]
-
-
-tt.set.pool <- tt.set[is.na(tt.set$pval_inter)==FALSE,]
-tt.set.pool$sig <- 'N'
-tt.set.pool$sig[tt.set.pool$padj_pool<=0.05]<-'Y'
-tt.set.pool$midM <- (tt.set.pool$startp + (tt.set.pool$stopp - tt.set.pool$startp)/2)/1e6
-tt.set.pool$labelrep <- tt.set.pool$gname
-tt.set.pool$labelrep[tt.set.pool$sig=='N']<-""
-
-tt.set.con <- tt.set[is.na(tt.set$pval_inter)==FALSE,]
-  tt.set.con$sig <- 'N'
-  tt.set.con$sig[tt.set.con$padj_inter<=0.05]<-'Y'
-  tt.set.con$midM <- (tt.set.con$startp + (tt.set.con$stopp - tt.set.con$startp)/2)/1e6
-  tt.set.con$labelrep <- tt.set.con$gname
-  tt.set.con$labelrep[tt.set.con$sig=='N']<-""
-
-tt.set.inter <- tt.set[is.na(tt.set$pval_inter)==FALSE,]
-  tt.set.inter$sig <- 'N'
-  tt.set.inter$sig[tt.set.inter$padj_inter<=0.05]<-'Y'
-  tt.set.inter$midM <- (tt.set.inter$startp + (tt.set.inter$stopp - tt.set.inter$startp)/2)/1e6
-  tt.set.inter$labelrep <- tt.set.inter$gname
-  tt.set.inter$labelrep[tt.set.inter$sig=='N']<-""
-
-pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
-
-#merge repeat the gene names three times
-
-###still working on script below######
-alltt.set <- rbind(tt.set.inter, tt.set.con, tt.set.pool)
-
-
-#Q6ALL <- ggplot(alltt.set[alltt.set$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
-  geom_segment(data=alltt.set[alltt.set$sig=='Y',], x=alltt.set[alltt.set$sig=='Y','startp']/1e6, xend=alltt.set[alltt.set$sig=='Y','stopp']/1e6, y=alltt.set[alltt.set$sig=='Y','l2F_pool'],yend=alltt.set[alltt.set$sig=='Y','l2F_pool'], color='grey50', size=segsize)+
-  xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
-  geom_point(color='red2', alpha=1/6, size=2)+
-  geom_point(data=alltt.set[alltt.set$sig=='Y',], aes(midM, l2F_pool), size=2 + 0.5, color='red2', shape='Square')+
-  geom_hline(yintercept = 0, lty=1, color='grey80')+
-  geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=5, color='grey80') +
-  geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=5, color='grey80') +
-  geom_text_repel(data = alltt.set, show.legend = FALSE,  fontface='italic', size=5, segment.size=txseg.size, min.segment.length = 0) +
-        ylab(expression("log"[2]*"(FC)")) +
-    xlab(paste("Position (Mbp)", sep="")) +
-  theme_half_open() +
-  my_theme +
-  theme(legend.position="none")+
-  ylim(c(-4,3))
-  
-
-Q6All
-
-ggsave(Q6ALL, file="../Plots/Q6_all.pdf", width=8, height=6)
-
-
-
-#for all QTls, loop. Expect 1, because there are no sig genes.
-
-tt <- c(2,3,4,5,6,7,8)
-
-#pool
-ttpool.plot.list <- vector(mode='list', length=length(tt)) 
-
-
-for(zz in tt)
+for(zz in 2:nrow(ci.peak[["Tolsqrtvariable"]]))
 {
   tt.set <- ThermTol.list[[zz]]
-  tt.set[which.max(abs(tt.set$l2F_pool)),]
-  tt.set[which.min(tt.set$padj_pool),]
+  #tt.set[which.max(abs(tt.set$FC_Pool_Overall)),]
+  #tt.set[which.min(tt.set$padj_Pool_Overall),]
   
   ci.peak.set <- ci.peak[[3]][zz,]
   
-  tt.set.s <- tt.set[is.na(tt.set$pval_pool)==FALSE,]
+  tt.set.s <- tt.set[is.na(tt.set$padj_Pool_Overall)==FALSE,]
   tt.set.s$sig <- 'N'
-  tt.set.s$sig[tt.set.s$padj_pool<=0.05]<-'Y'
+  tt.set.s$sig[tt.set.s$padj_Pool_Overall<=0.05]<-'Y'
   tt.set.s$midM <- (tt.set.s$startp + (tt.set.s$stopp - tt.set.s$startp)/2)/1e6
   tt.set.s$labelrep <- tt.set.s$gname
   tt.set.s$labelrep[tt.set.s$sig=='N']<-""
   
   pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
   
-  TTpool_peaks <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
-    geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','l2F_pool'],yend=tt.set.s[tt.set.s$sig=='Y','l2F_pool'], color='grey50', size=segsize)+
+  TTpool_peaks <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, FC_Pool_Overall, label=labelrep))+
+    geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','FC_Pool_Overall'],yend=tt.set.s[tt.set.s$sig=='Y','FC_Pool_Overall'], color='grey50', linewidth=segsize)+
     xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
     geom_point(color='red2', alpha=1/6, size=2)+
-    geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, l2F_pool), size=2 + 0.5, color='red2')+
+    geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, FC_Pool_Overall), size=2 + 0.5, color='red2')+
     geom_hline(yintercept = 0, lty=1, color='grey80')+
     geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=5, color='grey80') +
     geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=5, color='grey80') +
-    geom_text_repel(data = tt.set.s, show.legend = FALSE,  fontface='italic', size=5, segment.size=txseg.size, min.segment.length = 0) +
+    geom_text_repel(data = tt.set.s, show.legend = FALSE,  fontface='italic', size=3, segment.size=txseg.size, min.segment.length = 0, max.overlaps = 50, ylim = c(-5,0)) +
     ylab(expression("log"[2]*"(FC)")) +
     xlab(paste("Position (Mbp)", sep="")) +
     theme(legend.position="none")+
-    ylim(c(-5,5))+
-    theme_half_open() +
+    ylim(c(-5,3))+
+    annotate("label",label= paste0("Q",zz), x= ci.peak.set$lpR6/1e6, y= 2.5, color='steelblue',size=5) +
     my_theme
   
-  ttpool.plot.list[[(zz-1)]] <- TTpool_peaks
+  ttpool.plot.list[[(zz)]] <- TTpool_peaks
   
 }
 
-ttpool.plot.list[[5]]
+ttpool.plot.list[[2]]
+
+pool_all <- plot_grid(plotlist=ttpool.plot.list[2:8], labels=letters[1:7], ncol=2, label_size = 10)
+
+ggsave(pool_all, filename = "../Plots/FigS6.pdf", width=6.5, height=8)
 
 
-#interaction 
+ttcon.plot.list <- vector(mode='list', length=nrow(ci.peak[["Tolsqrtvariable"]])) 
 
-ttinter.plot.list <- vector(mode='list', length=length(tt)) 
-
-for(zz in tt)
+for(zz in 2:nrow(ci.peak[["Tolsqrtvariable"]]))
 {
   tt.set <- ThermTol.list[[zz]]
-  tt.set[which.max(abs(tt.set$l2F_inter)),]
-  tt.set[which.min(tt.set$padj_inter),]
   
   ci.peak.set <- ci.peak[[3]][zz,]
   
-  tt.set.s <- tt.set[is.na(tt.set$pval_inter)==FALSE,]
+  tt.set.s <- tt.set[is.na(tt.set$padj_Cond_Overall)==FALSE,]
   tt.set.s$sig <- 'N'
-  tt.set.s$sig[tt.set.s$padj_inter<=0.05]<-'Y'
+  tt.set.s$sig[tt.set.s$padj_Cond_Overall<=0.05]<-'Y'
   tt.set.s$midM <- (tt.set.s$startp + (tt.set.s$stopp - tt.set.s$startp)/2)/1e6
   tt.set.s$labelrep <- tt.set.s$gname
   tt.set.s$labelrep[tt.set.s$sig=='N']<-""
   
   pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
   
-  TTinter_peaks <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_inter, label=labelrep))+
-    geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','l2F_inter'],yend=tt.set.s[tt.set.s$sig=='Y','l2F_inter'], color='grey50', size=segsize)+
+  TTcon_peaks <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, FC_Cond_Overall, label=labelrep))+
+    geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','FC_Cond_Overall'],yend=tt.set.s[tt.set.s$sig=='Y','FC_Cond_Overall'], color='grey50', linewidth=segsize)+
     xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
     geom_point(color='red2', alpha=1/6, size=2)+
-    geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, l2F_inter), size=2 + 0.5, color='red2')+
+    geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, FC_Cond_Overall), size=2 + 0.5, color='red2')+
     geom_hline(yintercept = 0, lty=1, color='grey80')+
     geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=5, color='grey80') +
     geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=5, color='grey80') +
-    geom_text_repel(data = tt.set.s, show.legend = FALSE,  fontface='italic', size=5, segment.size=txseg.size, min.segment.length = 0) +
+    geom_text_repel(data = tt.set.s, show.legend = FALSE,  fontface='italic', size=3, segment.size=txseg.size, min.segment.length = 0, max.overlaps = 50, ylim= c(-1.5,5)) +
     ylab(expression("log"[2]*"(FC)")) +
     xlab(paste("Position (Mbp)", sep="")) +
     theme(legend.position="none")+
-    ylim(c(-6,6))+
-    theme_half_open() +
+    ylim(c(-1.5,6.5))+
+      annotate("label",label= paste0("Q",zz), x= ci.peak.set$lpR6/1e6, y= 6, color='steelblue',size=5) +
     my_theme
   
-  ttinter.plot.list[[(zz-1)]] <- TTinter_peaks
+  ttcon.plot.list[[(zz)]] <- TTcon_peaks
   
 }
 
-ttinter.plot.list[[5]]
+con_all <- plot_grid(plotlist=ttcon.plot.list[2:8], labels=letters[1:7], ncol=2, label_size = 10)
 
+ggsave(con_all, filename = "../Plots/FigS7.pdf", width=6.5, height=8)
 
-#condition
-
-ttcon.plot.list <- vector(mode='list', length=length(tt)) 
-
-for(zz in tt)
-{
-  tt.set <- ThermTol.list[[zz]]
-  tt.set[which.max(abs(tt.set$l2F_con)),]
-  tt.set[which.min(tt.set$padj_con),]
-  
-  ci.peak.set <- ci.peak[[3]][zz,]
-  
-  tt.set.s <- tt.set[is.na(tt.set$pval_con)==FALSE,]
-  tt.set.s$sig <- 'N'
-  tt.set.s$sig[tt.set.s$padj_con<=0.05]<-'Y'
-  tt.set.s$midM <- (tt.set.s$startp + (tt.set.s$stopp - tt.set.s$startp)/2)/1e6
-  tt.set.s$labelrep <- tt.set.s$gname
-  tt.set.s$labelrep[tt.set.s$sig=='N']<-""
-  
-  pbuffer <- ((ci.peak.set$upR6 - ci.peak.set$lpR6)/1e6)*0.1
-  
-  
-   pgene <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, log2FoldChange, label=labelrep, shape=cisyn, color=Phenotype))
-  
-  
-  
-  TTcon_peaks <- ggplot(tt.set.s[tt.set.s$sig=='N',], aes(midM, l2F_pool, label=labelrep))+
-    geom_segment(data=tt.set.s[tt.set.s$sig=='Y',], x=tt.set.s[tt.set.s$sig=='Y','startp']/1e6, xend=tt.set.s[tt.set.s$sig=='Y','stopp']/1e6, y=tt.set.s[tt.set.s$sig=='Y','l2F_con'],yend=tt.set.s[tt.set.s$sig=='Y','l2F_con'], color='grey50', size=segsize)+
-    xlim(c(ci.peak.set$lpR6/1e6 - pbuffer, ci.peak.set$upR6/1e6 + pbuffer)) +
-    geom_point(color='red2', alpha=1/6, size=2)+
-    geom_point(data=tt.set.s[tt.set.s$sig=='Y',], aes(midM, l2F_con), size=2 + 0.5, color='red2')+
-    geom_hline(yintercept = 0, lty=1, color='grey80')+
-    geom_vline(xintercept = ci.peak.set$lpR6/1e6, lty=5, color='grey80') +
-    geom_vline(xintercept = ci.peak.set$upR6/1e6, lty=5, color='grey80') +
-    geom_text_repel(data = tt.set.s, show.legend = FALSE,  fontface='italic', size=5, segment.size=txseg.size, min.segment.length = 0) +
-    ylab(expression("log"[2]*"(FC)")) +
-    xlab(paste("Position (Mbp)", sep="")) +
-    theme(legend.position="none")+
-    ylim(c(-5,5))+
-    theme_half_open() +
-    my_theme
-  
-  ttcon.plot.list[[(zz-1)]] <- TTcon_peaks
-  
-}
-
-
-ttcon.plot.list[[5]]
-
-#QTL CI for pool, condition and interaction
-ttmaster.list <- list(
-  ttcon.plot.list[[1]],
-  ttcon.plot.list[[2]],
-  ttcon.plot.list[[3]],
-  ttcon.plot.list[[4]],
-  ttcon.plot.list[[5]],
-  ttcon.plot.list[[6]],
-  ttcon.plot.list[[7]],
-  ttpool.plot.list[[1]],
-  ttpool.plot.list[[2]],
-  ttpool.plot.list[[3]],
-  ttpool.plot.list[[4]],
-  ttpool.plot.list[[5]],
-  ttpool.plot.list[[6]],
-  ttpool.plot.list[[7]],
-  ttinter.plot.list[[1]],
-  ttinter.plot.list[[2]],
-  ttinter.plot.list[[3]],
-  ttinter.plot.list[[4]],
-  ttinter.plot.list[[5]],
-  ttinter.plot.list[[6]],
-  ttinter.plot.list[[7]])
-
-ttplots <- plot_grid(ttcon.plot.list,ttpool.plot.list, ttinter.plot.list)
-
-ttallplots <- plot_grid(plotlist=ttmaster.list, nrow=4, ncol=4,labels = c("a.","b.","c.","d.","e.","f.","g.","h.","i.","j.","k.","l.","m.","n.","o.","p.","q.","r.","s.","t.","u." ))
-
-
-
-#QTLs CI for Pool
-
-ttpool.list <- list(ttpool.plot.list[[1]],
-  ttpool.plot.list[[2]],
-  ttpool.plot.list[[3]],
-  ttpool.plot.list[[4]],
-  ttpool.plot.list[[5]],
-  ttpool.plot.list[[6]],
-  ttpool.plot.list[[7]])
-
-
-ttpool_plots <- plot_grid(ttpool.plot.list)
-
-ttpoolplots <- plot_grid(plotlist=ttpool.list, nrow=4, ncol=2,labels = c("a.","b.","c.","d.","e.","f.","g.")) 
-                         
-ggsave(ttpoolplots, file="../Plots/ttpoolplots.pdf", width=10, height=6)                    
-
-
-#Sig genes condition
-
-ttcon.list <- list(ttcon.plot.list[[1]],
- ttcon.plot.list[[2]],
-  ttcon.plot.list[[3]],
-  ttcon.plot.list[[4]],
-  ttcon.plot.list[[5]],
-  ttcon.plot.list[[6]],
-  ttcon.plot.list[[7]])
-
-
-ttcon_plots <- plot_grid(ttcon.plot.list)
-
-ttconplots <- plot_grid(plotlist=ttcon.plot.list, nrow=4, ncol=2,labels = c("a.","b.","c.","d.","e.","f.","g."))
-
-ggsave(ttconplots, file="../Plots/ttconplots.pdf", width=10, height=6)
-
-#sig genes for interaction
-
-ttinter.list <- list(ttinter.plot.list[[1]],
-  ttinter.plot.list[[2]],
-  ttinter.plot.list[[3]],
-  ttinter.plot.list[[4]],
-  ttinter.plot.list[[5]],
-  ttinter.plot.list[[6]],
-  ttinter.plot.list[[7]])
-
-
-ttinterplots <- plot_grid(plotlist=ttinter.plot.list, nrow=4, ncol=2,labels = c("a.","b.","c.","d.","e.","f.","g."))
-
-ggsave(ttinterplots, file="../Plots/ttinterplots.pdf", width=10, height=6)
 ```

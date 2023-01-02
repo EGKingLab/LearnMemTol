@@ -80,7 +80,7 @@ These are cleaned datasets ready for next steps.
 4. `visualize_genome_scan.Rmd` plots the genome scan and makes a composite figure - Figure 3. 
 4. `genes_under_peaks.R`  looks at the differentially expressed genes from RNAseq (see below) to identify which DE genes are under each peak. And `GeneSums.Rmd` collates some of the gene summary data from FlyBase.
 6. `individualpeaks.Rmd` plots each peak separately
-7. `Visualize_Peak_Intervals.Rmd` plots each peak interval with the DE genes. [fixme]
+7. `Visualize_Peak_Intervals.Rmd` plots each peak interval with the DE genes. Makes figures S6 and S7.
 8. `ThermTol_additional_mapping.R` performs a genome scan after correcting for the large Q6 peak and one including subpopulation in the model to compare to our genome scan. Creates figures S[fixme]
 
 
