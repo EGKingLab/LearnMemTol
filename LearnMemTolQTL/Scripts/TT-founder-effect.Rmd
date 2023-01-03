@@ -130,7 +130,7 @@ for(qq in 1:nrow(tt.peaks))
 
 #merge all he graphs into one plot
 
-pall <- plot_grid(plotlist = QQ, ncol = 2,  axis="l", labels = LETTERS[1:8], label_size = 10, hjust = -0.2, vjust = 1)
+pall <- plot_grid(plotlist = QQ, ncol = 2,  axis="l", labels = paste0(LETTERS[1:8],"."), label_size = 10, hjust = -0.2, vjust = 1)
 
 ggsave(pall, file="../Plots/FigS4.pdf",width=7.5,height=8)
 
