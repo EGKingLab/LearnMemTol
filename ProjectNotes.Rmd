@@ -81,12 +81,12 @@ These are cleaned datasets ready for next steps.
 4. `genes_under_peaks.R`  looks at the differentially expressed genes from RNAseq (see below) to identify which DE genes are under each peak. And `GeneSums.Rmd` collates some of the gene summary data from FlyBase.
 6. `individualpeaks.Rmd` plots each peak separately
 7. `Visualize_Peak_Intervals.Rmd` plots each peak interval with the DE genes. Makes figures S6 and S7.
-8. `ThermTol_additional_mapping.R` performs a genome scan after correcting for the large Q6 peak and one including subpopulation in the model to compare to our genome scan. Creates figures S[fixme]
+8. `ThermTol_additional_mapping.R` performs a genome scan after correcting for the large Q6 peak and one including subpopulation in the model to compare to our genome scan. Creates figure S2.
 
 
 ### RNAseq analysis: in `LearnMemTolRnaseq` folder
 
-### The alignment and assembly steps are in `LearnMemTolRnaseq/RNAseq_Processing_LearnMemTol`
+#### The alignment and assembly steps are in `LearnMemTolRnaseq/RNAseq_Processing_LearnMemTol`
 
 1.Set_up_commands_masterpipeline.R is the master script that outputs 8 separate scripts for processing RNAseq data. It sets up scripts to run the RNA-Seq data on a cluster using SLURM. It will require adaptation for your own system and file paths.
 
@@ -106,12 +106,20 @@ or
  - S08_Abundances_LearnMemRNA.txt - finds abundances including novel transcripts
 
 
-### Differential Expression Analysis is in `LearnMemTolRnaseq/DEseq_LearnMemTol`
+#### Differential Expression Analysis is in `LearnMemTolRnaseq/DEseq_LearnMemTol`
 
 1. `prepDEseq.py` takes the output form S08_Abundances_LearnMemRNA_pl.txt, stringtie (shorter version) and converts it into a usual version for the DEseq pipeline.
 2. `LearnMem_RNAproc_DESeq_eb.Rmd` and `ThermTolRNAproc_DEseq_eb.Rmd` runs the DEseq analysis pipeline on the different high and low cohorts for the RNAseq data (learning and memory and thermal tolerance respectively). Additional notes in this script. Output data is in `Data`
 3. `Visualize_LMRNA_Data.Rmd` (for learning and memory) and `Visualize_TTRNA_Data.Rmd` (for thermal tolerance) create MA and volcano plots. This script creates Figure 4 and Figure S5.
+4. `Visualize_ind_genes.R` creates a series of plots of the normalized counts in each group for individual genes in the Q6 interval. Creates Figure S9.
 
+### RNAi analysis: in `LearnMemTolPheno` folder
+
+1. `process_raw_therm_heatplate.R` and `process_raw_therm_heatplate_val.R` processes the raw output from deeplabcut to score incapacitation for the RNAi lines and the RIL validation set. 
+
+2. `RNAi_post_raw_process.R` checks for and corrects errors and combines the two rounds of phenotyping. 
+
+3. 
 
 
 ### Notes

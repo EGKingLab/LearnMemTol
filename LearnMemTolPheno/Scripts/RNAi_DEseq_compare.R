@@ -82,6 +82,7 @@ sm.tab2 <- inner_join(TTmeans, gglist[,c("gname","FBgn")], by=c("Gene"="gname"))
 TTmeans <- rbind(sm.tab[,colnames(sm.tab2)], sm.tab2)
 
 alldat <- left_join(TTmeans, FC_All, by="FBgn")
+alldat <- left_join(alldat, gglist[,c("gname","FBgn")], by="FBgn")
 alldat$labelpos <- 75
 
 #make color palette for genes - diverge for each
@@ -99,8 +100,11 @@ for(gg in unique(alldat$Gene))
   }
 
 
+#FBgn for unnamed
+#alldat$GeneID <- factor(alldat$Gene) 
 
-alldat$GeneID <- factor(alldat$Gene) 
+#CG for unnamed
+alldat$GeneID <- factor(alldat$gname)
 alldat$GeneID <- reorder(alldat$GeneID, alldat$FC_Pool_Overall)
 
 alldat$desig <- "black"

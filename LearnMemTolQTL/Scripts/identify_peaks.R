@@ -46,7 +46,15 @@ pp.set$Ppos <- as.integer(pp.set$Ppos)
 
 for(jj in 1:nrow(pp.set))
 {
-ff<-findCI(pp.set$chr[jj],pp.set$Ppos[jj], qtldat=qq, method='BCI')
+  if(pp.set$Ppos[jj]==13190000)
+  {
+  ff<-findCI(pp.set$chr[jj],pp.set$Ppos[jj], 
+             qtldat=subset(qq, chr=="3R" &  Ppos < 14550000), 
+             method='BCI')
+  }else{
+  ff<-findCI(pp.set$chr[jj],pp.set$Ppos[jj], qtldat=qq, method='BCI')
+}
+
 pp.set$up[jj] <- ff$Ppos[2]
 pp.set$lp[jj] <- ff$Ppos[1]
 pp.set$upchr[jj] <- ff$chr_b[2]
@@ -63,7 +71,7 @@ pp.set$upR6[jj] <- as.numeric(coord.table[which(coord.table$R5chr==pp.set$upchr[
 
 } 
 
-pp.set<-pp.set[order(pp.set$chr,pp.set$Ppos),]
+pp.set<-pp.set[order(pp.set$chr,as.numeric(pp.set$Ppos)),]
 
 #remove overlapping peaks
 pp.set$chrN <- pp.set$chr

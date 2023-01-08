@@ -4,9 +4,7 @@ library(cowplot)
 library(tidyverse)
 theme_set(theme_cowplot())
 
-load("../Data/TTdds_inter.Rda")
 load("../Data/TTdds_pool.Rda")
-load("../Data/TTdds_condition.Rda")
 
 
 gene_map_table <- read_lines(file = "../../../LearnMemTolQTL/ProcessedData/gene_map_table_fb_2018_04.tsv",
@@ -38,15 +36,16 @@ gglist <- subset(gene_map_table, chr=="3R" & startp <= highc & stopp >=lowc)
 #loop plots
 #output all
 
+gglist <- gglist[order(gglist$gname),] 
 
-pdf(file="../Plots/Ind_genes_TT_peak.pdf", width=16, height = 24)
-par(mfrow=c(6,4))
+pdf(file="../Plots/FigS9.pdf", width=10, height = 14)
+par(mfrow=c(6,4), mar=c(2,4,4,2))
 
 for(ii in 1:nrow(gglist))
 {
 
   
-plotCounts(TTlrt_pool_deseq, gene=gglist$FBgn[ii], intgroup=c("pool","condition"), main=gglist$gname[ii])
+plotCounts(TTlrt_pool_deseq, gene=gglist$FBgn[ii], intgroup=c("pool","condition"), main=gglist$gname[ii], xlab=NA)
 
 }
 
