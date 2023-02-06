@@ -56,6 +56,7 @@ library(readxl)
 ThermTol_HeatPlate<-data.frame('file'=character(length=0),
                                'incapacitation'= numeric(length=0), 
                                'Rvar'= numeric(length=0),
+                               'modes'= numeric(length=0),
                                stringsAsFactors = FALSE)
 
 
@@ -71,24 +72,33 @@ TTdat <- as.data.table(TTdat)
 ffs <- unique(TTdat$id)
 cc <- 1
 
+maxtemps <- data.frame("id" = character(length=length(ffs)), "maxT" = numeric(length=length(ffs)))
+
 for(ff in ffs) {
   tt1 <- TTdat[TTdat$id==ff,]
   
   if(mean(tt1$likelihood) > 0.4) 
   {
     
+      maxtemps[cc, "id"] <- ff
+      maxtemps[cc, "maxT"] <- max(tt1$Thermistor_Temp, na.rm=TRUE)
+      
       Th.set <- data.frame( 'file'=character(length=1),
                             'incapacitation'= numeric(length=1), 
                             'Rvar'= numeric(length=1),
+                            'modes'= numeric(length=1),
                             stringsAsFactors = FALSE)
-      
-      lastpos <- tt1[(nrow(tt1)-200):nrow(tt1),]
-      lastpos <- lastpos[lastpos$likelihood >= 0.6,]
-
-      Th.set$Rvar <- max(lastpos$x) - min(lastpos$x)
       
       #remove low likelihood positions
       tt1 <- tt1[tt1$likelihood >= 0.6,]
+      
+      lastpos <- tt1[(nrow(tt1)-200):nrow(tt1),]
+
+      Th.set$Rvar <- max(lastpos$x) - min(lastpos$x)
+      Th.set$modes <- max(diff(sort(unique(round(tt1$x[(nrow(tt1)-200):nrow(tt1)])))))
+
+      
+     
       
       incap.i <- slideThermo(xx=tt1$x,tt=tt1$Second)
       
@@ -105,6 +115,10 @@ for(ff in ffs) {
   cc<-cc+1
 }
 
+
+
+
+
 ss <- ThermTol_HeatPlate$file %>%
   str_split("_",simplify=TRUE)
 
@@ -113,7 +127,6 @@ ThermTol_HeatPlate$date <- ss[,1]
 ThermTol_HeatPlate$genotype <- NA
 ThermTol_HeatPlate$group <- NA
 ThermTol_HeatPlate$chamber <- NA
-
 
 
 #multiple separators used :(
@@ -141,6 +154,7 @@ ss_chamb <- ThermTol_HeatPlate$file %>%
   str_sub(-3) %>%
   str_split("_", simplify=TRUE)
 
+
 ThermTol_HeatPlate$chamber <- ss_chamb[,2]
 
 
@@ -153,26 +167,53 @@ alldat <- left_join(chambers,ThermTol_HeatPlate, by="file")
 which(alldat$chamber.x==25)
 all.equal(alldat$chamber.x, as.numeric(alldat$chamber.y))
 
-alldat <- alldat[is.na(alldat$incapacitation)==FALSE,]
-
-saveRDS(alldat, file=paste0("../ProcessedData/Incap_processed_",proj,".Rds"))
-
-
 filt <- alldat[which(is.na(alldat$incapacitation)),]
 
 write_csv(filt, file="../ProcessedData/Val_nomatch.csv")
 
+alldat <- alldat[is.na(alldat$incapacitation)==FALSE,]
 
-alldat_src <- full_join(chambers,ThermTol_HeatPlate, by="file")
+alldat <- alldat[alldat$notes=="none",]
 
-inlist <- alldat_src[which(is.na(alldat_src$chamber.y)),]
-indat <- alldat_src[which(is.na(alldat_src$chamber.x)),]
-indat <- subset(indat, chamber.y != 25)
+mm <- maxtemps[which(maxtemps$maxT < 38),]
+mm[mm$id != "",]
 
-fname_inlist <- table(inlist$filename)
+#exclude those not at temp
+temp.ex <- paste0(c("2021-02-12_VAL-11481-2_group1",
+             "2021-02-03_VAL-12075-2_group1.",
+             "2021-01-28_VAL-11228-2_group1"),"_segmentation.jpg")
 
-inlist[inlist$filename==names(fname_inlist[15]),"file"]
+alldat <- subset(alldat, !filename %in% temp.ex)
 
+#Rvar > 30
+#modes > 20
+
+#drop these or hand score
+check1 <- subset(alldat, Rvar > 30 & modes > 10 & incapacitation > 300)
+
+#some checking
+plot(alldat$modes, alldat$incapacitation)
+plot(alldat$Rvar, alldat$incapacitation)
+plot(alldat$Rvar, alldat$modes)
+
+
+alldat <- subset(alldat, !file %in% check1$file)
+
+saveRDS(alldat, file=paste0("../ProcessedData/Incap_processed_",proj,".Rds"))
+
+
+
+#ff <- check3$file[1]
+#ff <- check1$file[5]
+ff <- alldat$file[1900]
+tt1 <- TTdat[TTdat$id==ff,]
+tt1 <- tt1[tt1$likelihood >= 0.6,]
+plot(tt1$Second, tt1$x, main=ff)
+abline(v=alldat[alldat$file==ff,'incapacitation'])
+
+
+
+#samples dropped notes
 #2021-01-21_VAL-11465-2_group1 - massive highlight, need to drop
 #2021-02-03_VAL-11239-2_group1 & 2021-02-18_VAL-A3_group1-2 - very bright, need to drop
 #2021-02-11_VAL-11037-2_group1 & 2021-02-11_VAL-12043-2_group1  & 2021-02-15_VAL-11305-2_group1- camera off

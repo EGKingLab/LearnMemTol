@@ -1,7 +1,9 @@
 library(nlme)
 library(tidyverse)
 library(cowplot)
+library(lubridate)
 theme_set(theme_cowplot())
+source(file="../../Functions/ggplot_theme.R")
 
 tt_plate <- readRDS("../ProcessedData/Incap_processed_VAL.Rds")
 # looks like 2021-01-28_VAL-11228-2_group1_segmentation did not get to temp - plate elevated??
@@ -9,7 +11,8 @@ tt_plate <- readRDS("../ProcessedData/Incap_processed_VAL.Rds")
 #will drop outlier values too
 
 tt_plate <- tt_plate[which(!(tt_plate$genotype %in% "11228")),]
-tt_plate <- subset(tt_plate, incapacitation >5 & incapacitation < 400)
+
+min(table(tt_plate$genotype))
 
 genos <- unique(tt_plate$genotype)
 
@@ -21,20 +24,22 @@ hap_code$genotype <- as.character(hap_code$patRIL)
 plM <- tt_plate %>% group_by(genotype) %>%
   summarise("Mtol" = median(incapacitation))
 
+ctsp <- tt_plate %>% group_by(genotype) %>% tally() 
+
 blM <- tt_box %>% group_by(patRIL) %>%
   summarise("Mtol" = median(incapacitation))
 blM$genotype <- as.character(blM$patRIL)
 
-cts <- tt_box %>% group_by(patRIL) %>% tally() 
+ctsb <- tt_box %>% group_by(patRIL) %>% tally() 
 
 plM$type <- "plate"
 blM$type <- "box"
 allM <- rbind(plM, blM[,c("genotype","Mtol","type")])
 allM <- left_join(hap_code, allM, by="genotype")
 
-p1 <- ggplot(allM, aes(hard,Mtol, color=type)) +
+p0 <- ggplot(allM, aes(hard,Mtol, color=type)) +
   geom_point() 
-p1
+p0
 
 wideAll <- inner_join(plM, blM, by="genotype")
 wideAll <- inner_join(hap_code, wideAll, by="genotype")
@@ -54,59 +59,53 @@ sds <- data.frame("Mtol.x"=c(sd(wideAll[wideAll$hard=="A4","Mtol.x"]),
                   "Haplotype"=c("A4","A5","A4","A5"))
 
 wideAll$Haplotype <- wideAll$hard
-p2 <- ggplot(wideAll, aes(Mtol.x, Mtol.y, color=Haplotype)) +
+p1 <- ggplot(wideAll, aes(Mtol.x, Mtol.y)) +
   geom_point(size = 2) +
-  #geom_point(data=mms, size=5, pch=1) +
-  #geom_abline(slope=1, intercept=0) +
-  geom_label(label=wideAll$genotype) + 
+  geom_abline(slope=1, intercept=0) +
+  geom_label(label=wideAll$genotype, size=1) + 
   xlab("Heat Plate Score") +
-  ylab("Heat Box Score")
-p2
+  ylab("Heat Box Score") +
+  my_theme
+p1
 
 
-p2 <- ggplot(wideAll, aes(Mtol.y, Mtol.x, color=hard)) +
-  geom_point()
-p2
+## Check hand scores
 
-ggeno <- unique(tt_plate$genotype)
-hist(as.numeric(tt_plate[tt_plate$genotype=="12169","incapacitation",drop=TRUE]),20)
-hist(tt_plate$incapacitation, 100)
+hh <- read_csv(file="../ProcessedData/TT-VAL_groundtruthing_CO_blanksNA.csv")[,1:5]
+#fix inconsistant date coding
+unique(hh$Genotype)
+hh$Genotype[hh$Genotype=="2020-12-4_VAL-12145_group1"] <- "2020-12-04_VAL-12145_group1"
+hh$Genotype[hh$Genotype=="2021-1-27_VAL-11374-2_group1"] <- "2021-01-27_VAL-11374-2_group1"
+hh$Genotype[hh$Genotype=="2021-2-8_VAL-12191-2_group1"] <- "2021-02-08_VAL-12191-2_group1"
+hh$Genotype[hh$Genotype=="2021-2-3_VAL-12075-2_group1"] <- "2021-02-03_VAL-12075-2_group1"
+#this last group (12075 had a temp problem- excluded)
 
+tt_hh <- str_split(hh$Incap_time_CO, ":", simplify=TRUE)
+hh$handtime <- ms(paste0(tt_hh[,1],":", tt_hh[,2]))
 
-tester <- tt_plate[tt_plate$genotype==ggeno[23],]
-tester %>% group_by(filename) %>% summarise("M"= mean(incapacitation))
+hh$file <- paste0(hh$Genotype, "_", hh$Chamber)
+hh$handIncap <- as.period(hh$handtime, unit="seconds")
 
-p3 <- ggplot(tt_plate, aes(genotype, incapacitation, color=date)) +
-  geom_point(alpha=1/2) +
-  theme(legend.position="none") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+jj <- left_join(hh, tt_plate, by="file")
 
-p3
+#12145 17:57
+#11377 18:22
+#11374 17:50
+#12191 17:12
 
-#anova with date? difference 
+cor(as.period(jj$incapacitation, unit="seconds"), jj$handIncap, use="complete.obs")
 
-dds <- tt_plate %>% group_by(date) %>% summarise("M"=mean(incapacitation))
+p2 <- jj |>
+  drop_na() |>
+  ggplot(aes(as.period(incapacitation, unit="seconds"), handIncap, color=genotype)) +
+  geom_point() +
+  ylab("Hand Score") +
+  xlab("Automated Score") +
+  my_theme
 
-aa <- aov(incapacitation ~ genotype + date, data=tt_plate)
-summary(aa)
+pp_g <- plot_grid(p1,p2, ncol=2, 
+                 labels=c("A.","B."), 
+                 label_size = 10, rel_widths = c(1,1.2))
 
-
-tt_plate_hap <- inner_join(hap_code[,c("genotype","hard")],tt_plate, by="genotype")
-aa <- lme(incapacitation ~ hard, random = ~ 1|genotype, data=tt_plate_hap)
-summary(aa)
-
-date_sum <- tt_plate %>%
-  group_by(date) %>%
-  summarise(date_mean = mean(incapacitation))
-
-date_sum %>%
-  ggplot(aes(date, date_mean)) +
-  geom_point()
-
-p4 <- ggplot(tt_plate, aes(date, incapacitation, color=genotype)) +
-  geom_point(alpha=1/2) +
-  theme(legend.position="none") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
-p4
+ggsave(pp_g, filename = "../Plots/FigS3.pdf", height= 3.5, width=6.5)
 

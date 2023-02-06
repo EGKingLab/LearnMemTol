@@ -56,6 +56,7 @@ library(readxl)
 ThermTol_HeatPlate<-data.frame('file'=character(length=0),
                                'incapacitation'= numeric(length=0), 
                                'Rvar'= numeric(length=0),
+                               'modes'= numeric(length=0),
                                stringsAsFactors = FALSE)
 
 proj <- "RNAi_2"
@@ -77,13 +78,14 @@ for(ff in ffs) {
                             'Rvar'= numeric(length=1),
                             stringsAsFactors = FALSE)
       
-      lastpos <- tt1[(nrow(tt1)-200):nrow(tt1),]
-      lastpos <- lastpos[lastpos$likelihood >= 0.6,]
-
-      Th.set$Rvar <- max(lastpos$x) - min(lastpos$x)
-      
       #remove low likelihood positions
       tt1 <- tt1[tt1$likelihood >= 0.6,]
+      
+      lastpos <- tt1[(nrow(tt1)-200):nrow(tt1),]
+      
+      Th.set$Rvar <- max(lastpos$x) - min(lastpos$x)
+      Th.set$modes <- max(diff(sort(unique(round(tt1$x[(nrow(tt1)-200):nrow(tt1)])))))
+      
       
       incap.i <- slideThermo(xx=tt1$x,tt=tt1$Second)
       

@@ -126,6 +126,12 @@ or
 
 A record of notes in the style of a lab notebook
 
+### December 2022 & January 2023
+
+Went through and finalized repo and plots for MS. Check git logs from this period for notes. 
+
+For the heat plate validation, I identified several issues with the validation set and eliminated those records. There was also a higher level of problematic tracking with pipe cleaner closure sometimes being flagged as a fly. This did not happen in the other dataset, likely due to more careful assay conditions. These records were also flagged and dropped and this can be avoided in the future with our assay checks (lighting, focus, etc)
+
 ### Jan 12, 2021
 
 Completed new visualizaiton of RNAi results. in LearnMemTolPheno/Plots/RNAi_phenos_all.pdf -EGK
