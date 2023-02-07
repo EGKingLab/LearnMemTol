@@ -62,7 +62,8 @@ wideAll$Haplotype <- wideAll$hard
 p1 <- ggplot(wideAll, aes(Mtol.x, Mtol.y)) +
   geom_point(size = 2) +
   geom_abline(slope=1, intercept=0) +
-  geom_label(label=wideAll$genotype, size=1) + 
+  geom_label(label=wideAll$genotype, size=2) +
+  xlim(c(60,150)) +
   xlab("Heat Plate Score") +
   ylab("Heat Box Score") +
   my_theme
@@ -105,7 +106,7 @@ p2 <- jj |>
 
 pp_g <- plot_grid(p1,p2, ncol=2, 
                  labels=c("A.","B."), 
-                 label_size = 10, rel_widths = c(1,1.2))
+                 label_size = 10, rel_widths = c(1,1.3))
 
-ggsave(pp_g, filename = "../Plots/FigS3.pdf", height= 3.5, width=6.5)
+ggsave(pp_g, filename = "../Plots/FigS3.pdf", height= 3, width=6.5)
 
