@@ -68,6 +68,7 @@ Q5_eff_plot <- ggplot(T_all, aes(hard, Incapacitation_Mean)) +
 stat_summary(fun.data = mean_se, 
                geom = "errorbar", 
                color = 'firebrick3', width=0.3, linewidth=0.5) +
+  ylim(c(0,450)) + 
   ylab("Incapacitation Score") +
   xlab("RIL Founder Haplotype ID at Q5") +
   my_theme

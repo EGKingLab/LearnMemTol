@@ -101,7 +101,7 @@ q.mat$Pval <- getP(q.mat$LOD,Nrils,7,Nrils-8)
 
 
 
-TTqns <- paste(rep("Q",8),seq(1,8), sep="")
+TTqns <- paste(rep("Q",7),seq(1,7), sep="")
 
 
 TTq.mat <- data.frame("QTL" = TTqns, stringsAsFactors = FALSE)
