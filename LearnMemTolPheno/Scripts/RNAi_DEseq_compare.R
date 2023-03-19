@@ -112,6 +112,7 @@ alldat$desig[alldat$padj_Pool_Overall < 0.05] <- "darkred"
 alldat$desig[alldat$padj_Pool_Overall < 0.01] <- "red"
 
 
+write_csv(unique(alldat[,c("GeneID","FBgn")], MARGIN=1), file="../ProcessedData/Q5_geneids.csv")
 
 p1 <- ggplot(alldat, aes(GeneID,Difference, shape=Type)) +
   geom_point(size = 3, alpha = 0.8, color=alldat$rnaicol) +
