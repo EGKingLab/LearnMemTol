@@ -69,7 +69,7 @@ lines(obs.LL[,3], col='blue')
 
 compD <- tibble("Position" = c(positions$Gaxis,positions$Gaxis),
                 "LOD" = c(obs.LL[,3],Phen.Ls),
-                "Scan"=c(rep("Raw",nrow(obs.LL)), rep("Q6 Corrected",length(Phen.Ls))))
+                "Scan"=c(rep("Raw",nrow(obs.LL)), rep("Q5 Corrected",length(Phen.Ls))))
 
 top <- max(obs.LL$Tolsqrtvariable)
 

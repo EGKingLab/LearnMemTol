@@ -144,7 +144,7 @@ cc<-cc+1
 ci.peak[[kk]]<-list.peak
 }
 
-#save(ci.peak, file ="../ProcessedData/Peaks_wCIs.rda")
+save(ci.peak, file ="../ProcessedData/Peaks_wCIs.rda")
 
 
 ```
@@ -266,7 +266,7 @@ for(rowN in 1:nrow(ci.peak$Tolsqrtvariable))
   
 }
 
-#save(ThermTol.list,file="../ProcessedData/TT_genes_under_peak.rda")
+save(ThermTol.list,file="../ProcessedData/TT_genes_under_peak.rda")
 
 ```
 
@@ -314,7 +314,7 @@ ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
 learn.list[[jj]] <- ll.all
 }
 
-#save(learn.list,file="../ProcessedData/Learn_genes_under_peak.rda")
+save(learn.list,file="../ProcessedData/Learn_genes_under_peak.rda")
 
 
 #memory
@@ -345,7 +345,7 @@ ll.all <- merge(ll.all, cors.lm, by='FBgn', all.x=TRUE)
 Mem.list[[jj]] <- ll.all
 }
 
-#save(Mem.list,file="../ProcessedData/Mem_genes_under_peak.rda")
+save(Mem.list,file="../ProcessedData/Mem_genes_under_peak.rda")
 
 
 #Thermal Tolerence 
@@ -377,7 +377,7 @@ ll.all <- merge(ll.all, cors.tt, by='FBgn', all.x=TRUE)
 ThermTol.list[[jj]] <- ll.all
 }
 
-#save(ThermTol.list,file="../ProcessedData/ThermTol_genes_under_peak.rda")
+save(ThermTol.list,file="../ProcessedData/ThermTol_genes_under_peak.rda")
 
 
 ```
@@ -1107,212 +1107,54 @@ pheno Learn: `r max(abs(subset(ll.sub, gname=="hh")$rLearn))`
 #####
 ####Thermal Tolearnace Peaks
 
-###Q1 Doesn't have any sig diff expressed genes under peak.
+Set which QTL to examine as ll. 
+
 ```{r}
 
-###
-###Libby can these three steps be done in one step?
-
-#Q2 Condition 
-
+#Set QTL
 ll <- 2
+
+cc.ll <- ci.peak[[3]][ll,]
+ll.sub <- ThermTol.list[[ll]]
+length(unique(ll.sub[which(ll.sub$padj_Pool_Overall <= 0.05),]$gname))
+length(unique(ll.sub[which(ll.sub$padj_Cond_Overall <= 0.05),]$gname))
+
+
+#Condition 
+ll.sub[which.max(abs(ll.sub$FC_Cond_Overall)),]
+ll.sub[which.min(ll.sub$padj_Cond_Overall),]
+ll.sub[which(ll.sub$padj_Cond_Overall <= 0.05),]
+
+unique(ll.sub[which(ll.sub$padj_Cond_Overall <= 0.05),]$gname)
+
+#Pool
 cc.ll <- ci.peak[[3]][ll,]
 ll.sub <- ThermTol.list[[ll]]
 
-ll.sub[which.max(abs(ll.sub$l2F_con)),]
-ll.sub[which.min(ll.sub$padj_con),]
+ll.sub[which.max(abs(ll.sub$FC_Pool_Overall)),]
+ll.sub[which.min(ll.sub$padj_Pool_Overall),]
 
-ll.sub[which(ll.sub$padj_con <= 0.05),]
+ll.sub[which(ll.sub$padj_Pool_Overall <= 0.05),]
 
-unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
+unique(ll.sub[which(ll.sub$padj_Pool_Overall <= 0.05),]$gname)
 
-#Q2 Pool
-ll <- 2
+#Interaction
+
 cc.ll <- ci.peak[[3]][ll,]
 ll.sub <- ThermTol.list[[ll]]
 
-ll.sub[which.max(abs(ll.sub$l2F_pool)),]
-ll.sub[which.min(ll.sub$padj_pool),]
 
-ll.sub[which(ll.sub$padj_pool <= 0.05),]
+ll.sub[which.min(ll.sub$padj_Interaction_Overall),]
 
-unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
+ll.sub[which(ll.sub$padj_Interaction_Overall <= 0.05),]
 
-#Q2 Interaction
-
-ll <- 2
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_inter)),]
-ll.sub[which.min(ll.sub$padj_inter),]
-
-ll.sub[which(ll.sub$padj_inter <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
+unique(ll.sub[which(ll.sub$padj_Interaction_Overall <= 0.05),]$gname)
 
 
 ```
 
 
-#Q3
-```{r}
-#Q3 Condition
-ll <- 3
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_con)),]
-ll.sub[which.min(ll.sub$padj_con),]
-
-ll.sub[which(ll.sub$padj_con <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
-
-#Q3 Pool
-ll <- 3
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_pool)),]
-ll.sub[which.min(ll.sub$padj_pool),]
-
-ll.sub[which(ll.sub$padj_pool <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
-
-
-#Q3 Interaction
-ll <- 3
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_inter)),]
-ll.sub[which.min(ll.sub$padj_inter),]
-
-ll.sub[which(ll.sub$padj_inter <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
-
-
-```
-
-
-#Q4
-```{r}
-
-#Q4 Condition
-ll <- 4
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_con)),]
-ll.sub[which.min(ll.sub$padj_con),]
-
-ll.sub[which(ll.sub$padj_con <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
-
-#Q4 Pool
-ll.sub[which.max(abs(ll.sub$l2F_pool)),]
-ll.sub[which.min(ll.sub$padj_pool),]
-
-ll.sub[which(ll.sub$padj_pool <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
-
-
-#Q4 Interaction
-ll.sub[which.max(abs(ll.sub$l2F_inter)),]
-ll.sub[which.min(ll.sub$padj_inter),]
-
-ll.sub[which(ll.sub$padj_inter <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
-
-```
-
-
-#Q5
-```{r}
-#Q5 Condition
-ll <- 5
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_con)),]
-ll.sub[which.min(ll.sub$padj_con),]
-
-ll.sub[which(ll.sub$padj_con <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
-
-#Q5 Pool
-ll <- 5
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_pool)),]
-ll.sub[which.min(ll.sub$padj_pool),]
-
-ll.sub[which(ll.sub$padj_pool <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
-
-
-#Q5 Interaction
-ll.sub[which.max(abs(ll.sub$l2F_inter)),]
-ll.sub[which.min(ll.sub$padj_inter),]
-
-ll.sub[which(ll.sub$padj_inter <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
-
-```
-
-#Q6
-```{r}
-#Q6 Condition
-ll <- 6
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_con)),]
-ll.sub[which.min(ll.sub$padj_con),]
-
-ll.sub[which(ll.sub$padj_con <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
-
-#Q6 Pool
-
-ll.sub[which.max(abs(ll.sub$l2F_pool)),]
-ll.sub[which.min(ll.sub$padj_pool),]
-
-ll.sub[which(ll.sub$padj_pool <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
-
-
-#Q6 Interaction
-
-ll.sub <- ll.sub[which(is.na(ll.sub$startp)==FALSE),]
-ll.sub[which.max(abs(ll.sub$l2F_inter)),]
-ll.sub[which.min(ll.sub$padj_inter),]
-
-ll.sub[which(ll.sub$padj_inter <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
-
-ll.sub[which.max(abs(ll.sub$rThermTol)),]
-ll.sub[which.max(abs(ll.sub$corEff)),]
-
-ll.sub[ll.sub$gname=="Mvl",]
-ll.sub[ll.sub$gname=="Dhc93AB",]
-ll.sub[ll.sub$gname=="Calx",]
-ll.sub[ll.sub$gname=="Atpalpha",]
-
-```
+## Q5 is annotated here
 
 There are 21 genes located within this CI. 6 DE for pool, 8 for condition and 0 for interaction. 
 
@@ -1367,85 +1209,4 @@ Na pump α subunit (*Atpα*) encodes an integral membrane cation antiporter prot
 *....* is most significant for conditon
 
 *.....* is most significant for pool 
-
-
-#Q7
-```{r}
-#Q7 Condition
-ll <- 7
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_con)),]
-ll.sub[which.min(ll.sub$padj_con),]
-
-ll.sub[which(ll.sub$padj_con <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
-
-#Q7 Pool
-ll <- 7
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_pool)),]
-ll.sub[which.min(ll.sub$padj_pool),]
-
-ll.sub[which(ll.sub$padj_pool <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
-
-
-#Q7 Interaction
-ll <- 7
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_inter)),]
-ll.sub[which.min(ll.sub$padj_inter),]
-
-ll.sub[which(ll.sub$padj_inter <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
-```
-
-#Q8
-```{r}
-#Q8 Condition
-ll <- 8
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_con)),]
-ll.sub[which.min(ll.sub$padj_con),]
-
-ll.sub[which(ll.sub$padj_con <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_con <= 0.05),]$gname)
-
-#Q8 Pool
-ll <- 8
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_pool)),]
-ll.sub[which.min(ll.sub$padj_pool),]
-
-ll.sub[which(ll.sub$padj_pool <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_pool <= 0.05),]$gname)
-
-
-#Q8 Interaction
-ll <- 8
-cc.ll <- ci.peak[[3]][ll,]
-ll.sub <- ThermTol.list[[ll]]
-
-ll.sub[which.max(abs(ll.sub$l2F_inter)),]
-ll.sub[which.min(ll.sub$padj_inter),]
-
-ll.sub[which(ll.sub$padj_inter <= 0.05),]
-
-unique(ll.sub[which(ll.sub$padj_inter <= 0.05),]$gname)
-```
 

@@ -278,6 +278,12 @@ FC_All$padj_Interaction_Overall <- TT_inter$padj
 save(FC_All, file="../Data/FoldChangeAll.Rda")
 
 
+length(which(FC_All$padj_Pool_Overall < 0.05 & FC_All$FC_Pool_Overall > 0))
+length(which(FC_All$padj_Pool_Overall < 0.05 & FC_All$FC_Pool_Overall < 0))
+
+length(which(FC_All$padj_Cond_Overall < 0.05 & FC_All$FC_Cond_Overall > 0))
+length(which(FC_All$padj_Cond_Overall < 0.05 & FC_All$FC_Cond_Overall < 0))
+
 ```
 
 

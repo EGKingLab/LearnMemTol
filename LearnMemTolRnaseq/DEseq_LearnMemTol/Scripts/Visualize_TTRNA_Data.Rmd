@@ -150,6 +150,8 @@ place.g<- c("FBgn0013277",
 
 hsp70 <- gene_map_table[grep("Hsp70", gene_map_table$gname),"FBgn"]
 
+lab_g <- subset(gene_map_table, gname %in% c("Hsp22","Hsp23","Hsp26","Hsp27","Hsp67Ba","Hsp67Bc"))
+
 #Pool
 
 Pool_Volcanoplot <- ggplot(FC_All_wGenes, aes(y=-log10(padj_Pool_Overall), x=FC_Pool_Overall, color=log10(baseMean), label=gname)) +
@@ -157,7 +159,7 @@ Pool_Volcanoplot <- ggplot(FC_All_wGenes, aes(y=-log10(padj_Pool_Overall), x=FC_
   geom_vline(xintercept= -1, color='grey70')+
   geom_vline(xintercept= 1, color='grey70')+
   geom_point(size=1.3) +
-  geom_text_repel(data = FC_All_wGenes[FC_All_wGenes$FBgn %in% hsp70$FBgn,], show.legend = FALSE,  fontface='italic', color="black", nudge_y=100, size=3, max.overlaps=20, seed=37923,segment.colour = "grey50") +
+  geom_text_repel(data = FC_All_wGenes[FC_All_wGenes$FBgn %in% lab_g$FBgn,], show.legend = FALSE,  fontface='italic', color="black", nudge_y=100, size=3, max.overlaps=20, seed=37923,segment.colour = "grey50") +
   ylab(expression("-log"[10]*"(P"[adj]*")")) +
   xlab(expression("log"[2]*"(FC)"))+
   xlim(c(-6.5,6.5)) +
@@ -174,7 +176,7 @@ Con_Volcanoplot <- ggplot(FC_All_wGenes, aes(y=-log10(padj_Cond_Overall), x=FC_C
   geom_vline(xintercept= -1, color='grey70')+
   geom_vline(xintercept= 1, color='grey70')+
   geom_point(size=1.3) +
-  geom_text_repel(data = FC_All_wGenes[FC_All_wGenes$FBgn %in% hsp70$FBgn,], show.legend = FALSE,  fontface='italic', color="black", size=3,min.segment.length = 0, max.overlaps=20, segment.colour = "grey50", seed=2749) +
+  geom_text_repel(data = FC_All_wGenes[FC_All_wGenes$FBgn %in% lab_g$FBgn,], show.legend = FALSE,  fontface='italic', color="black", size=3,min.segment.length = 0, max.overlaps=20, segment.colour = "grey50", seed=2749) +
   ylab(expression("-log"[10]*"(P"[adj]*")")) +
   xlab(expression("log"[2]*"(FC)"))+
   xlim(c(-6.5,6.5)) +

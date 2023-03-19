@@ -48,6 +48,7 @@ Memory.peak$pval <- getP(Memory.peak$LL,Nrils, 7, Nrils-8)
 
 ThermTol.peak <- ci.peak[[3]]
 ThermTol.peak$pval <- getP(ThermTol.peak$LL,Nrils, 7, Nrils-8)
+ThermTol.peak$R2 <- LOD_R2(ThermTol.peak$LL, Nrils)
 
 
 ll.set <- c(12,13,14,3,4,6,9,10,11)

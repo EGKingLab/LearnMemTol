@@ -22,12 +22,12 @@ hap_code <- read.table(file="../../LearnMemTolQTL/ProcessedData/HL_thermQTL_line
 hap_code$genotype <- as.character(hap_code$patRIL)
 
 plM <- tt_plate %>% group_by(genotype) %>%
-  summarise("Mtol" = median(incapacitation))
+  summarise("Mtol" = mean(incapacitation))
 
 ctsp <- tt_plate %>% group_by(genotype) %>% tally() 
 
 blM <- tt_box %>% group_by(patRIL) %>%
-  summarise("Mtol" = median(incapacitation))
+  summarise("Mtol" = mean(incapacitation))
 blM$genotype <- as.character(blM$patRIL)
 
 ctsb <- tt_box %>% group_by(patRIL) %>% tally() 

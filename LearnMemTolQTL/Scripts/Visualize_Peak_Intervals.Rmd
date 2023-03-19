@@ -432,7 +432,7 @@ for(zz in 2:nrow(ci.peak[["Tolsqrtvariable"]]))
 
 ttpool.plot.list[[2]]
 
-pool_all <- plot_grid(plotlist=ttpool.plot.list[2:8], labels=paste0(LETTERS[1:7],"."), ncol=2, label_size = 10)
+pool_all <- plot_grid(plotlist=ttpool.plot.list[2:7], labels=paste0(LETTERS[1:6],"."), ncol=2, label_size = 10)
 
 ggsave(pool_all, filename = "../Plots/FigS6.pdf", width=6.5, height=8)
 
@@ -474,7 +474,7 @@ for(zz in 2:nrow(ci.peak[["Tolsqrtvariable"]]))
   
 }
 
-con_all <- plot_grid(plotlist=ttcon.plot.list[2:8], labels=paste0(LETTERS[1:7],"."), ncol=2, label_size = 10)
+con_all <- plot_grid(plotlist=ttcon.plot.list[2:7], labels=paste0(LETTERS[1:6],"."), ncol=2, label_size = 10)
 
 ggsave(con_all, filename = "../Plots/FigS7.pdf", width=6.5, height=8)
 
