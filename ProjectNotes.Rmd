@@ -121,7 +121,7 @@ or
 
 2. `RNAi_post_raw_process.R` checks for and corrects errors and combines the two rounds of phenotyping. 
 
-3. `Models_RNAi.R` performs ANOVAs for each gene and the specific post-doc test for the cross vs the control cross. Outputs: `RNAi_model_output.csv`
+3. `Models_RNAi.R` performs ANOVAs for each gene and the specific post-doc test for the cross vs the control cross. Outputs: `ProcessedData/RNAi_model_output.csv`
 
 4. `RNAi_viz_individualgenes.R` makes a plot of RNAi results for every focal gene, which is Figure S8. `RNAi_viz.R` makes a plot of several genes together. 
 

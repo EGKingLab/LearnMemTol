@@ -69,5 +69,16 @@ spl_cross <- left_join(spl, TTcode, by=c("code"))
 out_ps$cross <- spl_genotype$compare
 out_ps$base <- spl_cross$compare
 
+gid <- read_csv(file="../ProcessedData/RNAi_gene_number.csv")
+gid$genotype <- as.character(gid$genotype)
+ss <- str_split(out_ps$cross, "c", simplify=TRUE)
+out_ps$genotype <- ss[,1]
+out_ps$type <- ss[,2]
+out_ps <- left_join(out_ps, gid, by="genotype")
+out_ps$type[out_ps$type=="3954"] <- "all"
+out_ps$type[out_ps$type=="25750"] <- "neuron"
+
+
+
 write_csv(out_ps, file="../ProcessedData/RNAi_model_output.csv")
 

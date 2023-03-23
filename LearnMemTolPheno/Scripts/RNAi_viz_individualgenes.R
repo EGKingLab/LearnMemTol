@@ -38,6 +38,7 @@ nogene$gname <- NA
 ThermDat_all <- rbind(sm.tab[,colnames(sm.tab2)], sm.tab2)
 ThermDat_all <- left_join(ThermDat_all, gene_map_table[,c("gname","FBgn")], by="FBgn")
 
+write_csv(unique(ThermDat_all[,c("Gene","genotype")], MARGIN=1), file="../ProcessedData/RNAi_gene_number.csv")
 #assign background id to background crosses
 
 nogene$backg_id[nogene$genotype=="36303"] <- "attP2"
