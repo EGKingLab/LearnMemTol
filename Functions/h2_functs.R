@@ -96,7 +96,7 @@ jk.h2<-function(pheno,geno)
   ngeno<-length(geno.ids)
   
   #set up output vector
-  H2.p<-numeric(length=ngeno)
+  H2.p<-rep(NA, ngeno)
   
   #get estimate
   afit<-aov(pheno~geno)
@@ -138,7 +138,7 @@ jk.h2<-function(pheno,geno)
     H2<-sa/(sa+sw)
     
     #Pseudovalue
-    H2.p[i]<-(nril*H2.0) - ((nril-1)*H2)
+    H2.p[i]<-(ngeno*H2.0) - ((ngeno-1)*H2)
     #cat(i, '\n')
   }
   output<-list(c(mean(H2.p),sd(H2.p)))
