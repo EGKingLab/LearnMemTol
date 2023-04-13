@@ -141,7 +141,7 @@ jk.h2<-function(pheno,geno)
     H2.p[i]<-(ngeno*H2.0) - ((ngeno-1)*H2)
     #cat(i, '\n')
   }
-  output<-list(c(mean(H2.p),sd(H2.p)))
+  output<-list(c(mean(H2.p),sd(H2.p)/sqrt(ngeno)))
   return(output)
 }
 
