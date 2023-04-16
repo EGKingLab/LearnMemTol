@@ -82,9 +82,6 @@ These are cleaned datasets ready for next steps.
 6. `Visualize_Peak_Intervals.Rmd` plots each peak interval with the DE genes. Makes figures S6 and S7.
 7. `ThermTol_additional_mapping.R` performs a genome scan after correcting for the large Q5 peak and one including subpopulation in the model to compare to our genome scan. Creates figure S2.
 
-
-
-
 ### RNAseq analysis: in `LearnMemTolRnaseq` folder
 
 #### The alignment and assembly steps are in `LearnMemTolRnaseq/RNAseq_Processing_LearnMemTol`
