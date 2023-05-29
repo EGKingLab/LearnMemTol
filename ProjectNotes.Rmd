@@ -7,15 +7,6 @@ output: html_document
 
 ## Instructions for reproducing analyses
 
- 
-
-# Table of Contents
-
-## To do
-
-
-## Analysis Workflow 
-
 ### Functions
 1. `Functions/mappingfunctions.R` holds some basic functions used for QTL mapping
 2. `Functions/h2_functs.R` holds functions for calculating heritability and genetic correlations with a linear model and jackknife method
@@ -114,15 +105,21 @@ or
 
 ### RNAi analysis: in `LearnMemTolPheno` folder
 
-1. `process_raw_therm_heatplate.R` and `process_raw_therm_heatplate_val.R` processes the raw output from deeplabcut to score incapacitation for the RNAi lines and the RIL validation set. 
+1. The `HeatPlate_PreProcess` folder holds the python scripts for all pre processing. This includes: 
+a) The script for calibrating the Raspberry Pi camera (`camera_calibration.py`).  
+b) The script for collecting the image data during assays (`thermocouple_5.py`). 
+c) The `fly_tracker_batch.py` script uses deeplabcut to auto track the flies from the recordings. 
+d) The `Flymove.R` script processes the deeplabcut output to make a combined `.csv` file with fly positions over time for each fly. 
 
-2. `RNAi_post_raw_process.R` checks for and corrects errors and combines the two rounds of phenotyping. 
+2. `process_raw_therm_heatplate.R` and `process_raw_therm_heatplate_val.R` processes the raw output from deeplabcut to score incapacitation for the RNAi lines and the RIL validation set. 
 
-3. `Models_RNAi.R` performs ANOVAs for each gene and the specific post-doc test for the cross vs the control cross. Outputs: `ProcessedData/RNAi_model_output.csv`
+3. `RNAi_post_raw_process.R` checks for and corrects errors and combines the two rounds of phenotyping. 
 
-4. `RNAi_viz_individualgenes.R` makes a plot of RNAi results for every focal gene, which is Figure S8. `RNAi_viz.R` makes a plot of several genes together. 
+4. `Models_RNAi.R` performs ANOVAs for each gene and the specific post-doc test for the cross vs the control cross. Outputs: `ProcessedData/RNAi_model_output.csv`
 
-5. `RNAi_DEseq_compare.R` collates the RNAi results and DEseq results to make Figure 5.
+5. `RNAi_viz_individualgenes.R` makes a plot of RNAi results for every focal gene, which is Figure S8. `RNAi_viz.R` makes a plot of several genes together. 
+
+6. `RNAi_DEseq_compare.R` collates the RNAi results and DEseq results to make Figure 5.
 
 
 
