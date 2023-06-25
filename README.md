@@ -8,9 +8,11 @@ Genetic dissection of learning, memory, and thermal tolerance using the DSPR.
 2. `Functions/h2_functs.R` holds functions for calculating heritability and genetic correlations with a linear model and jackknife method
 3. `Functions/ggplot_theme.R` holds the plotting theme for publication format
 
-### Obtain raw data from Zenodo
+### Obtain raw data
 
--Fetch raw data from repository (zenodo)- when done, update any relevant file paths and process raw scripts
+- Fetch raw data from repositories - when done, update any relevant file paths and process raw scripts.
+    - Raw phenotypic data for measurements of thermal tolerance both in the heat box and heat plate, including the DeepLabCut models are available from Zenodo (https://zenodo.org/record/7767713) 
+    - RNA-Seq data are available from the NCBI Short Read Archive under SRA accession number: (https://www.ncbi.nlm.nih.gov/sra/SRR24828389)
 
 ### Phenotype analysis steps for the DSPR RILs and Founders: in the `LearnMemTolPheno` folder
 
