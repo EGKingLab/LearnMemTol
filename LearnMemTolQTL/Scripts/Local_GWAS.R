@@ -34,8 +34,11 @@ for(ii in 1:nrow(rr))
   output[ii,"effect"] <- mod_sum$coefficients[2,1]
 }
 
-ggplot(output, aes(pos/1e6, pval)) +
-  geom_point(alpha = 1/2) 
+p1 <- ggplot(output, aes(pos/1e6, pval)) +
+  geom_point(alpha = 1/2) +
+  xlab("Position (Mb)") +
+  ylab(expression("-log"[10]*"(P-value)")) +
+  xlim((min(rr_pos))/1e6, (max(rr_pos) + 5000)/1e6)
   
-
+ggsave(p1, filename = "../Plots/LocalGWAS.pdf", width = 6.5, height = 4.5)
 
